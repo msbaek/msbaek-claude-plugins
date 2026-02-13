@@ -1,0 +1,9 @@
+{
+  "name": "msbaek-tdd",
+  "version": "1.0.0",
+  "description": "Java + Spring Boot TDD workflow plugin with RGB cycle orchestration",
+  "author": {
+    "name": "msbaek"
+  },
+  "keywords": ["tdd", "java", "spring-boot", "red-green-blue"]
+}
