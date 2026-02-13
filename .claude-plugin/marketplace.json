@@ -1,0 +1,23 @@
+{
+  "name": "msbaek-claude-plugins",
+  "owner": {
+    "name": "msbaek"
+  },
+  "metadata": {
+    "description": "TDD workflow plugins for Java/Spring Boot development",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "msbaek-tdd",
+      "source": "./msbaek-tdd",
+      "description": "Java + Spring Boot TDD workflow plugin with RGB cycle orchestration",
+      "version": "1.0.0",
+      "author": {
+        "name": "msbaek"
+      },
+      "keywords": ["tdd", "java", "spring-boot", "red-green-blue"],
+      "category": "development"
+    }
+  ]
+}
