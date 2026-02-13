@@ -2,7 +2,7 @@
 name: tdd-plan
 description: TDD Planning - SRS, 예제, 테스트 목록 작성. /tdd-plan으로 호출.
 argument-hint: "[plan-doc-path]"
-allowed-tools: Write, Edit, Read
+allowed-tools: Write, Edit, Read, Bash(git add:*), Bash(git commit:*), Bash(git status:*)
 ---
 
 # TDD Planning Skill
@@ -149,6 +149,9 @@ SRS 작성 후 다음 사항을 확인:
 2. 구조화된 SRS 작성 - 템플릿에 따른 체계적 작성
 3. 검토 및 검증 - 완전성, 명확성, 일관성 검토
 4. **사용자 승인 대기** - 피드백 요청 후 승인 시 다음 단계 진행
+5. **커밋** - 승인 후 변경된 파일 커밋
+   - `git add [변경된 파일들]` (git add -A 금지)
+   - `git commit -m "docs: SRS 작성 - [기능명]"`
 
 ---
 
@@ -272,6 +275,9 @@ SRS 작성 후 다음 사항을 확인:
 2. 시나리오 설계 - Happy path, 경계 조건, 예외 상황
 3. 예제 구체화 - 실제 도메인 데이터 사용
 4. **사용자 승인 대기** - 피드백 요청 후 승인 시 다음 단계 진행
+5. **커밋** - 승인 후 변경된 파일 커밋
+   - `git add [변경된 파일들]` (git add -A 금지)
+   - `git commit -m "docs: 예제 작성 - [기능명]"`
 
 ---
 
@@ -387,7 +393,10 @@ ex. 테니스 게임 External Behavior 테스트 케이스
 2. 테스트 순서 결정 - Degenerate → Simple → Interesting → General
 3. 테스트 목록 정제 - 중복 제거, 누락 확인
 4. 체크박스 업데이트
-5. **"/tdd-rgb 실행하세요" 안내** (General TDD의 경우)
+5. **커밋** - 변경된 파일 커밋
+   - `git add [변경된 파일들]` (git add -A 금지)
+   - `git commit -m "docs: 테스트 케이스 목록 작성 - [기능명]"`
+6. **"/tdd-rgb 실행하세요" 안내** (General TDD의 경우)
 
 ---
 

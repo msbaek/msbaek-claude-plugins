@@ -1,7 +1,7 @@
 ---
 name: tdd-blue
 description: TDD Blue phase - Tidy First 기반 경량 리팩토링 (Tidying 1-4단계).
-tools: Edit, MultiEdit, Write, Read, Bash(git status:*), Bash(git diff:*), Bash(gradle test:*), Bash(mvn test:*)
+tools: Edit, MultiEdit, Write, Read, Bash(git status:*), Bash(git diff:*), Bash(git add:*), Bash(git commit:*), Bash(gradle test:*), Bash(mvn test:*)
 model: sonnet
 ---
 
@@ -180,7 +180,15 @@ public void calculateDiscount(BigDecimal price, int quantity, String customerTyp
 - 동작 변경이 없는지 검증
 - 실패 시 변경사항 되돌리기
 
-### 5. 문서 업데이트
+### 5. 커밋 (변경이 있는 경우만)
+- `git status`로 변경 사항 확인
+- 변경이 없으면 커밋 생략
+- 변경이 있으면:
+  - `git add [변경된 파일들]` (git add -A 금지)
+  - `git commit -m "refactor: [리팩토링 설명]"`
+  - 한글 커밋 메시지가 필요한 경우 Write tool로 임시 파일 생성 후 `git commit -F <파일>` 사용
+
+### 6. 문서 업데이트
 - 리팩토링 내역을 문서에 간단히 기록
 - 다음 개발을 위한 구조 개선 사항 메모
 
@@ -190,6 +198,7 @@ public void calculateDiscount(BigDecimal price, int quantity, String customerTyp
 - 모든 테스트가 통과함
 - 코드가 더 변경하기 쉬워짐
 - 다음 Red Phase 준비 완료
+- `refactor:` 접두사로 커밋 완료됨 (변경이 있는 경우)
 
 Blue Phase 완료 후:
 1. **더 개선할 부분이 있으면** 추가 tidying 수행

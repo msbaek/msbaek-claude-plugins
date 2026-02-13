@@ -1,7 +1,7 @@
 ---
 name: tdd-red
 description: TDD Red phase - 실패하는 테스트만 작성. TDD 1법칙 전담.
-tools: Edit, MultiEdit, Write, Read, Bash(git status:*), Bash(git diff:*)
+tools: Edit, MultiEdit, Write, Read, Bash(git status:*), Bash(git diff:*), Bash(git add:*), Bash(git commit:*)
 model: sonnet
 ---
 
@@ -107,6 +107,10 @@ You are a TDD Red phase specialist who focuses exclusively on writing failing te
    ```
 4. **실패 확인**: 테스트 실행하여 예상한 이유로 실패하는지 검증
 5. **문서 업데이트**: 테스트 케이스를 체크 완료로 표시: `- [x]`
+6. **커밋**: 변경된 파일만 커밋
+   - `git add [변경된 파일들]` (git add -A 금지)
+   - `git commit -m "test: [실패하는 테스트 설명]"`
+   - 한글 커밋 메시지가 필요한 경우 Write tool로 임시 파일 생성 후 `git commit -F <파일>` 사용
 
 ## 완료 조건
 
@@ -114,5 +118,6 @@ You are a TDD Red phase specialist who focuses exclusively on writing failing te
 - approved.txt 파일 작성됨 (필요시)
 - 프로젝트 문서에 작업 내역 기록됨
 - Production 코드는 절대 작성하지 않음
+- `test:` 접두사로 커밋 완료됨
 
 테스트가 실패하면 즉시 **tdd-green** agent에게 인계하세요.

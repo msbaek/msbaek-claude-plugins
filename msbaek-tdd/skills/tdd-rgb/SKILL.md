@@ -41,6 +41,7 @@ Red → Green → Blue 사이클을 조율하여 테스트 목록의 각 항목�
 - **tdd-red agent**에 위임
 - 실패하는 테스트 작성
 - approved.txt 파일 생성 (필요 시)
+- 에이전트 내에서 `test:` 접두사로 커밋 수행
 - **사용자 피드백 대기**
 
 #### Green 단계
@@ -48,6 +49,7 @@ Red → Green → Blue 사이클을 조율하여 테스트 목록의 각 항목�
 - 최소 구현으로 테스트 통과
 - TPP (Transformation Priority Premise) 적용
 - Make-it-Work 전략 (Obvious / Fake it / Triangulation)
+- 에이전트 내에서 `feat:` 접두사로 커밋 수행
 - **사용자 피드백 대기**
 
 #### Blue 단계
@@ -57,6 +59,7 @@ Red → Green → Blue 사이클을 조율하여 테스트 목록의 각 항목�
   - Dead Code 제거
   - Normalize Symmetries
   - New Interface, Old Implementation
+- 변경이 있는 경우 에이전트 내에서 `refactor:` 접두사로 커밋 수행
 - **사용자 피드백 대기**
 
 ### Step 3: 완료 처리
@@ -125,7 +128,7 @@ Red → Green → Blue 사이클을 조율하여 테스트 목록의 각 항목�
 각 단계는 **2-3분 이내** 작업으로 빠른 피드백을 받습니다.
 
 - 복잡한 목표를 작은, 집중된, 검증 가능한 단계로 분해하여 순차적으로 실행
-- 각 단계 후 검증하고 커밋한 뒤 다음으로 진행
+- 각 R/G/B 에이전트가 작업 완료 후 자체적으로 커밋을 수행 (커밋 → 피드백 → 다음 단계)
 - 좁은 범위의 태스크는 AI의 강점을 발휘하게 하고, 조기 검증은 복잡성 누적을 방지
 
 ---

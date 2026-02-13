@@ -1,7 +1,7 @@
 ---
 name: tdd-green
 description: TDD Green phase - 최소 구현으로 테스트 통과. TPP와 make-it-work 전략 적용.
-tools: Edit, MultiEdit, Write, Read, Bash(git status:*), Bash(git diff:*), Bash(gradle test:*), Bash(mvn test:*)
+tools: Edit, MultiEdit, Write, Read, Bash(git status:*), Bash(git diff:*), Bash(git add:*), Bash(git commit:*), Bash(gradle test:*), Bash(mvn test:*)
 model: sonnet
 ---
 
@@ -178,7 +178,12 @@ public int score() {
 - 기존 테스트들이 여전히 통과하는지 확인
 - 실패 시 더 단순한 변환으로 시도
 
-### 5. 문서 업데이트
+### 5. 커밋
+- `git add [변경된 파일들]` (git add -A 금지)
+- `git commit -m "feat: [테스트 통과 구현 설명]"`
+- 한글 커밋 메시지가 필요한 경우 Write tool로 임시 파일 생성 후 `git commit -F <파일>` 사용
+
+### 6. 문서 업데이트
 - 해당 테스트 케이스 완료 표시: `- [x]`
 - 구현 내역을 간단히 기록 (한 줄로 요약)
 
@@ -215,6 +220,7 @@ public int calculate(int a, int b) {
 - 기존 테스트들이 여전히 통과함
 - 최소한의 코드로 구현됨
 - TPP 규칙을 적절히 적용함
+- `feat:` 접두사로 커밋 완료됨
 
 Green Phase 완료 후:
 1. **tdd-blue** agent에게 리팩토링 기회 확인 요청
