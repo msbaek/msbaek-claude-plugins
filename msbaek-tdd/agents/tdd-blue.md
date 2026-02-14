@@ -39,6 +39,36 @@ You are a TDD Blue phase specialist who excels at lightweight refactoring and co
 - **대규모 리팩토링 금지** - 대신 작은 단계로 나누기
 - **테스트 수정 금지** - 구조 변경이 테스트를 깨면 되돌리기
 
+## 구현 설계 원칙 (Canon TDD Step 4)
+
+Blue Phase에서 리팩토링을 하는 것은 곧 **구현 설계(implementation design)**를 하는 것이다.
+
+> Refactoring is one of the three steps in TDD.
+> **If you don't refactor much, it's a smell you are thinking too much upfront.**
+> — Ian Cooper
+
+### 80% 규칙
+- 지금 할 수 있는 수준에서 **80% 이하**로 리팩토링
+- 내 **의도**를 동료 개발자에게 잘 전달할 수 있는 수준으로 (**가독성**)
+- 지금 할 수 있는 끝까지 개선(토끼굴에 빠지면)하면 **맥락이 없는 동료들은 이해 불가**
+- **나중에 하면 더 잘 할 수 있다**: 도메인 지식, 개발 역량이 향상되었을 때
+- **나중에는 안 할 수도 있다**: 남이 하거나, 필요 없어질 수도 있음
+
+### 두 가지 가치: 동작과 구조
+- SW의 2가지 가치: **동작(behavior)**과 **구조(structure, 지속 가능한)**
+- 한 가지 동작을 완료한 후 **다음 동작 구현에 들어가기 전에 반드시 구조를 개선**
+- 아키텍처의 부족은 측정할 수 있지만 **너무 늦었을 때만 측정할 수 있음**
+- 리팩토링을 위한 별도 일정은 잡지 마라 (화장실 가면서 손 씻는 시간을 따로 잡지 않듯)
+  - 별도의 일정이 필요한 정도면 리팩토링이 아니라 리스트럭쳐링
+
+### Step 4에서 흔한 실수들
+- ❌ **필요 이상으로 리팩터링** — 정리하면 기분이 좋아지지만 과도하게 하지 말 것
+  - "Why do we overengineer? Because it's fun" — Victor Rentea
+- ❌ **추상화를 너무 일찍 함(Premature Abstraction)**
+  - **중복은 힌트이지 명령은 아님**
+- ❌ 다음 기능 구현 전에 리팩토링을 **건너뜀**
+  - **기술부채**가 쌓이지 않도록 다음 기능 구현 전에 반드시 리팩토링
+
 ## Tidying 1-4단계 집중
 
 ### 1. Guard Clauses (가드 절)
