@@ -25,6 +25,30 @@ Red → Green → Blue 사이클을 조율하여 테스트 목록의 각 항목�
 
 ---
 
+## Test Desiderata
+
+Kent Beck의 Test Desiderata — 좋은 테스트가 갖춰야 할 12가지 속성.
+테스트 작성 시(Red phase) 이 속성들을 기준으로 품질을 검토합니다.
+
+> "Tests should be **coupled to the behavior of code** and **decoupled from the structure of code**."
+
+| 속성 | 설명 |
+|------|------|
+| **격리성(Isolated)** | 실행 순서에 관계없이 동일한 결과 반환 |
+| **조합 가능성(Composable)** | 1개든 1,000,000개든 동일한 결과 |
+| **신속성(Fast)** | 빠르게 실행 |
+| **신뢰성(Inspiring)** | 통과하면 배포 자신감 제공 |
+| **작성 용이성(Writable)** | 테스트 작성 비용이 저렴 |
+| **가독성(Readable)** | 테스트 작성 동기를 전달 |
+| **동작 중심성(Behavioral)** | 동작 변화에 민감 |
+| **구조 비민감성(Structure-insensitive)** | 구조 변경에 둔감 |
+| **자동화(Automated)** | 인간 개입 없이 실행 |
+| **구체성(Specific)** | 실패 시 원인이 명확 |
+| **결정론적(Deterministic)** | 변경 없으면 결과도 불변 (shared fixture 주의) |
+| **예측성(Predictive)** | 모든 테스트 통과 = 프로덕션 적합 |
+
+---
+
 ## 실행 흐름
 
 ### Step 1: 현재 상태 확인
@@ -74,7 +98,7 @@ Red → Green → Blue 사이클을 조율하여 테스트 목록의 각 항목�
 새로운 테스트를 추가하고 코드를 구현할 때는 다음 절차를 따릅니다:
 
 1. **실패하는 테스트 추가**
-   - Test Desiderata 준수 (Isolated, Fast, Deterministic, Predictive, Specific)
+   - Test Desiderata 준수 (위 Test Desiderata 섹션 참조)
 
 2. **최소한의 코드로 테스트 성공** (Little Golf Game)
    - Make-it-Work 전략 준수
