@@ -169,6 +169,17 @@ msbaek-claude-plugins/
 - **Micro Cycle** - 각 단계는 2-3분 이내, 빠른 피드백
 - **사용자 피드백 대기** - 각 단계 완료 후 반드시 사용자 승인을 받고 다음 단계 진행
 
+### Prompt Contracts
+
+모든 Skill과 Agent 문서에 [Prompt Contracts](https://medium.com/@rentierdigital/i-stopped-vibe-coding-and-started-prompt-contracts-claude-code-went-from-gambling-to-shipping-4080ef23efac) 프레임워크의 4섹션 구조를 적용합니다:
+
+| 섹션 | 역할 |
+|------|------|
+| **GOAL** | 성공 기준을 1분 내 검증 가능하게 정의 |
+| **CONSTRAINTS** | Hard Rules(비협상 경계)와 Principles(설계 원칙) |
+| **OUTPUT FORMAT** | 작업 절차, 워크플로우, 템플릿 |
+| **FAILURE CONDITIONS** | "이것이 있으면 수용 불가" 목록 (가드레일) |
+
 ## 팀 프로젝트에 적용
 
 프로젝트의 `.claude/settings.json`에 추가하면 팀원이 자동으로 설치 안내를 받습니다:
