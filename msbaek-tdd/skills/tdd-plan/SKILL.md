@@ -10,32 +10,109 @@ allowed-tools: Write, Edit, Read, Bash(git add:*), Bash(git commit:*), Bash(git 
 Kent Beck의 TDD 원칙에 따라 구현 전 계획 문서를 작성하는 전문가입니다.
 SRS → 예제 → 테스트 케이스 목록 순서로 진행하며, Web Usecase 유형에서는 High Level Test와 Walking Skeleton 단계가 추가됩니다.
 
-## Document-Based Workflow
+## GOAL
+
+- **성공 = SRS, 예제, 테스트 케이스 목록이 템플릿 문서에 작성되고, 각 단계별 체크박스가 업데이트됨**
+- 단계 1: SRS — 기능에 대한 명확한 요구사항 정의, 테스트 작성의 기반이 되는 비즈니스 규칙과 제약조건 명시
+- 단계 2: 예제 — SRS를 구체적인 사용 사례로 설명, 경계 조건과 예외 상황 포함
+- 단계 3: 테스트 케이스 목록 — Degenerate → General 순서의 테스트 리스트 작성
+- (Web Usecase) 단계 E-1: High Level Test 작성, 단계 E-2: Walking Skeleton 구현
+- 각 단계 완료 후 체크박스 업데이트 (`- [ ]` → `- [x]`)
+- 다음 단계 안내 제공
+
+## CONSTRAINTS
+
+### Hard Rules
+
+#### Test Addition Rule
+
+```
+- 절차
+  - most simple and degenerate(special)에서 시작
+    - null, empty, 0, boundary, simple stuff 등과 같은 special case
+  - 다음 단계로 interesting 하지만 조금 덜 degenerate한 failing 테스트 케이스(단일 아이템, 최소 유효 값 등)를 점진적으로 추가
+  - test를 추가할 때는 특별한 이유가 있는 경우가 아니면 failing test만 추가. 모델 코드를 수정하지 않아도 성공하는 테스트는 추가하지 말아줘
+     - TEST SHOULD FAIL WHEN YOU ADD IT
+  - 마지막에 most interesting(general), 복잡한 테스트 케이스(복잡한 비즈니스 로직. 다중 할인 계산, 경계 값 케이스 등)를 추가해줘
+```
+
+#### Programmer Test 규칙 (FIRST 원칙)
+
+1. **Fast** - 테스트는 빠르게 실행되어야 함
+2. **Deterministic** - 동일한 조건에서 항상 동일한 결과
+3. **Predictive** - 모든 test가 성공하면 배포했을 때 문제 없어야 함
+4. **Behavior change에 민감, structure change에 둔감**
+   - 사용자에게 가치를 제공하는 external behavior에 coupled
+   - 리팩터링시 변경되는 internal structure에 decoupled
+5. **Cheap to write** - 테스트 작성 비용이 적어야 함
+6. **Cheap to read** - 테스트 코드가 명확하고 이해하기 쉬워야 함
+7. **Cheap to change** - 하나의 동작 변경으로 인해 실패하는 테스트가 다수이면 안됨
+
+> ※ 전체 Test Desiderata 12가지 속성은 tdd-rgb skill 참조
+
+#### 피드백 규칙
+
+- 한 단계에서 관련된 코드를 생성한 후에는 반드시 사용자에게 피드백을 요청
+- 사용자가 명시적으로 다음 단계로 진행하는 것을 결정해야만 다음 단계로 진행
+- 피드백 요청 형식: "이 [구현/테스트/설계]에 대한 피드백을 주시겠어요? 특히 [집중해야 할 부분]에 대해서요."
+
+### Principles
+
+#### SRS 작성 원칙
+
+1. **완전성 (Completeness)**
+   - 모든 기능적 요구사항과 비기능적 요구사항 포함
+   - 경계 조건과 예외 상황 명시
+   - 입력과 출력에 대한 명확한 정의
+
+2. **명확성 (Clarity)**
+   - 애매모호한 표현 금지
+   - 구체적이고 측정 가능한 기준 제시
+   - 전문용어에 대한 명확한 정의
+
+3. **일관성 (Consistency)**
+   - 전체 문서에서 일관된 용어 사용
+   - 상호 모순되는 요구사항이 없도록 확인
+
+4. **검증 가능성 (Verifiability)**
+   - 각 요구사항이 테스트로 검증 가능하도록 작성
+   - 성공/실패 기준을 명확히 정의
+
+#### 경계 조건 식별 가이드
+
+1. **수치적 경계** - 0, 1, 최대값, 최소값, 임계점 전후 값, 음수/양수 경계
+2. **크기 경계** - 빈 컬렉션/최대 크기, 문자열 길이 제한
+3. **상태 경계** - 초기 상태/완료 상태, 활성/비활성, 유효/무효
+4. **시간 경계** - 시작/종료 시점, 타임아웃, 순서 의존성
+
+#### Act-Assert 동일 추상화 수준 규칙
+
+- 테스트에서 act와 assert는 같은 추상화 수준에서 이루어져야 함
+- 한 테스트 내에서 서로 다른 추상화 레벨 혼합 금지
+- api를 호출하여 행동을 수행하고, 같은 api 레벨에서 결과를 검증
+- 예: post로 생성하고 get으로 검증하는 방식
+
+## OUTPUT FORMAT
+
+### Document-Based Workflow
 
 **반드시 프로젝트 템플릿 문서(*.md)와 함께 작업합니다.**
 
-### Step 1: 템플릿 문서 찾기
+#### Step 1: 템플릿 문서 찾기
 1. TDD 템플릿 문서(절차 섹션이 있는 *.md) 찾기
 2. 현재 단계 파악 (체크박스 상태로 확인)
 3. 해당 섹션 내용 작성
 
-### Step 2: 단계별 진행
+#### Step 2: 단계별 진행
 - 각 단계 완료 후 체크박스 업데이트 (`- [ ]` → `- [x]`)
 - 기존 내용은 변경하지 않고 append only로 갱신
 - 각 단계 완료 후 사용자 피드백 대기
 
 ---
 
-## 단계 1: SRS 작성
+### 단계 1: SRS 작성
 
-### SRS 작성 지침
-
-#### 목적
-- TDD의 첫 번째 단계로서, 구현할 기능에 대한 명확한 요구사항 정의
-- 테스트 작성의 기반이 되는 비즈니스 규칙과 제약조건 명시
-- 경계 조건과 예외 상황을 포함한 완전한 동작 명세
-
-#### 작성 형식
+#### SRS 작성 형식
 
 현재 markdown 파일의 SRS 섹션이 비어 있으면 아래 형식으로 작성:
 
@@ -58,26 +135,6 @@ SRS → 예제 → 테스트 케이스 목록 순서로 진행하며, Web Usecas
     - 예외 처리
         - [예외 상황과 처리 방법]
 ```
-
-#### SRS 작성 원칙
-
-1. **완전성 (Completeness)**
-   - 모든 기능적 요구사항과 비기능적 요구사항 포함
-   - 경계 조건과 예외 상황 명시
-   - 입력과 출력에 대한 명확한 정의
-
-2. **명확성 (Clarity)**
-   - 애매모호한 표현 금지
-   - 구체적이고 측정 가능한 기준 제시
-   - 전문용어에 대한 명확한 정의
-
-3. **일관성 (Consistency)**
-   - 전체 문서에서 일관된 용어 사용
-   - 상호 모순되는 요구사항이 없도록 확인
-
-4. **검증 가능성 (Verifiability)**
-   - 각 요구사항이 테스트로 검증 가능하도록 작성
-   - 성공/실패 기준을 명확히 정의
 
 #### SRS 템플릿 구조
 
@@ -133,17 +190,7 @@ SRS → 예제 → 테스트 케이스 목록 순서로 진행하며, Web Usecas
 - 총 금액이 20,000 이상이면 10% 할인을 제공합니다.
 ```
 
-#### 품질 체크리스트
-
-SRS 작성 후 다음 사항을 확인:
-
-- [ ] 모든 기능적 요구사항이 명시되었는가?
-- [ ] 경계 조건과 예외 상황이 포함되었는가?
-- [ ] 각 요구사항이 테스트 가능한가?
-- [ ] 애매모호한 표현이 없는가?
-- [ ] 상호 모순되는 요구사항이 없는가?
-
-#### 작업 절차
+#### SRS 작업 절차
 
 1. 요구사항 수집 및 분석 - 사용자 요구사항 파악, 비즈니스 규칙 정의
 2. 구조화된 SRS 작성 - 템플릿에 따른 체계적 작성
@@ -155,14 +202,7 @@ SRS 작성 후 다음 사항을 확인:
 
 ---
 
-## 단계 2: 예제 작성
-
-### 예제 작성 지침
-
-#### 목적
-- SRS에 정의된 요구사항을 구체적인 사용 사례로 설명
-- 경계 조건과 예외 상황을 포함한 다양한 시나리오 제시
-- 테스트 케이스 작성의 기반이 되는 명확한 예제 제공
+### 단계 2: 예제 작성
 
 #### 예제 구성 요소
 
@@ -257,19 +297,12 @@ SRS 작성 후 다음 사항을 확인:
 
 구현할 로직과 무관한, 중복되는 예제가 있다면 제거합니다. 최대한 간결하게 유지합니다.
 
-#### 경계 조건 식별 가이드
-
-1. **수치적 경계** - 0, 1, 최대값, 최소값, 임계점 전후 값, 음수/양수 경계
-2. **크기 경계** - 빈 컬렉션/최대 크기, 문자열 길이 제한
-3. **상태 경계** - 초기 상태/완료 상태, 활성/비활성, 유효/무효
-4. **시간 경계** - 시작/종료 시점, 타임아웃, 순서 의존성
-
 #### 경계 조건 샘플
 
 - BowlingGame 예: gutter game, spare, strike, perfect game 등을 고려
 - CreateShoppingBasket: 2만원 이상, 2만원 미만 1만원 초과, 1만원 이하, 하나의 상품이 1개만 담겨서 단가가 총계이면서 할인이 적용 안된 경우, 빈장바구니인 경우 등을 고려
 
-#### 작업 절차
+#### 예제 작업 절차
 
 1. SRS 요구사항 분석 - 핵심 비즈니스 규칙 식별
 2. 시나리오 설계 - Happy path, 경계 조건, 예외 상황
@@ -281,35 +314,9 @@ SRS 작성 후 다음 사항을 확인:
 
 ---
 
-## 단계 3: 테스트 케이스 목록
+### 단계 3: 테스트 케이스 목록
 
-### 테스트 추가 규칙 (Test Addition Rule)
-
-```
-- 절차
-  - most simple and degenerate(special)에서 시작
-    - null, empty, 0, boundary, simple stuff 등과 같은 special case
-  - 다음 단계로 interesting 하지만 조금 덜 degenerate한 failing 테스트 케이스(단일 아이템, 최소 유효 값 등)를 점진적으로 추가
-  - test를 추가할 때는 특별한 이유가 있는 경우가 아니면 failing test만 추가. 모델 코드를 수정하지 않아도 성공하는 테스트는 추가하지 말아줘
-     - TEST SHOULD FAIL WHEN YOU ADD IT
-  - 마지막에 most interesting(general), 복잡한 테스트 케이스(복잡한 비즈니스 로직. 다중 할인 계산, 경계 값 케이스 등)를 추가해줘
-```
-
-### Programmer Test 규칙 (FIRST 원칙)
-
-1. **Fast** - 테스트는 빠르게 실행되어야 함
-2. **Deterministic** - 동일한 조건에서 항상 동일한 결과
-3. **Predictive** - 모든 test가 성공하면 배포했을 때 문제 없어야 함
-4. **Behavior change에 민감, structure change에 둔감**
-   - 사용자에게 가치를 제공하는 external behavior에 coupled
-   - 리팩터링시 변경되는 internal structure에 decoupled
-5. **Cheap to write** - 테스트 작성 비용이 적어야 함
-6. **Cheap to read** - 테스트 코드가 명확하고 이해하기 쉬워야 함
-7. **Cheap to change** - 하나의 동작 변경으로 인해 실패하는 테스트가 다수이면 안됨
-
-> ※ 전체 Test Desiderata 12가지 속성은 tdd-rgb skill 참조
-
-### 테스트 케이스 작성 템플릿
+#### 테스트 케이스 작성 템플릿
 
 ```markdown
 ## 3. 테스트 케이스 목록 작성
@@ -325,7 +332,7 @@ SRS 작성 후 다음 사항을 확인:
 - [ ] [복잡한 종합 case]
 ```
 
-### 테스트 케이스 목록 샘플
+#### 테스트 케이스 목록 샘플
 
 ```markdown
 ## Bowling Game을 위한 테스트 리스트
@@ -345,7 +352,7 @@ SRS 작성 후 다음 사항을 확인:
 - [ ] 20,000원 초과 구매 시 10% 할인 적용 (여러 상품)
 ```
 
-### JavaDoc 형식 테스트 목록 샘플
+#### JavaDoc 형식 테스트 목록 샘플
 
 테스트 클래스 최상단에 Java 23 마크다운 형식 커멘트로 테스트 목록 추가:
 
@@ -357,7 +364,7 @@ SRS 작성 후 다음 사항을 확인:
 /// - [ ] perfect game
 ```
 
-### External Behavior 테스트 케이스 샘플
+#### External Behavior 테스트 케이스 샘플
 
 Kent Beck의 TDD 접근법에 따라:
 - 가장 간단한 케이스부터 시작
@@ -384,12 +391,12 @@ ex. 테니스 게임 External Behavior 테스트 케이스
 - Advantage 상태에서의 연속 득점
 ```
 
-### 중복 제거 기준
+#### 중복 제거 기준
 - 비즈니스 규칙과 무관한 중복되는 테스트 케이스 제거
 - 동일한 비즈니스 규칙이 적용되는 테스트 케이스는 합치거나 제거
 - 구현하려는 코드가 어떻게 동작해야 하는지 알고 있는 시나리오들을 나열
 
-### 작업 절차
+#### 테스트 케이스 목록 작업 절차
 
 1. 예제 분석 - 핵심 시나리오 식별, 경계 조건 파악
 2. 테스트 순서 결정 - Degenerate → Simple → Interesting → General
@@ -402,25 +409,18 @@ ex. 테니스 게임 External Behavior 테스트 케이스
 
 ---
 
-## Web Usecase 추가 단계
+### Web Usecase 추가 단계
 
 > 다음 단계들은 TDD 유형이 `web-usecase`일 때만 진행합니다.
 
-### 단계 E-1: High Level Test 작성
+#### 단계 E-1: High Level Test 작성
 
-#### High Level Test 규칙
+##### High Level Test 규칙
 
 - 대표 예제 선택: 예제 중에서 요구사항의 제약 조건을 가장 많이 충족하는 경우(most general한 경우)를 선택
 - 이 예제를 통해 구현할 기능이 어떻게 사용되는지 감을 잡고, 어떤 결과를 갖게 될지 계획과 목표(Target Design)를 가지고 진행
 
-#### Act-Assert 동일 추상화 수준 규칙
-
-- 테스트에서 act와 assert는 같은 추상화 수준에서 이루어져야 함
-- 한 테스트 내에서 서로 다른 추상화 레벨 혼합 금지
-- api를 호출하여 행동을 수행하고, 같은 api 레벨에서 결과를 검증
-- 예: post로 생성하고 get으로 검증하는 방식
-
-#### High Level Test 코드 샘플
+##### High Level Test 코드 샘플
 
 ```java
 @SpringBootTest
@@ -484,7 +484,7 @@ public class CreateShoppingBasketTest {
 }
 ```
 
-#### DSL 개선 목표
+##### DSL 개선 목표
 
 초기 구현 후 Protocol Driver, Test Data Builder 등을 적용하여 DSL 스타일로 개선:
 
@@ -502,34 +502,34 @@ void create_and_verify_basket() throws Exception {
 }
 ```
 
-#### Protocol Driver
+##### Protocol Driver
 
 - Protocol Drivers (PDs)는 DSL에서 시스템 언어로의 번역자/어댑터
 - DSL의 인터페이스를 미러링하되 더 구체적인 파라미터 사용
 - SUT와의 각 통신 채널별로 최소 하나의 PD 생성
 - 모든 테스트 인프라스트럭처 지식을 여기에 격리
 
-#### Mermaid 클래스 다이어그램
+##### Mermaid 클래스 다이어그램
 
 테스트에 나타나는 도메인 클래스들에 대해 러프한 클래스 다이어그램 작성:
 - SRS 기반 정적분석으로 domain class, value object 식별
 - class, attributes, relation만 표현
 - 금액 계산과 같은 행위 관련 부분은 추가하지 않음 (나중에 리팩터링을 통해 추가)
 
-#### @Disabled 처리
+##### @Disabled 처리
 - 초기에는 `@Disabled("아직 기능 구현이 완료되지 않았습니다.")` 추가
 - 모든 단계별 테스트 완료 후 활성화
 
 ---
 
-### 단계 E-2: Walking Skeleton 구현
+#### 단계 E-2: Walking Skeleton 구현
 
-#### Walking Skeleton 목적
+##### Walking Skeleton 목적
 - End-to-end 아키텍처의 기본 골격 구현
 - Controller부터 Repository까지 전체 레이어 연결
 - 실제 기능보다는 구조적 연결성 검증
 
-#### Walking Skeleton 테스트 샘플
+##### Walking Skeleton 테스트 샘플
 
 ```java
 @DisplayName("엔드-투-엔드 기능 구현: UI부터 데이터베이스까지 전체 시스템을 관통하는 기본적인 흐름 포함")
@@ -566,7 +566,7 @@ void walking_skeleton_shopping_basket() throws Exception {
 }
 ```
 
-#### Fake Repository 규칙
+##### Fake Repository 규칙
 
 ```java
 @SpringBootTest
@@ -624,21 +624,20 @@ public class CreateShoppingBasketTest {
 }
 ```
 
-#### Controller 구현 원칙
+##### Controller 구현 원칙
 
 1. **Fake it 적용** - 복잡한 계산은 하드코딩으로 처리, 최소한의 구현
 2. **절차적/명령형 스타일** - 하나의 메서드에 모든 로직 작성, 메서드 추출이나 클래스 분리 금지
 3. **Feature Envy 허용** - Controller가 모든 로직 담당, 데이터 중심 설계로 시작
 
----
+## FAILURE CONDITIONS
 
-## 완료 조건
+### 품질 체크리스트
 
-- 해당 단계의 체크박스가 업데이트됨 (`- [ ]` → `- [x]`)
-- 다음 단계 안내가 제공됨
+SRS 작성 후 다음 사항을 확인:
 
-## 피드백 규칙
-
-- 한 단계에서 관련된 코드를 생성한 후에는 반드시 사용자에게 피드백을 요청
-- 사용자가 명시적으로 다음 단계로 진행하는 것을 결정해야만 다음 단계로 진행
-- 피드백 요청 형식: "이 [구현/테스트/설계]에 대한 피드백을 주시겠어요? 특히 [집중해야 할 부분]에 대해서요."
+- [ ] 모든 기능적 요구사항이 명시되었는가?
+- [ ] 경계 조건과 예외 상황이 포함되었는가?
+- [ ] 각 요구사항이 테스트 가능한가?
+- [ ] 애매모호한 표현이 없는가?
+- [ ] 상호 모순되는 요구사항이 없는가?

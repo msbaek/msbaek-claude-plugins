@@ -8,24 +8,48 @@ argument-hint: "[plan-doc-path]"
 
 Red → Green → Blue 사이클을 조율하여 테스트 목록의 각 항목을 순차적으로 구현합니다.
 
-## TDD 규칙
+## GOAL
 
-### Three Laws of TDD
+- **성공 = 테스트 목록의 모든 항목이 `- [x]`로 완료되고, 모든 테스트가 통과하며, 작업 내역이 마크다운에 반영됨**
+- 모든 테스트 케이스가 `- [x]`로 완료됨
+- 모든 테스트가 통과함
+- 작업 내역이 마크다운 파일에 반영됨
+- (Web Usecase의 경우) High Level Test 활성화, JPA Repository 전환, DSL 개선까지 완료
+
+## CONSTRAINTS
+
+### Hard Rules
+
+#### Three Laws of TDD
 
 1. "Write NO production code except to pass a failing test."
 2. "Write only ENOUGH of a test to demonstrate a failure."
 3. "Write only ENOUGH production code to pass the test."
 
-### TDD 핵심 규칙
+#### TDD 핵심 규칙
 
 - don't write code without a failing test.
 - only write the code necessary to get the test to pass (little golf game).
 - never delete tests without express permission.
 - 테스트를 추가할 때는 반드시 한번에 하나씩 추가. 실패하는 테스트가 있을 때는 절대 새로운 테스트를 추가할 수 없음.
 
----
+#### 마이크로 사이클
 
-## Interface/Implementation Split — TDD 설계의 두 축
+각 단계는 **2-3분 이내** 작업으로 빠른 피드백을 받습니다.
+
+- 복잡한 목표를 작은, 집중된, 검증 가능한 단계로 분해하여 순차적으로 실행
+- 각 R/G/B 에이전트가 작업 완료 후 자체적으로 커밋을 수행 (커밋 → 피드백 → 다음 단계)
+- 좁은 범위의 태스크는 AI의 강점을 발휘하게 하고, 조기 검증은 복잡성 누적을 방지
+
+#### 피드백 규칙
+
+- 한 단계에서 관련된 코드를 생성한 후에는 반드시 사용자에게 피드백을 요청
+- 사용자가 명시적으로 다음 단계로 진행하는 것을 결정해야만 다음 단계로 진행
+- 피드백 요청 형식: "이 [구현/테스트/설계]에 대한 피드백을 주시겠어요? 특히 [집중해야 할 부분]에 대해서요."
+
+### Principles
+
+#### Interface/Implementation Split — TDD 설계의 두 축
 
 > TDD를 논의할 때 사람들이 하는 **첫번째 오해**는 "모든 설계를 하나로 묶어야 한다"고
 > 생각하는 것이다. TDD에는 **2가지 종류의 설계**가 있다. — Kent Beck
@@ -35,20 +59,20 @@ Red → Green → Blue 사이클을 조율하여 테스트 목록의 각 항목�
 | **인터페이스 설계** | 테스트 목록 작성, 테스트 코드 작성 시 | Red Phase | "이 행위가 외부에서 어떻게 호출되어야 하는가?" |
 | **구현 설계** | 리팩토링 시 | Blue Phase | "이 행위를 내부적으로 어떻게 구현할 것인가?" |
 
-### Red Phase = 인터페이스 설계 단계
+##### Red Phase = 인터페이스 설계 단계
 - 테스트를 작성할 때 내리는 설계 결정은 주로 **인터페이스 설계(interface design)**
 - 오퍼레이션의 **완벽한 인터페이스(Model Client)**를 상상
 - 가능한 **최선(best possible)의 API에서 시작**해서 거꾸로 작업
 - 지금 오퍼레이션이 **외부에서 어떤 식으로 보일 지**에 대한 이야기를 테스트 코드에 적는 것
 - 처음부터 일을 복잡하고 보기 흉하며 "현실적"이게 하는 것보다 낫다
 
-### Green Phase = 설계 없음, 오직 동작
+##### Green Phase = 설계 없음, 오직 동작
 - **문제를 이해**하고 **이슈를 파악**하는 단계
 - **빠르게 성공시키는 것이 모든 것을 지배**
 - Duct Tape Programming을 해서라도 빠르게 동작하도록
 - 이렇게 구현을 해 봐야 문제를 제대로 이해할 수 있음
 
-### Blue Phase = 구현 설계 단계
+##### Blue Phase = 구현 설계 단계
 - 리팩토링 시 내리는 설계 결정은 **구현 설계(implementation design)**
 - 테스트 목록 작성 시 구현 설계 결정을 혼합하면 안 됨
 - **내부 구현을 어떻게 설계할 지 결정할 시간은 나중에 충분히 있음**
@@ -56,7 +80,7 @@ Red → Green → Blue 사이클을 조율하여 테스트 목록의 각 항목�
 
 ---
 
-## Test Desiderata
+#### Test Desiderata
 
 Kent Beck의 Test Desiderata — 좋은 테스트가 갖춰야 할 12가지 속성.
 테스트 작성 시(Red phase) 이 속성들을 기준으로 품질을 검토합니다.
@@ -80,25 +104,25 @@ Kent Beck의 Test Desiderata — 좋은 테스트가 갖춰야 할 12가지 속�
 
 ---
 
-## Mocking 가이드라인
+#### Mocking 가이드라인
 
 모킹(Mocking)은 테스트에서 자주 사용되는 기법이지만, 잘못 사용하면 오히려 테스트를 취약하게 만들 수 있습니다. 이 문서에서는 모킹이 허용되는 대상과 상황, 그리고 주의해야 할 사항을 정리합니다.
 
-### 1. 모킹이 허용되는 대상
+##### 1. 모킹이 허용되는 대상
 
-#### 1.1 비용이 높은 자원과 공유 자원
+###### 1.1 비용이 높은 자원과 공유 자원
 
 - **상황**: "mocks are useful when a resource is expensive to create and represents a shared fixed a problem"
 - **예시**: 데이터베이스나 외부 서비스 등 생성하기 비용이 큰 자원
 - **이유**: 테스트 속도 개선과 테스트 간 격리를 위해
 
-#### 1.2 새로운 API 경계 발견 시(service, port out)
+###### 1.2 새로운 API 경계 발견 시(service, port out)
 
 - **상황**: 리팩토링 중 새로운 공개 API를 식별했을 때
 - **인용**: "that's probably an appropriate time to think about a mock for use in your test and later go and implement that other part your API that you're currently missing"
 - **의도**: 아직 구현되지 않은 API의 사용 방식을 설계하기 위해
 
-#### 1.3 모킹해야 할 대상
+###### 1.3 모킹해야 할 대상
 
 - API의 일부인 다른 public 클래스들
 - perimeter(경계)에 있는 컴포넌트들
@@ -108,9 +132,9 @@ Ian Cooper는 모킹해야 할 대상을 다음과 같이 명확히 제시합니
 
 - **other application service, driven port 정도만 mocking해야**
 
-### 2. 모킹 사용 시 주의사항
+##### 2. 모킹 사용 시 주의사항
 
-#### 2.1 모킹을 피해야 할 대상 - Mock Roles, not Objects
+###### 2.1 모킹을 피해야 할 대상 - Mock Roles, not Objects
 
 - **내부 구현을 Mock으로 만들지 말고, 모듈의 경계면을 Mock으로 대체해야(Mock Roles not Objects)** 합니다.
 - **Mock은 구현 디테일과 테스트가 엮이는 것을 방지하기 위해 사용해야** 합니다.
@@ -122,7 +146,7 @@ Ian Cooper는 모킹해야 할 대상을 다음과 같이 명확히 제시합니
 - **Don't mock internals** - they come from _refactoring_. No peering behind the curtain don't mock implementation details
 - **다른 모듈의 Port**나 **공개된 인터페이스**를 Mock으로 대체하세요. 저 경계면에 있는 것들이 효과적으로 Mock으로 만들 수 있는 것입니다.
 
-#### 2.2 타사 코드 모킹 주의 - Only Mock Types You Own
+###### 2.2 타사 코드 모킹 주의 - Only Mock Types You Own
 
 1. 3rd party 코드를 mocking하면 테스트 코드가 *복잡*해지고 **구현 세부사항과 밀접하게 결합**됩니다.
 2. 이는 _관심사의 분리, 추상화, 캡슐화 등 좋은 소프트웨어 설계 원칙을 위반_ 합니다.
@@ -139,9 +163,9 @@ Ian Cooper는 모킹해야 할 대상을 다음과 같이 명확히 제시합니
    - _실제 요구사항을 반영하는 동작만 검증_
    - 구현의 부산물인 동작은 검증하지 않기
 
-### 3. 경계 객체 테스트와 모킹
+##### 3. 경계 객체 테스트와 모킹
 
-#### 3.1 경계 객체란?
+###### 3.1 경계 객체란?
 
 경계 객체(Boundary Objects)는 시스템이 외부 세계와 상호작용하는 지점에 위치한 객체를 의미합니다:
 
@@ -151,7 +175,7 @@ Ian Cooper는 모킹해야 할 대상을 다음과 같이 명확히 제시합니
 - 메시징 시스템 연동 클래스
 - 네트워크 통신 컴포넌트
 
-#### 3.2 "Don't use mocks to test boundary objects" 원칙
+###### 3.2 "Don't use mocks to test boundary objects" 원칙
 
 경계 객체는 모킹보다 통합 테스트가 적합합니다:
 
@@ -176,41 +200,41 @@ Ian Cooper는 모킹해야 할 대상을 다음과 같이 명확히 제시합니
 - UserService를 테스트할 때는 UserRepository를 mocking
 - UserRepositoryImpl을 테스트할 때는 DB를 Mocking하지 말고 통합 테스트 수행
 
-### 4. 모킹의 위험성과 제약 사항
+##### 4. 모킹의 위험성과 제약 사항
 
-#### 4.1 구현 디테일과의 결합
+###### 4.1 구현 디테일과의 결합
 
 - 모킹이 과도하면 테스트가 코드의 내부 구현과 강하게 결합됨
 - 이는 리팩토링 시 테스트 코드도 함께 변경해야 하는 문제 발생
 
-#### 4.2 취약한 테스트
+###### 4.2 취약한 테스트
 
 - 코드 구현이 조금만 변경되어도 테스트가 깨질 수 있음
 - Kent Beck: "과도한 모킹은 코드의 구조적 민감성을 증가시킨다"
 
-#### 4.3 단위 테스트 개념의 오해
+###### 4.3 단위 테스트 개념의 오해
 
 - 단위 테스트는 "테스트 대상을 격리"하는 게 아닌 "테스트 자체를 격리"하는 것
 - "the unit of isolation is the test not the thing under test"
 
-### 5. 모킹 관련 안티패턴
+##### 5. 모킹 관련 안티패턴
 
-#### 5.1 절대 금지되는 모킹 패턴
+###### 5.1 절대 금지되는 모킹 패턴
 
-##### 클래스 격리를 위한 모킹
+**클래스 격리를 위한 모킹**
 
 - **강한 경고**: "don't mock internals processor adapters"
 - **원인**: "the unit of isolation is the test not the thing under test"
 - **잘못된 인식**: "these all have to be mocks you can't interact with anything else you got a mock all the classes dependencies right because otherwise it's not a proper unit test
   you are wrong"
 
-##### 주니어 개발자 감시용 모킹
+**주니어 개발자 감시용 모킹**
 
 - **명확한 거부**: "especially don't do this thing where effectively you say I'm going to make sure junior developers have done the right thing by by mocking I forced them to use
   mocks so I can see how they implemented the method"
 - **결과**: "couples your test to your software means you can't change it"
 
-#### 5.2 최악의 모킹 관행들
+###### 5.2 최악의 모킹 관행들
 
 다음은 피해야 할 안티패턴들입니다:
 
@@ -226,16 +250,16 @@ Ian Cooper는 모킹해야 할 대상을 다음과 같이 명확히 제시합니
 
 static을 mocking해야 한다면 그건 static이 아니어야 합니다. too many mocks는 code smell입니다.
 
-#### 5.3 Stubbing 검증의 문제
+###### 5.3 Stubbing 검증의 문제
 
 - **query를 stub(when). stubbing한 코드가 실제로 호출되었는지 verify할 필요 없음**
 - 테스트에서 verify할 코드는 user의 상태에 기반하여 테스트한 코드(testedCode())가 무엇을 했는가 입니다.
   - 어떤 값을 반환하거나 예외를 발생시켰을 수 있다.
 - **꼭 verify가 필요하다면 query(stubbing 대상)가 side effect을 유발하고 있어서임. CQS 위반. 동일 메소드를 stub, verify 한다면 CQS 위반**
 
-### 6. 효과적인 모킹 대안
+##### 6. 효과적인 모킹 대안
 
-#### 6.1 테스트 더블(Test Double)의 다양한 종류 활용
+###### 6.1 테스트 더블(Test Double)의 다양한 종류 활용
 
 - **Dummy**: 행위 변경 없음, interface의 모든 메소드들이 `return null;`로 구현된 테스트 더블
 - **Stub**: 특정 메소드 호출에 지정한 응답을 반환, dummy의 일종. 0이나 null 대신 테스트가 필요로 하는 특정 값을 반환
@@ -245,7 +269,7 @@ static을 mocking해야 한다면 그건 static이 아니어야 합니다. too m
 - **Mock**: interaction을 검증, spy의 일종으로 어떤 일이 일어나야 하는지를 아는 spy
 - **Fake**: 대안 구현(memory repository impl. 등), simulator, 실세계 객체처럼 입력에 따라 다른 응답을 함. stubbing(when) 대신 실제와 유사한 로직 구현. verify 대신 실제 동작 결과를 검증. 특히 영속성 관련 코드에서 유용
 
-#### 6.2 Fake 활용하기
+###### 6.2 Fake 활용하기
 
 - DB 대신 HashMap에 저장하는 것과 같은 테스트를 위한 구현
 - **stubbing(when) 대신 save();**
@@ -256,14 +280,14 @@ Fake를 사용하면 모킹의 단점을 피할 수 있습니다:
 - **중첩된 '페이크(fake)' 클래스는 인터페이스의 일부이며 인터페이스와 함께 제공됨**
 - Fake를 사용한 _단위 테스트는 훨씬 짧아지고 유지보수성이 높아짐_
 
-#### 6.3 클래스 간 협력에 초점 맞추기
+###### 6.3 클래스 간 협력에 초점 맞추기
 
 - **통합테스트를 최대한 많이 작성하라. 아마 한 UC에 최대 7개 정도**
 - 그러다 **복잡성이 높아서 통합테스트로 테스트하기 어려운 경우가 생김. 이럴 때만 구현의 상세를 단위 테스트로 검증**하라
 
-### 7. 실용적인 모킹 전략
+##### 7. 실용적인 모킹 전략
 
-#### 7.1 Mock Roles, Not Objects
+###### 7.1 Mock Roles, Not Objects
 
 - Mock Roles not Objects > _Role-based Design_
   - roles = dependencies
@@ -271,7 +295,7 @@ Fake를 사용하면 모킹의 단점을 피할 수 있습니다:
   - 그래고 테스트를 최대한 일찍 작성하라
   - 이걸 지켜야 리팩터링을 해도 mock test가 깨지지 않음
 
-#### 7.2 테스트 단위의 올바른 이해
+###### 7.2 테스트 단위의 올바른 이해
 
 단위 테스트의 '단위'는:
 
@@ -282,7 +306,7 @@ Fake를 사용하면 모킹의 단점을 피할 수 있습니다:
 - 단위 테스트가 데이터베이스나 파일시스템과 통신하는 것도 괜찮음!(It's perfectly fine for _unit tests to talk to databases_ and filesystems!)
 - 중요한 것은 각 테스트가 서로 격리되는 것임 (예: in-memory DB, Docker)(talk _as long as your tests are isolated_(from other tests) --> in-memory DB: Docker)
 
-#### 7.3 모킹 프레임워크 사용 지침
+###### 7.3 모킹 프레임워크 사용 지침
 
 - mock framework이 나쁜 것이 아니라 **mock을 작성하는 것은 정말 쉬워서 가독성을 높이기 위해 직접 작성하는 것이 더 좋을 수 있습니다**
 - **필요할 때만 사용**하세요:
@@ -293,15 +317,15 @@ Fake를 사용하면 모킹의 단점을 피할 수 있습니다:
 - 모킹 프레임워크는 **가능한 적게 사용**하는 것이 좋음
   - 앰블런스와 같이 - 필요할 때만!
 
-#### 7.4 헥사고날 아키텍처에서의 모킹 전략
+###### 7.4 헥사고날 아키텍처에서의 모킹 전략
 
 - 외부로 나가는 Adapter에 대한 테스트는 할 필요가 없음
 - "Don't Mock What You Don't Own"
 - **Adapter도 Mock으로 만들면 안됩**니다. **Adapter와 연계하는 Port를 Mock으로 만드세요**
 
-### 8. 함수형 접근으로 모킹 최소화
+##### 8. 함수형 접근으로 모킹 최소화
 
-#### 8.1 함수형 코어/명령형 쉘 패턴
+###### 8.1 함수형 코어/명령형 쉘 패턴
 
 - stubbing 제거(given)
 - mocking 제거(verify)
@@ -312,12 +336,12 @@ Fake를 사용하면 모킹의 단점을 피할 수 있습니다:
   - **Design the Most Complex Parts of Logic as Pure Functions**
     - 이해하고 테스트하기 더 쉬움
 
-#### 8.2 소셜 테스트와 솔리터리 테스트 균형
+###### 8.2 소셜 테스트와 솔리터리 테스트 균형
 
 - solitary test(mocking)는 잘 깨짐
 - sociable test 테스트는 더 안정적임
 
-#### 8.3 의존성 주입 활용 예
+###### 8.3 의존성 주입 활용 예
 
 ```java
 // 항상 현재 날짜가 2023-01-15 반환
@@ -335,14 +359,14 @@ BigDecimal discount = discountService.applyDiscount(
 );
 ```
 
-#### 8.4 테스트 계층 구성
+###### 8.4 테스트 계층 구성
 
 - 클래스 단위로 mocking하지 말고 component(하나 이상의 클래스) 단위로 mocking
 - "Mock (Well-defined) Roles, Not Objects without a clear contract"
 - Try to extract an interface from the class you want to mock!
 - Redesign until that interface makes sense
 
-### 9. 클래시시스트 vs 모키스트 접근법
+##### 9. 클래시시스트 vs 모키스트 접근법
 
 - Classic TDD (Inside-Out)
   - 상태 검증과 알고리즘에 초점
@@ -361,7 +385,7 @@ BigDecimal discount = discountService.applyDiscount(
   - "don't go very far down the mock path"
   - "Tests should not use mocks to isolate the SUT, so they are not unit tests!!!!"
 
-### 결론
+##### 결론
 
 - 모킹은 적절한 상황(공유 자원, 비용이 높은 자원, API 경계)에서만 사용하라
 - 내부 구현 세부사항을 모킹하지 말고 모듈의 경계면에서 모킹하라
@@ -371,28 +395,28 @@ BigDecimal discount = discountService.applyDiscount(
 - 모킹 프레임워크는 필요할 때만 신중하게 사용하라
 - 함수형 코어/명령형 쉘 패턴을 적용하여 순수 함수를 분리하고 모킹의 필요성을 줄이라
 
----
+## OUTPUT FORMAT
 
-## 실행 흐름
+### 실행 흐름
 
-### Step 1: 현재 상태 확인
+#### Step 1: 현재 상태 확인
 
 1. 템플릿 문서(*.md)에서 테스트 케이스 목록 확인
 2. 첫 미완성 테스트(`- [ ]`) 식별
 3. 현재 테스트 실행 상태 확인
 
-### Step 2: RGB 사이클 실행
+#### Step 2: RGB 사이클 실행
 
 각 미완성 테스트(`- [ ]`)에 대해 다음 사이클을 반복:
 
-#### Red 단계
+##### Red 단계
 - **tdd-red agent**에 위임
 - 실패하는 테스트 작성
 - approved.txt 파일 생성 (필요 시)
 - 에이전트 내에서 `test:` 접두사로 커밋 수행
 - **사용자 피드백 대기**
 
-#### Green 단계
+##### Green 단계
 - **tdd-green agent**에 위임
 - 최소 구현으로 테스트 통과
 - TPP (Transformation Priority Premise) 적용
@@ -400,7 +424,7 @@ BigDecimal discount = discountService.applyDiscount(
 - 에이전트 내에서 `feat:` 접두사로 커밋 수행
 - **사용자 피드백 대기**
 
-#### Blue 단계
+##### Blue 단계
 - **tdd-blue agent**에 위임
 - Tidying 1-4단계 경량 리팩토링
   - Guard Clauses
@@ -410,14 +434,14 @@ BigDecimal discount = discountService.applyDiscount(
 - 변경이 있는 경우 에이전트 내에서 `refactor:` 접두사로 커밋 수행
 - **사용자 피드백 대기**
 
-### Step 3: 완료 처리
+#### Step 3: 완료 처리
 - 체크박스 업데이트 (`- [ ]` → `- [x]`)
 - 작업 내역을 마크다운 파일에 반영
 - 다음 테스트 안내 또는 전체 완료
 
 ---
 
-## 각 테스트 구현 절차 (Implement Each Test Rule)
+### 각 테스트 구현 절차 (Implement Each Test Rule)
 
 새로운 테스트를 추가하고 코드를 구현할 때는 다음 절차를 따릅니다:
 
@@ -442,55 +466,16 @@ BigDecimal discount = discountService.applyDiscount(
 
 ---
 
-## 단계별 검증 체크리스트 (Step Verification Rule)
-
-### 1. 테스트 작성 후 확인
-
-- [ ] 테스트가 명확한 하나의 동작만 검증하는가?
-- [ ] 테스트 이름이 검증하려는 내용을 명확하게 설명하는가?
-- [ ] approved.txt 파일이 필요한 경우 작성되었는가?
-- [ ] 테스트가 실행되고 예상대로 실패하는가?
-
-### 2. 구현 후 확인
-
-- [ ] 테스트를 통과하는 가장 단순한 구현인가?
-- [ ] make-it-work-strategy, TPP 규칙의 단계를 적절히 적용했는가?
-- [ ] 불필요한 코드가 없는가?
-- [ ] 모든 테스트가 통과하는가?
-
-### 3. 리팩토링 후 확인
-
-- [ ] 중복이 제거되었는가?
-- [ ] 코드가 더 명확해졌는가?
-- [ ] 모든 테스트가 여전히 통과하는가?
-
-### 4. 전체 과정 후 확인
-
-- [ ] 작업 내역이 마크다운 파일에 반영되었는가?
-- [ ] 다음 단계 진행을 위한 피드백을 요청했는가?
-
----
-
-## 마이크로 사이클
-
-각 단계는 **2-3분 이내** 작업으로 빠른 피드백을 받습니다.
-
-- 복잡한 목표를 작은, 집중된, 검증 가능한 단계로 분해하여 순차적으로 실행
-- 각 R/G/B 에이전트가 작업 완료 후 자체적으로 커밋을 수행 (커밋 → 피드백 → 다음 단계)
-- 좁은 범위의 태스크는 AI의 강점을 발휘하게 하고, 조기 검증은 복잡성 누적을 방지
-
----
-
-## Web Usecase 추가 단계
+### Web Usecase 추가 단계
 
 > 모든 테스트(`- [ ]` → `- [x]`)가 완료된 후 진행합니다.
 
-### High Level Test 활성화
+#### High Level Test 활성화
 - `@Disabled` 어노테이션 제거
 - High Level Test가 성공하는지 확인
 - 실패하는 경우 원인 분석 및 수정
 
-### JPA Repository 전환
+#### JPA Repository 전환
 
 Fake Repository로 모든 기능이 동작하면 JPA Repository를 작성:
 
@@ -504,22 +489,36 @@ Fake Repository로 모든 기능이 동작하면 JPA Repository를 작성:
 - @TestConfiguration이 있으면 FakeRepository 사용, 커멘트 처리하면 JPA Repository 사용
 - H2 데이터베이스 미사용 (spring-boot-docker-compose로 연결)
 
-### DSL 개선
+#### DSL 개선
 - Protocol Driver 적용
 - Test Data Builder 패턴 적용
 - 가독성과 재사용성 향상
 
----
+## FAILURE CONDITIONS
 
-## 완료 조건
+### 단계별 검증 체크리스트
 
-- 모든 테스트 케이스가 `- [x]`로 완료됨
-- 모든 테스트가 통과함
-- 작업 내역이 마크다운 파일에 반영됨
-- (Web Usecase의 경우) High Level Test 활성화, JPA Repository 전환, DSL 개선까지 완료
+#### 1. 테스트 작성 후 확인
 
-## 피드백 규칙
+- [ ] 테스트가 명확한 하나의 동작만 검증하는가?
+- [ ] 테스트 이름이 검증하려는 내용을 명확하게 설명하는가?
+- [ ] approved.txt 파일이 필요한 경우 작성되었는가?
+- [ ] 테스트가 실행되고 예상대로 실패하는가?
 
-- 한 단계에서 관련된 코드를 생성한 후에는 반드시 사용자에게 피드백을 요청
-- 사용자가 명시적으로 다음 단계로 진행하는 것을 결정해야만 다음 단계로 진행
-- 피드백 요청 형식: "이 [구현/테스트/설계]에 대한 피드백을 주시겠어요? 특히 [집중해야 할 부분]에 대해서요."
+#### 2. 구현 후 확인
+
+- [ ] 테스트를 통과하는 가장 단순한 구현인가?
+- [ ] make-it-work-strategy, TPP 규칙의 단계를 적절히 적용했는가?
+- [ ] 불필요한 코드가 없는가?
+- [ ] 모든 테스트가 통과하는가?
+
+#### 3. 리팩토링 후 확인
+
+- [ ] 중복이 제거되었는가?
+- [ ] 코드가 더 명확해졌는가?
+- [ ] 모든 테스트가 여전히 통과하는가?
+
+#### 4. 전체 과정 후 확인
+
+- [ ] 작업 내역이 마크다운 파일에 반영되었는가?
+- [ ] 다음 단계 진행을 위한 피드백을 요청했는가?
