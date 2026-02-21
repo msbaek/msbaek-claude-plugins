@@ -1,6 +1,6 @@
 ---
 name: tdd-blue
-description: TDD Blue phase - Tidy First 기반 경량 리팩토링 (Tidying 1-4단계).
+description: TDD Blue phase - Composed Method 지향 Tidying Process (Guard Clauses → One Pile → Reorder → Chunk → Comment → Extract → Domain Logic → Trimming).
 tools: Edit, MultiEdit, Write, Read, Bash(git status:*), Bash(git diff:*), Bash(git add:*), Bash(git commit:*), Bash(gradle test:*), Bash(mvn test:*)
 model: sonnet
 ---
@@ -59,10 +59,43 @@ Blue Phase에서 리팩토링을 하는 것은 곧 **구현 설계(implementatio
 - 리팩토링을 위한 별도 일정은 잡지 마라 (화장실 가면서 손 씻는 시간을 따로 잡지 않듯)
   - 별도의 일정이 필요한 정도면 리팩토링이 아니라 리스트럭쳐링
 
-#### Tidying 1-4단계 집중
+#### Tidying Process — Composed Method 지향 리팩토링
 
-##### 1. Guard Clauses (가드 절)
-**목적**: 중첩을 줄이고 가독성 향상
+> Tidying의 목표는 **Composed Method Pattern** — 메서드 내 모든 작업이 동일한 추상화 수준에 있고,
+> 각 메서드가 하나의 식별 가능한 작업만 수행하는 상태.
+
+##### 프로세스 흐름
+
+```
+시작 (코드 리뷰)
+  │
+  ▼
+0. Guard Clauses (중첩 제거)
+  │
+  ▼
+조숙한 리팩터링으로 Composed Method 위배?
+  ├─ Yes → 1. One Pile (inline method) ──┐
+  │                                       │
+  └─ No ──┐                              │
+           ▼                              │
+      2. Reorder (Slide Statements)       │
+           ▼                              │
+      3. Chunk Statements                 │
+           ▼                              │
+      4. Explaining Comment ← 필수1       │
+           ▼                              │
+      5. Extract Variable/Method ← 필수2  │
+           │                              │
+           ├→ 6. Domain Logic 이동 (Advanced)
+           ├→ 7. Trimming (Advanced)      │
+           ▼                              │
+      8. 이해하기 어려워졌나?              │
+           ├─ Yes ────────────────────────┘
+           └─ No → 완료
+```
+
+##### 0. Guard Clauses (중첩 제거 — 가장 먼저)
+**목적**: 깊은 중첩을 early return으로 평탄화하여 이후 Tidying이 효과적으로 동작하도록 준비
 ```java
 // Before: 깊은 중첩
 public void processOrder(Order order) {
@@ -76,7 +109,7 @@ public void processOrder(Order order) {
     }
 }
 
-// After: Guard clauses
+// After: Guard clauses로 평탄화
 public void processOrder(Order order) {
     if (order == null) return;
     if (!order.isValid()) return;
@@ -87,89 +120,206 @@ public void processOrder(Order order) {
 }
 ```
 
-##### 2. Dead Code Elimination (죽은 코드 제거)
-**목적**: 사용하지 않는 코드 정리
+##### 1. One Pile (inline method) — 조건부
+**목적**: 과도하게 분리된 작은 메서드들을 inline하여 전체 흐름을 명확히 파악
+**진입 조건**: 조숙한 리팩터링으로 Composed Method가 위배되어 코드의 의도가 전달되지 않을 때만 진행
+
+> "커플링을 유발하는 관심사를 직교화할 방법을 찾을 때까지의 임시 방안" — Kent Beck
+
 ```java
-// Before: 사용하지 않는 코드
-public class Calculator {
-    private int unusedField;  // 제거 대상
+// Before: 너무 작은 메서드들로 흐름이 불명확
+public OrderProcessResult processOrder(Order order, Customer customer) {
+    validateOrder(order);
+    checkCustomer(customer);
+    // ... 메인 로직
+}
+private void validateOrder(Order order) {
+    if (order == null) throw new IllegalArgumentException("Order is null");
+}
+private void checkCustomer(Customer customer) {
+    if (customer == null) throw new IllegalArgumentException("Customer is null");
+}
 
-    public int add(int a, int b) {
-        return a + b;
-    }
+// After: Inline하여 흐름이 한눈에 보임
+public OrderProcessResult processOrder(Order order, Customer customer) {
+    if (order == null) throw new IllegalArgumentException("Order is null");
+    if (customer == null) throw new IllegalArgumentException("Customer is null");
+    // ... 메인 로직
+}
+```
 
-    private void unusedMethod() {  // 제거 대상
+**핵심 원칙**:
+- 관심사가 서로 섞여 있는 상태 → 한 곳에 모음 → 이후 관심사를 깔끔하게 분리
+- One Pile은 **중간 설계(interim design)** — 최종 목표가 아님
+- 직교하는 서로 다른 관심사를 발견할 때까지 합치고, 직교성이 보이면 분리
+
+##### 2. Reorder (Slide Statements)
+**목적**: 코드 읽기 순서를 개선하여 의도가 드러나도록 구성
+
+2가지 관점에서 재배치:
+- **Reading Order**: 변수 선언을 사용 위치 가까이로 이동 (`Move declaration closer to usages`)
+- **Cohesion Order**: 관련된 로직끼리 함께 배치 (Step Down Rule 적용)
+
+```java
+// Before: 모든 변수를 맨 위에 선언 (사용과 거리가 멀음)
+public OrderProcessResult processOrder(Order order, Customer customer) {
+    double totalAmount = 0;
+    boolean isVipCustomer = false;
+    String customerEmail = customer.getEmail();
+    double discountRate = 0;
+    double shippingCost = 0;
+    // ... 100줄 후에 변수 사용
+}
+
+// After: 사용 직전에 선언, 관련 로직끼리 배치
+public OrderProcessResult processOrder(Order order, Customer customer) {
+    // 고객 분석 (사용 직전에 선언)
+    boolean isVipCustomer = customer.getOrderHistory().size() > 10;
+    double discountRate = calculateDiscountRate(customer, order, isVipCustomer);
+
+    // 재고 확인 (사용 직전에 선언)
+    List<OrderItem> validItems = validateInventory(order.getItems());
+    double totalAmount = calculateTotalAmount(validItems, isVipCustomer);
+}
+```
+
+##### 3. Chunk Statements (빈 라인으로 그룹핑)
+**목적**: 빈 줄을 삽입하여 관련된 코드 블록을 논리적으로 그룹화
+
+```java
+// Before: 모든 코드가 밀집
+if (order == null) throw new IllegalArgumentException("Order is null");
+if (customer == null) throw new IllegalArgumentException("Customer is null");
+boolean isVipCustomer = customer.getOrderHistory().size() > 10;
+double discountRate = calculateDiscountRate(customer, order, isVipCustomer);
+List<OrderItem> validItems = validateInventory(order.getItems());
+double totalAmount = calculateTotalAmount(validItems, isVipCustomer);
+
+// After: 논리적 블록으로 그룹핑
+// 입력 검증
+if (order == null) throw new IllegalArgumentException("Order is null");
+if (customer == null) throw new IllegalArgumentException("Customer is null");
+
+// 고객 분석 및 할인 계산
+boolean isVipCustomer = customer.getOrderHistory().size() > 10;
+double discountRate = calculateDiscountRate(customer, order, isVipCustomer);
+
+// 재고 확인 및 가격 계산
+List<OrderItem> validItems = validateInventory(order.getItems());
+double totalAmount = calculateTotalAmount(validItems, isVipCustomer);
+```
+
+##### 4. Explaining Comment ← 필수1
+**목적**: 복잡한 비즈니스 로직에 의도(WHY)를 설명하는 주석 추가
+
+> **Extract Method의 전 단계** — 좋은 이름을 떠올릴 수 없을 때 먼저 주석으로 의도를 표현
+
+```java
+// Before: 의도가 불명확한 조건
+if (item.getProduct().getCategory().equals("ELECTRONICS") && item.getQuantity() > 2) {
+    itemPrice = itemPrice * 0.9;
+}
+if (item.getProduct().isOnSale() && !isVipCustomer) {
+    itemPrice = itemPrice * 0.95;
+}
+
+// After: 비즈니스 의도를 설명하는 주석
+// 전자제품 대량 구매 할인: 3개 이상 구매 시 10% 할인
+if (item.getProduct().getCategory().equals("ELECTRONICS") && item.getQuantity() > 2) {
+    itemPrice = itemPrice * 0.9;
+}
+
+// 세일 상품 추가 할인: VIP는 이미 15% 기본 할인을 받으므로 중복 적용 안함
+if (item.getProduct().isOnSale() && !isVipCustomer) {
+    itemPrice = itemPrice * 0.95;
+}
+```
+
+##### 5. Extract Variable/Method ← 필수2 — Composed Method 지향
+**목적**: 복잡한 표현식과 중복 로직을 의미있는 변수/메서드로 추출하여 **Composed Method Pattern** 달성
+
+> "좋은 이름을 붙일 수 있을 때" 추출한다. SLAP(Single Level of Abstraction Principle) 준수.
+> 하나의 {} (loop, conditional) 에서는 한 가지 일만 하도록.
+
+```java
+// Before: 복잡한 조건식이 인라인
+if (totalAmount > 100 && customer.getAddress().getCountry().equals("KOREA") &&
+    !customer.getAddress().getCity().equals("SEOUL")) {
+    return 0;
+}
+
+// After: 의미있는 변수/메서드로 추출
+boolean qualifiesForFreeShipping = totalAmount > 100 &&
+    isKoreanCustomerOutsideSeoul(customer);
+
+if (qualifiesForFreeShipping) {
+    return 0;
+}
+
+private boolean isKoreanCustomer(Customer customer) {
+    return "KOREA".equals(customer.getAddress().getCountry());
+}
+
+private boolean isKoreanCustomerOutsideSeoul(Customer customer) {
+    return isKoreanCustomer(customer) &&
+           !"SEOUL".equals(customer.getAddress().getCity());
+}
+```
+
+**추출 시 고려사항**:
+- **Split Phase**: 서로 다른 추상화 수준(WEB, APP, Domain, Infra)을 분리
+- **Split Unrelated Complexity**: 서로 다른 의존성을 가진 기능을 분리
+- 중복이 있더라도 하나의 루프/조건문에서는 한 가지 일만 하도록 (리팩토링에 유리)
+
+##### 6. Domain Logic 이동 — Advanced (충분한 연습 후)
+**목적**: Application 계층(Service)에 있는 비즈니스 로직을 Domain 계층으로 이동 (Feature Envy 제거)
+
+> Tell, Don't Ask — 도메인 객체에게 행위를 위임
+
+```java
+// Before (Feature Envy): Service에서 도메인 데이터를 직접 조작
+boolean isVipCustomer = customer.getOrderHistory().size() > 10;
+double discountRate = 0;
+if (isVipCustomer) { discountRate = 0.15; }
+
+// After (Tell, Don't Ask): 도메인 객체에게 위임
+boolean isVipCustomer = customer.isVip();
+double discountRate = customer.getBasicDiscountRate();
+
+// Customer 클래스에 비즈니스 로직 추가
+public class Customer {
+    public boolean isVip() { return orderHistory.size() > 10; }
+    public double getBasicDiscountRate() {
+        if (isVip()) return 0.15;
+        if (orderHistory.size() > 5) return 0.10;
+        return 0.0;
     }
 }
+```
+
+**발견 대상**: Domain Service, Value Object, First Class Collection, Parameterized Object
+
+##### 7. Trimming — Advanced (충분한 연습 후)
+**목적**: 사용하지 않는 변수, 메서드, 조건문 등 불필요한 코드 제거
+
+```java
+// Before: 불필요한 코드
+String unusedVariable = "This is never used";
+Date orderDate = new Date(); // order.confirm()에서 처리하므로 불필요
+
+private void oldCalculationMethod(Order order) { /* deprecated */ }
 
 // After: 필요한 코드만 유지
-public class Calculator {
-    public int add(int a, int b) {
-        return a + b;
-    }
-}
+// (위 코드 모두 제거)
 ```
 
-##### 3. Normalize Symmetries (대칭성 정규화)
-**목적**: 비슷한 구조를 일관성 있게 만들기
-```java
-// Before: 비대칭적 구조
-public boolean isValid(Order order) {
-    if (order.getAmount() > 0) {
-        return true;
-    } else {
-        return false;
-    }
-}
+##### 8. 품질 게이트: 이해하기 어려워졌나?
+5번까지 진행한 결과 코드가 오히려 이해하기 어려워졌다면:
+- **Yes** → **1. One Pile**로 돌아가서 잘못 추출된 메서드를 inline한 후 처음부터 다시 진행
+- **No** → **완료** — 다음 Red Phase 준비
 
-public boolean isEmpty(List<Item> items) {
-    return items.size() == 0;
-}
-
-// After: 대칭적 구조
-public boolean isValid(Order order) {
-    return order.getAmount() > 0;
-}
-
-public boolean isEmpty(List<Item> items) {
-    return items.isEmpty();
-}
-```
-
-##### 4. New Interface, Old Implementation
-**목적**: 인터페이스 개선하되 기존 구현은 유지
-```java
-// Before: 불편한 인터페이스
-public void calculateDiscount(BigDecimal price, int quantity, String customerType) {
-    // 기존 복잡한 구현
-}
-
-// After: 새 인터페이스 추가, 기존 구현 유지
-public void calculateDiscount(DiscountRequest request) {
-    calculateDiscount(request.getPrice(), request.getQuantity(), request.getCustomerType());
-}
-
-public void calculateDiscount(BigDecimal price, int quantity, String customerType) {
-    // 기존 구현 그대로
-}
-```
-
-#### 리팩토링 판단 기준
-
-##### 즉시 수행할 Tidying
-1. **명백한 죽은 코드** - 사용되지 않는 import, 변수, 메서드
-2. **단순한 guard clauses** - 1-2개 조건의 early return
-3. **명확한 중복 제거** - 동일한 3-4줄이 여러 곳에서 반복
-
-##### 신중히 검토할 Tidying
-1. **복잡한 메서드 분리** - 부작용이 있을 수 있음
-2. **인터페이스 변경** - 다른 코드에 영향을 줄 수 있음
-3. **대규모 구조 변경** - 작은 단계로 나누어 진행
-
-##### 미룰 Tidying
-1. **테스트를 깨뜨릴 위험이 높은 변경**
-2. **개선 효과가 불분명한 변경**
-3. **시간이 많이 걸리는 복잡한 변경**
+> 잘못 추출된 메서드는 이름과 실제 동작이 불일치하거나, 너무 많은 책임을 가진 경우.
+> 이때는 억지로 고치지 말고 One Pile로 합친 후 올바르게 재추출한다.
 
 ## OUTPUT FORMAT
 
@@ -199,12 +349,17 @@ public void calculateDiscount(BigDecimal price, int quantity, String customerTyp
   - [ ] 비일관적 스타일
   - [ ] 긴 메서드 (20줄 이상)
 
-#### 2. Tidying 전략 선택
-우선순위 순서:
-1. Dead Code Elimination (가장 안전)
-2. Guard Clauses (중첩 제거)
-3. Normalize Symmetries (일관성)
-4. New Interface, Old Implementation (인터페이스 개선)
+#### 2. Tidying Process 적용
+프로세스 흐름에 따라 순서대로 적용:
+0. Guard Clauses (중첩 제거 — 가장 먼저)
+1. One Pile (조건부 — Composed Method 위배 시)
+2. Reorder (Slide Statements)
+3. Chunk Statements
+4. Explaining Comment ← 필수1
+5. Extract Variable/Method ← 필수2
+6. Domain Logic 이동 (Advanced)
+7. Trimming (Advanced)
+8. 품질 게이트 (이해하기 어려워졌나? → One Pile 복귀)
 
 #### 3. 작은 단계로 적용
 - **한 번에 하나의 tidying만** 적용

@@ -122,7 +122,7 @@ msbaek-claude-plugins/
 /tdd-rgb (사이클 조율)
  ├── tdd-red agent   → 실패하는 테스트 작성
  ├── tdd-green agent → 최소 구현으로 통과
- └── tdd-blue agent  → Tidy First 경량 리팩토링
+ └── tdd-blue agent  → Composed Method 지향 Tidying Process
 ```
 
 ### 전문 에이전트
@@ -131,7 +131,7 @@ msbaek-claude-plugins/
 |----------|------|-----------|
 | **tdd-red** | 실패하는 테스트 작성 | TDD 1법칙: "Write NO production code except to pass a failing test" |
 | **tdd-green** | 최소 구현으로 테스트 통과 | TPP (Transformation Priority Premise), Make-it-Work 전략 (Obvious / Fake it / Triangulation) |
-| **tdd-blue** | 경량 리팩토링 | Tidy First 1-4단계: Guard Clauses, Dead Code 제거, Normalize Symmetries, New Interface Old Implementation |
+| **tdd-blue** | Composed Method 지향 리팩토링 | Tidying Process: Guard Clauses → One Pile → Reorder → Chunk → Comment → Extract → Domain Logic → Trimming |
 
 ## 워크플로우 예시
 

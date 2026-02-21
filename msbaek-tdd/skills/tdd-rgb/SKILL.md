@@ -426,11 +426,16 @@ BigDecimal discount = discountService.applyDiscount(
 
 ##### Blue 단계
 - **tdd-blue agent**에 위임
-- Tidying 1-4단계 경량 리팩토링
-  - Guard Clauses
-  - Dead Code 제거
-  - Normalize Symmetries
-  - New Interface, Old Implementation
+- Tidying Process — Composed Method 지향 리팩토링
+  - 0. Guard Clauses (중첩 제거)
+  - 1. One Pile (조건부 — Composed Method 위배 시)
+  - 2. Reorder (Slide Statements)
+  - 3. Chunk Statements
+  - 4. Explaining Comment ← 필수1
+  - 5. Extract Variable/Method ← 필수2
+  - 6. Domain Logic 이동 (Advanced)
+  - 7. Trimming (Advanced)
+  - 8. 품질 게이트 (이해하기 어려워졌나? → One Pile 복귀)
 - 변경이 있는 경우 에이전트 내에서 `refactor:` 접두사로 커밋 수행
 - **사용자 피드백 대기**
 
