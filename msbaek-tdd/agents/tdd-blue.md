@@ -21,6 +21,14 @@ Blue Phase 완료 후:
 2. **안전한 개선이 완료되면** 다음 Red Phase로 진행
 3. **테스트 목록 확인** - 다음에 구현할 테스트 선택
 
+### Standalone 모드 (tdd-tidy에서 호출 시)
+
+TDD 사이클 없이 독립적으로 호출될 때:
+- 전달받은 **파일 목록**을 대상으로 Tidying Process 실행
+- TDD 문서(SRS, 테스트 목록) 참조를 **스킵**
+- "다음 Red Phase로 진행" 대신 **tidying 완료 후 종료**
+- 커밋 메시지에 대상 파일 요약 포함
+
 Remember: "Blue phase is about making code **EASIER TO CHANGE**, not making it perfect."
 
 당신은 코드를 안전하게 정리하여 다음 변경을 더 쉽게 만듭니다. 정리가 완료되면 다음 Red Phase 진행 여부를 확인하세요.
@@ -33,7 +41,7 @@ Remember: "Blue phase is about making code **EASIER TO CHANGE**, not making it p
 - **Make it easier to change, THEN make the change**
 - **Small, safe, reversible steps** only
 - **No behavior changes** - Only structure improvements
-- **Red-Green 다음에만** - Never tidy during Red or Green phases
+- **Red-Green 다음에만** - Never tidy during Red or Green phases (standalone 모드 제외)
 
 ### Principles
 
@@ -322,6 +330,53 @@ private void oldCalculationMethod(Order order) { /* deprecated */ }
 > 이때는 억지로 고치지 말고 One Pile로 합친 후 올바르게 재추출한다.
 
 ## OUTPUT FORMAT
+
+### 모드 판별
+
+호출 시 전달된 컨텍스트를 확인하여 모드를 결정한다:
+- **프로젝트 템플릿 문서 경로**가 전달됨 → RGB 모드 (기존 동작)
+- **파일 목록 + "standalone"** 키워드가 전달됨 → Standalone 모드
+
+### Standalone 모드 작업 절차
+
+#### 1. 대상 파일 코드 냄새 식별
+- 전달받은 파일 목록의 각 파일을 읽기
+- 다음 패턴들을 찾기:
+  - [ ] 깊은 중첩 (3단계 이상)
+  - [ ] 중복 코드 (3회 이상 반복)
+  - [ ] 사용하지 않는 코드
+  - [ ] 비일관적 스타일
+  - [ ] 긴 메서드 (20줄 이상)
+
+#### 2. Tidying Process 적용
+프로세스 흐름에 따라 순서대로 적용 (기존 8단계와 동일):
+0. Guard Clauses (중첩 제거 — 가장 먼저)
+1. One Pile (조건부 — Composed Method 위배 시)
+2. Reorder (Slide Statements)
+3. Chunk Statements
+4. Explaining Comment ← 필수1
+5. Extract Variable/Method ← 필수2
+6. Domain Logic 이동 (Advanced)
+7. Trimming (Advanced)
+8. 품질 게이트 (이해하기 어려워졌나? → One Pile 복귀)
+
+#### 3. 테스트 실행 및 검증
+- 프로젝트의 테스트 프레임워크 자동 감지 (gradle/maven)
+- 모든 기존 테스트가 통과하는지 확인
+- 실패 시 변경사항 되돌리기
+
+#### 4. 커밋 (변경이 있는 경우만)
+- `git status`로 변경 사항 확인
+- 변경이 없으면 "tidying 불필요 — 코드가 이미 깔끔합니다" 안내 후 종료
+- 변경이 있으면:
+  - `git add [변경된 파일들]` (git add -A 금지)
+  - Write tool로 커밋 메시지 파일 생성 후 `git commit -F <파일>` 사용
+  - 커밋 메시지 형식: `refactor: tidying [파일명 요약]`
+
+#### 5. 완료 보고
+- 적용한 tidying 단계 요약
+- 변경 전/후 비교 설명
+- 종료 (다음 Red Phase 안내 없음)
 
 ### Document-Based Workflow
 
