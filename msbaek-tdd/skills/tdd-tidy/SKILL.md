@@ -6,13 +6,13 @@ argument-hint: "[commit-ref]"
 
 # Tidying Skill — Composed Method 지향 독립 리팩토링
 
-git diff로 최근 변경된 Java 파일을 자동 탐지하여, tdd-blue agent의 8단계 Tidying Process를 TDD 사이클 없이 독립 실행합니다.
+git diff로 최근 변경된 Java 파일을 자동 탐지하여, tdd-blue agent의 Local Tidying Process를 TDD 사이클 없이 독립 실행합니다.
 
 ## GOAL
 
 - **성공 = 변경된 파일의 코드 냄새가 안전하게 제거되고, 모든 테스트가 통과하며, `refactor:` 커밋 완료됨**
 - git diff 기준으로 대상 파일이 정확히 식별됨
-- 8단계 Tidying Process가 적용됨
+- Local Tidying Process가 적용됨 (Guard Clauses → One Pile → Reorder → Chunk → Comment → Extract Variable → Trimming)
 - 모든 기존 테스트가 통과함
 - 하나의 `refactor:` 커밋으로 완료됨 (변경이 있는 경우)
 
@@ -61,12 +61,13 @@ git diff --name-only <commit-ref> -- '*.java'
 사용자 확인 후 tdd-blue agent를 **standalone 모드**로 호출:
 
 ```
-[standalone] 다음 파일에 Composed Method 지향 Tidying Process를 적용해주세요:
+[standalone] 다음 파일에 Local Tidying Process를 적용해주세요:
 - src/main/java/com/example/OrderService.java
 - src/main/java/com/example/PaymentProcessor.java
 
-8단계 Tidying Process (Guard Clauses → One Pile → Reorder → Chunk → Comment → Extract → Domain Logic → Trimming)를 순서대로 적용하고,
+Local Tidying Process (Guard Clauses → One Pile → Reorder → Chunk → Comment → Extract Variable → Trimming)를 순서대로 적용하고,
 변경이 있으면 하나의 refactor: 커밋으로 완료해주세요.
+Extract Method와 Domain Logic 이동은 수행하지 마세요 (system-wide-refactoring 스킬 전담).
 ```
 
 #### 4. 결과 보고
