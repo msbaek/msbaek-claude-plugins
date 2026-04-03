@@ -1,6 +1,6 @@
 ---
 name: tdd-blue
-description: TDD Blue phase - Composed Method 지향 Tidying Process (Guard Clauses → One Pile → Reorder → Chunk → Comment → Extract → Domain Logic → Trimming).
+description: TDD Blue phase - Composed Method 지향 Local Tidying Process (Guard Clauses → One Pile → Reorder → Chunk → Comment → Extract Variable → Trimming).
 tools: Edit, MultiEdit, Write, Read, Bash(git status:*), Bash(git diff:*), Bash(git add:*), Bash(git commit:*), Bash(gradle test:*), Bash(mvn test:*)
 model: sonnet
 ---
@@ -92,12 +92,11 @@ Blue Phase에서 리팩토링을 하는 것은 곧 **구현 설계(implementatio
            ▼                              │
       4. Explaining Comment ← 필수1       │
            ▼                              │
-      5. Extract Variable/Method ← 필수2  │
+      5. Extract Variable ← 필수2         │
            │                              │
-           ├→ 6. Domain Logic 이동 (Advanced)
-           ├→ 7. Trimming (Advanced)      │
+           ├→ 6. Trimming                 │
            ▼                              │
-      8. 이해하기 어려워졌나?              │
+      7. 이해하기 어려워졌나?              │
            ├─ Yes ────────────────────────┘
            └─ No → 완료
 ```
@@ -243,11 +242,11 @@ if (item.getProduct().isOnSale() && !isVipCustomer) {
 }
 ```
 
-##### 5. Extract Variable/Method ← 필수2 — Composed Method 지향
-**목적**: 복잡한 표현식과 중복 로직을 의미있는 변수/메서드로 추출하여 **Composed Method Pattern** 달성
+##### 5. Extract Variable ← 필수2
+**목적**: 복잡한 표현식을 의미있는 변수로 추출하여 가독성 향상
 
-> "좋은 이름을 붙일 수 있을 때" 추출한다. SLAP(Single Level of Abstraction Principle) 준수.
-> 하나의 {} (loop, conditional) 에서는 한 가지 일만 하도록.
+> 복잡한 조건식이나 계산식에 의도를 드러내는 이름을 붙인다.
+> Extract Method는 system-wide-refactoring 스킬에서 수행한다.
 
 ```java
 // Before: 복잡한 조건식이 인라인
@@ -256,58 +255,17 @@ if (totalAmount > 100 && customer.getAddress().getCountry().equals("KOREA") &&
     return 0;
 }
 
-// After: 의미있는 변수/메서드로 추출
-boolean qualifiesForFreeShipping = totalAmount > 100 &&
-    isKoreanCustomerOutsideSeoul(customer);
+// After: 의미있는 변수로 추출
+boolean isKorean = "KOREA".equals(customer.getAddress().getCountry());
+boolean isOutsideSeoul = !"SEOUL".equals(customer.getAddress().getCity());
+boolean qualifiesForFreeShipping = totalAmount > 100 && isKorean && isOutsideSeoul;
 
 if (qualifiesForFreeShipping) {
     return 0;
 }
-
-private boolean isKoreanCustomer(Customer customer) {
-    return "KOREA".equals(customer.getAddress().getCountry());
-}
-
-private boolean isKoreanCustomerOutsideSeoul(Customer customer) {
-    return isKoreanCustomer(customer) &&
-           !"SEOUL".equals(customer.getAddress().getCity());
-}
 ```
 
-**추출 시 고려사항**:
-- **Split Phase**: 서로 다른 추상화 수준(WEB, APP, Domain, Infra)을 분리
-- **Split Unrelated Complexity**: 서로 다른 의존성을 가진 기능을 분리
-- 중복이 있더라도 하나의 루프/조건문에서는 한 가지 일만 하도록 (리팩토링에 유리)
-
-##### 6. Domain Logic 이동 — Advanced (충분한 연습 후)
-**목적**: Application 계층(Service)에 있는 비즈니스 로직을 Domain 계층으로 이동 (Feature Envy 제거)
-
-> Tell, Don't Ask — 도메인 객체에게 행위를 위임
-
-```java
-// Before (Feature Envy): Service에서 도메인 데이터를 직접 조작
-boolean isVipCustomer = customer.getOrderHistory().size() > 10;
-double discountRate = 0;
-if (isVipCustomer) { discountRate = 0.15; }
-
-// After (Tell, Don't Ask): 도메인 객체에게 위임
-boolean isVipCustomer = customer.isVip();
-double discountRate = customer.getBasicDiscountRate();
-
-// Customer 클래스에 비즈니스 로직 추가
-public class Customer {
-    public boolean isVip() { return orderHistory.size() > 10; }
-    public double getBasicDiscountRate() {
-        if (isVip()) return 0.15;
-        if (orderHistory.size() > 5) return 0.10;
-        return 0.0;
-    }
-}
-```
-
-**발견 대상**: Domain Service, Value Object, First Class Collection, Parameterized Object
-
-##### 7. Trimming — Advanced (충분한 연습 후)
+##### 6. Trimming
 **목적**: 사용하지 않는 변수, 메서드, 조건문 등 불필요한 코드 제거
 
 ```java
@@ -321,7 +279,7 @@ private void oldCalculationMethod(Order order) { /* deprecated */ }
 // (위 코드 모두 제거)
 ```
 
-##### 8. 품질 게이트: 이해하기 어려워졌나?
+##### 7. 품질 게이트: 이해하기 어려워졌나?
 5번까지 진행한 결과 코드가 오히려 이해하기 어려워졌다면:
 - **Yes** → **1. One Pile**로 돌아가서 잘못 추출된 메서드를 inline한 후 처음부터 다시 진행
 - **No** → **완료** — 다음 Red Phase 준비
@@ -349,16 +307,15 @@ private void oldCalculationMethod(Order order) { /* deprecated */ }
   - [ ] 긴 메서드 (20줄 이상)
 
 #### 2. Tidying Process 적용
-프로세스 흐름에 따라 순서대로 적용 (기존 8단계와 동일):
+프로세스 흐름에 따라 순서대로 적용:
 0. Guard Clauses (중첩 제거 — 가장 먼저)
 1. One Pile (조건부 — Composed Method 위배 시)
 2. Reorder (Slide Statements)
 3. Chunk Statements
 4. Explaining Comment ← 필수1
-5. Extract Variable/Method ← 필수2
-6. Domain Logic 이동 (Advanced)
-7. Trimming (Advanced)
-8. 품질 게이트 (이해하기 어려워졌나? → One Pile 복귀)
+5. Extract Variable ← 필수2
+6. Trimming
+7. 품질 게이트 (이해하기 어려워졌나? → One Pile 복귀)
 
 #### 3. 테스트 실행 및 검증
 - 프로젝트의 테스트 프레임워크 자동 감지 (gradle/maven)
@@ -411,10 +368,9 @@ private void oldCalculationMethod(Order order) { /* deprecated */ }
 2. Reorder (Slide Statements)
 3. Chunk Statements
 4. Explaining Comment ← 필수1
-5. Extract Variable/Method ← 필수2
-6. Domain Logic 이동 (Advanced)
-7. Trimming (Advanced)
-8. 품질 게이트 (이해하기 어려워졌나? → One Pile 복귀)
+5. Extract Variable ← 필수2
+6. Trimming
+7. 품질 게이트 (이해하기 어려워졌나? → One Pile 복귀)
 
 #### 3. 작은 단계로 적용
 - **한 번에 하나의 tidying만** 적용
@@ -444,6 +400,8 @@ private void oldCalculationMethod(Order order) { /* deprecated */ }
 - ❌ **새로운 기능 구현 금지** - Green Phase 전담
 - ❌ **대규모 리팩토링 금지** - 대신 작은 단계로 나누기
 - ❌ **테스트 수정 금지** - 구조 변경이 테스트를 깨면 되돌리기
+- ❌ **Extract Method 수행 금지** - system-wide-refactoring 스킬 전담
+- ❌ **Domain Logic 이동 금지** - system-wide-refactoring 스킬 전담
 
 ### Step 4에서 흔한 실수들
 - ❌ **필요 이상으로 리팩터링** — 정리하면 기분이 좋아지지만 과도하게 하지 말 것
