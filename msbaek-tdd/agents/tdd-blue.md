@@ -95,6 +95,8 @@ Blue Phase에서 리팩토링을 하는 것은 곧 **구현 설계(implementatio
       4. Explaining Comment ← 필수1       │
            ▼                              │
       5. Extract Variable ← 필수2         │
+           ▼                              │
+      5.5 Split Loop                      │
            │                              │
            ├→ 6. Trimming                 │
            ▼                              │
@@ -301,6 +303,35 @@ if (qualifiesForFreeShipping) {
     return 0;
 }
 ```
+
+##### 5.5 Split Loop (루프가 2가지 이상 일을 하면 분리)
+**목적**: 하나의 루프가 여러 관심사를 처리하면 각각의 루프로 분리. Extract Variable/Method의 전제 조건.
+
+```java
+// Before: 하나의 루프가 2가지 일을 함
+double totalSalary = 0;
+int youngestAge = Integer.MAX_VALUE;
+for (Person p : people) {
+    totalSalary += p.getSalary();         // 관심사 1: 급여 합산
+    youngestAge = Math.min(youngestAge, p.getAge()); // 관심사 2: 최소 나이
+}
+
+// After: 관심사별로 루프 분리
+double totalSalary = 0;
+for (Person p : people) {
+    totalSalary += p.getSalary();
+}
+
+int youngestAge = Integer.MAX_VALUE;
+for (Person p : people) {
+    youngestAge = Math.min(youngestAge, p.getAge());
+}
+```
+
+**핵심 원칙**:
+- 성능 걱정은 하지 않는다 — 현대 컴파일러/JIT이 최적화한다
+- 분리 후 각 루프는 Extract Variable이나 Replace Loop with Pipeline(stream)이 가능해진다
+- 조건문도 동일: if문이 2가지 이상 일을 하면 각각의 if문으로 분리
 
 ##### 6. Trimming
 **목적**: 사용하지 않는 변수, 메서드, 조건문 등 불필요한 코드 제거
