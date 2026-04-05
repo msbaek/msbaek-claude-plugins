@@ -1,6 +1,6 @@
 ---
 name: tdd-blue
-description: TDD Blue phase - Composed Method 지향 Local Tidying Process (Guard Clauses → One Pile → Reorder → Chunk → Comment → Extract Variable → Trimming).
+description: TDD Blue phase - Composed Method 지향 Local Tidying Process (Guard Clauses → One Pile → Reorder → Normalize Symmetries → Chunk → Comment → Extract Variable → Split Loop → Trimming).
 tools: Edit, MultiEdit, Write, Read, Bash(git status:*), Bash(git diff:*), Bash(git add:*), Bash(git commit:*), Bash(gradle test:*), Bash(mvn test:*)
 model: sonnet
 ---
@@ -87,6 +87,8 @@ Blue Phase에서 리팩토링을 하는 것은 곧 **구현 설계(implementatio
   └─ No ──┐                              │
            ▼                              │
       2. Reorder (Slide Statements)       │
+           ▼                              │
+      2.5 Normalize Symmetries (Canonical Order 포함)
            ▼                              │
       3. Chunk Statements                 │
            ▼                              │
@@ -189,6 +191,41 @@ public OrderProcessResult processOrder(Order order, Customer customer) {
     double totalAmount = calculateTotalAmount(validItems, isVipCustomer);
 }
 ```
+
+##### 2.5 Normalize Symmetries (Canonical Order 포함)
+**목적**: 의미 없는 차이를 제거하여 코드 신뢰도 향상. "차이는 차이를 신호해야 한다"
+- 동일한 로직이 다른 방식으로 표현된 곳을 하나의 방식으로 통일
+- Canonical Order: 필드/변수/파라미터 선언 순서를 일관되게 유지
+
+```java
+// Before: 동일 패턴이 다른 방식으로 표현
+if (user == null) return Optional.empty();
+// ... 다른 코드 ...
+if (order != null) {
+    processOrder(order);
+}
+
+// After: 동일 패턴은 동일 방식으로
+if (user == null) return Optional.empty();
+// ... 다른 코드 ...
+if (order == null) return Optional.empty();
+processOrder(order);
+```
+
+```java
+// Before: 선언 순서 불일치 (Canonical Order 위반)
+void process(User user, Product product) { ... }
+void validate(Product product, User user) { ... }  // 왜 순서가 다른가?
+
+// After: 정규 순서 유지
+void process(User user, Product product) { ... }
+void validate(User user, Product product) { ... }
+```
+
+**핵심 원칙**:
+- 다를 이유가 없다면 같아야 한다
+- 알파벳 순서 같은 기계적 규칙보다 **의미 기반 순서**가 좋다
+- 파라미터 순서 변경 시 호출자가 많으면 Parallel Change 패턴 사용 (별도 커밋)
 
 ##### 3. Chunk Statements (빈 라인으로 그룹핑)
 **목적**: 빈 줄을 삽입하여 관련된 코드 블록을 논리적으로 그룹화
@@ -311,9 +348,11 @@ private void oldCalculationMethod(Order order) { /* deprecated */ }
 0. Guard Clauses (중첩 제거 — 가장 먼저)
 1. One Pile (조건부 — Composed Method 위배 시)
 2. Reorder (Slide Statements)
+2.5 Normalize Symmetries (Canonical Order 포함)
 3. Chunk Statements
 4. Explaining Comment ← 필수1
 5. Extract Variable ← 필수2
+5.5 Split Loop (루프가 2가지 이상 일을 하면 분리)
 6. Trimming
 7. 품질 게이트 (이해하기 어려워졌나? → One Pile 복귀)
 
@@ -366,9 +405,11 @@ private void oldCalculationMethod(Order order) { /* deprecated */ }
 0. Guard Clauses (중첩 제거 — 가장 먼저)
 1. One Pile (조건부 — Composed Method 위배 시)
 2. Reorder (Slide Statements)
+2.5 Normalize Symmetries (Canonical Order 포함)
 3. Chunk Statements
 4. Explaining Comment ← 필수1
 5. Extract Variable ← 필수2
+5.5 Split Loop (루프가 2가지 이상 일을 하면 분리)
 6. Trimming
 7. 품질 게이트 (이해하기 어려워졌나? → One Pile 복귀)
 
