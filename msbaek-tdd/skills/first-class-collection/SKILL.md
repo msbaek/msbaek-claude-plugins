@@ -17,8 +17,6 @@ argument-hint: "[commit-ref]"
 - 모든 테스트 통과
 - 원래 브랜치로 PR 생성
 
-## GOAL
-
 ## CONSTRAINTS
 
 ### Hard Rules
