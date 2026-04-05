@@ -62,6 +62,10 @@ git diff --name-only <commit-ref> -- '*.java'
 **Domain Logic 이동 후보**:
 - Feature Envy — Service에서 도메인 객체의 데이터를 직접 조작
 - Tell, Don't Ask 위반 — getter 체이닝으로 로직 수행
+- Hide Delegate — getter 체이닝으로 내부 객체를 노출 (디미터 법칙 위반)
+  - 징후: `obj.getA().getB().doSomething()` 형태의 체이닝
+  - 해결: 중간 객체를 숨기고 위임 메서드 제공, 또는 로직 자체를 obj로 이동
+  - Tell Don't Ask와의 관계: 둘 다 Feature Envy의 증상. 해결 방향 동일 — 로직을 데이터가 있는 곳으로 이동
 - Domain Service, Value Object, First Class Collection 추출 가능
 
 **Split by Abstraction Layer 후보**:
@@ -111,6 +115,24 @@ git diff --name-only <commit-ref> -- '*.java'
 1. DB 조회를 메서드 상단으로 모음 (Imperative Shell — 빵)
 2. 순수 비즈니스 로직을 별도 메서드로 추출 (Functional Core — 속)
 3. DB 저장을 메서드 하단으로 모음 (Imperative Shell — 빵)
+
+**적용할까요?** (yes / no / 수정 요청)
+```
+
+```
+## 리팩토링 후보 N: Hide Delegate (Domain Logic 이동)
+
+**파일**: OrderService.java
+**대상**: order.getCustomer().getAddress().getCity() (3단계 체이닝)
+
+**현재 코드**:
+String city = order.getCustomer().getAddress().getCity();
+if (city.equals("Seoul")) { applyLocalDiscount(); }
+
+**제안 변경**:
+1. Order에 getCustomerCity() 위임 메서드 추가
+   또는
+2. 판단 로직 자체를 Order로 이동: order.isLocatedIn("Seoul")
 
 **적용할까요?** (yes / no / 수정 요청)
 ```
@@ -205,6 +227,7 @@ git checkout "${CURRENT_BRANCH}"
 - /first-class-collection — [파일명]에 컬렉션+관련 로직 산재
 - /lift-up-conditional — [파일명]에 동일 조건문 중복
 - /separate-query-modifier — [파일명]에 값 반환과 부수효과 혼재
+- /introduce-special-case — [파일명]에 동일 타입 null 검사가 [N]곳 반복
 적용할 기법을 선택하세요 (slash command 또는 skip)
 ```
 
