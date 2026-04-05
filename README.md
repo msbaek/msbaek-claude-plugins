@@ -8,7 +8,7 @@ Kent Beck의 TDD 원칙을 기반으로, SRS 작성부터 Red-Green-Blue 사이�
 
 | 플러그인 | 설명 | 버전 |
 |----------|------|------|
-| **msbaek-tdd** | Java + Spring Boot TDD workflow plugin with RGB cycle orchestration | 1.0.0 |
+| **msbaek-tdd** | Java + Spring Boot TDD workflow plugin with RGB cycle, local tidying, system-wide refactoring, and 12 optional refactoring skills | 1.5.0 |
 
 ## 설치
 
@@ -83,6 +83,50 @@ Blue (경량 리팩토링)
 [다음 테스트로 반복]
 ```
 
+### `/tdd-tidy` - 독립 Tidying
+
+TDD 사이클 없이 git diff 기준 변경 파일을 자동 탐지하여 Composed Method 지향 Tidying Process를 실행합니다. 완료 후 적용 가능한 선택 리팩토링 기법을 제안합니다.
+
+```
+/tdd-tidy          # 최근 변경 파일 대상
+/tdd-tidy HEAD~3   # 특정 커밋 기준
+```
+
+### `/system-wide-refactoring` - System-wide 리팩토링
+
+코드를 분석하여 리팩토링 후보를 제시하고, 사용자 확인 후 별도 브랜치에서 기법별 커밋을 수행한 뒤 PR을 생성합니다.
+
+```
+/system-wide-refactoring          # 최근 변경 기준
+/system-wide-refactoring HEAD~5   # 특정 커밋 기준
+```
+
+### 선택 리팩토링 스킬 (12개)
+
+`/tdd-tidy`나 `/system-wide-refactoring` 완료 후 추가로 적용할 수 있는 개별 리팩토링 기법입니다.
+
+#### Tidy 계열 (Local Tidying 확장)
+
+| 스킬 | 설명 |
+|------|------|
+| `/replace-temp-with-query` | 임시 변수를 메서드 호출로 치환하여 중복 제거 및 가독성 향상 |
+| `/decompose-conditional` | 복잡한 if/then/else의 조건식과 분기를 의미 있는 메서드로 추출 |
+| `/extract-method-object` | 지역 변수가 얽힌 거대 메서드를 별도 클래스(Method Object)로 추출 |
+| `/naming-process` | Arlo Belshee의 6단계 네이밍 프로세스로 코드 가독성 향상 |
+| `/lift-up-conditional` | 여러 곳에 중복된 조건문을 상위로 끌어올려 중복 제거 |
+
+#### System-wide 계열 (구조적 리팩토링)
+
+| 스킬 | 설명 |
+|------|------|
+| `/replace-conditional-with-poly` | 반복되는 switch/if-else 조건문을 다형성으로 치환 |
+| `/discover-value-object` | Primitive Obsession 제거 — primitive 타입을 Value Object로 치환 |
+| `/introduce-parameter-object` | 반복되는 파라미터 그룹을 객체로 치환하여 Value Object 발견 |
+| `/first-class-collection` | 컬렉션과 관련 로직을 전용 클래스로 추출 |
+| `/encapsulate-collection` | 컬렉션 getter의 내부 상태 노출 방지 (unmodifiable + add/remove) |
+| `/separate-query-modifier` | 값 반환과 부수효과가 혼재된 메서드를 Query와 Modifier로 분리 (CQS) |
+| `/explicit-parameters` | 암묵적 의존성(전역변수, 클래스 필드)을 명시적 파라미터로 전환 |
+
 ## 아키텍처
 
 ### 디렉토리 구조
@@ -90,20 +134,34 @@ Blue (경량 리팩토링)
 ```
 msbaek-claude-plugins/
 ├── .claude-plugin/
-│   └── marketplace.json          # Marketplace 카탈로그
-├── msbaek-tdd/                   # TDD 플러그인
+│   └── marketplace.json              # Marketplace 카탈로그
+├── msbaek-tdd/                       # TDD 플러그인
 │   ├── .claude-plugin/
-│   │   └── plugin.json           # 플러그인 매니페스트
+│   │   └── plugin.json               # 플러그인 매니페스트 (v1.5.0)
 │   ├── skills/
-│   │   ├── tdd/SKILL.md          # /tdd 오케스트레이터
-│   │   ├── tdd-plan/SKILL.md     # /tdd-plan 계획 수립
-│   │   └── tdd-rgb/SKILL.md      # /tdd-rgb 사이클 조율
+│   │   ├── tdd/SKILL.md              # /tdd 오케스트레이터
+│   │   ├── tdd-plan/SKILL.md         # /tdd-plan 계획 수립
+│   │   ├── tdd-rgb/SKILL.md          # /tdd-rgb 사이클 조율
+│   │   ├── tdd-tidy/SKILL.md         # /tdd-tidy 독립 tidying
+│   │   ├── system-wide-refactoring/  # /system-wide-refactoring
+│   │   ├── replace-temp-with-query/  # Tidy 계열 선택 스킬
+│   │   ├── decompose-conditional/
+│   │   ├── extract-method-object/
+│   │   ├── naming-process/
+│   │   ├── lift-up-conditional/
+│   │   ├── replace-conditional-with-poly/  # System-wide 계열 선택 스킬
+│   │   ├── discover-value-object/
+│   │   ├── introduce-parameter-object/
+│   │   ├── first-class-collection/
+│   │   ├── encapsulate-collection/
+│   │   ├── separate-query-modifier/
+│   │   └── explicit-parameters/
 │   └── agents/
-│       ├── tdd-red.md            # Red phase 전문 에이전트
-│       ├── tdd-green.md          # Green phase 전문 에이전트
-│       └── tdd-blue.md           # Blue phase 전문 에이전트
+│       ├── tdd-red.md                # Red phase 전문 에이전트
+│       ├── tdd-green.md              # Green phase 전문 에이전트
+│       └── tdd-blue.md               # Blue phase 전문 에이전트
 ├── README.md
-└── PUBLISHING-GUIDE.md           # Marketplace 배포 가이드
+└── PUBLISHING-GUIDE.md               # Marketplace 배포 가이드
 ```
 
 ### Skills과 Agents 관계
@@ -122,7 +180,25 @@ msbaek-claude-plugins/
 /tdd-rgb (사이클 조율)
  ├── tdd-red agent   → 실패하는 테스트 작성
  ├── tdd-green agent → 최소 구현으로 통과
- └── tdd-blue agent  → Composed Method 지향 Tidying Process
+ └── tdd-blue agent  → Composed Method 지향 Local Tidying Process
+
+/tdd-tidy (독립 tidying)
+ ├── git diff로 변경 파일 자동 탐지
+ ├── tdd-blue agent  → Local Tidying Process 독립 실행
+ └── 완료 후 선택 리팩토링 기법 제안
+
+/system-wide-refactoring (구조적 리팩토링)
+ ├── 코드 분석 → 리팩토링 후보 제시
+ ├── 별도 브랜치에서 기법별 커밋
+ ├── PR 생성
+ └── 완료 후 선택 리팩토링 기법 제안
+
+선택 리팩토링 스킬 (12개)
+ ├── Tidy 계열 (5개): replace-temp-with-query, decompose-conditional,
+ │   extract-method-object, naming-process, lift-up-conditional
+ └── System-wide 계열 (7개): replace-conditional-with-poly,
+     discover-value-object, introduce-parameter-object, first-class-collection,
+     encapsulate-collection, separate-query-modifier, explicit-parameters
 ```
 
 ### 전문 에이전트
@@ -131,7 +207,7 @@ msbaek-claude-plugins/
 |----------|------|-----------|
 | **tdd-red** | 실패하는 테스트 작성 | TDD 1법칙: "Write NO production code except to pass a failing test" |
 | **tdd-green** | 최소 구현으로 테스트 통과 | TPP (Transformation Priority Premise), Make-it-Work 전략 (Obvious / Fake it / Triangulation) |
-| **tdd-blue** | Composed Method 지향 리팩토링 | Tidying Process: Guard Clauses → One Pile → Reorder → Chunk → Comment → Extract → Domain Logic → Trimming |
+| **tdd-blue** | Composed Method 지향 리팩토링 | Tidying Process: Guard Clauses → One Pile → Reorder → Normalize Symmetries → Chunk → Comment → Extract Variable → Split Loop → Trimming |
 
 ## 워크플로우 예시
 
