@@ -87,6 +87,9 @@ tidying 과정에서 발견된 징후에 따라 선택 기법 제안:
 - /explicit-parameters — [파일명]에서 암묵적 필드 의존이 발견되었습니다
 - /naming-process — 의도가 불분명한 이름이 [N]건 있습니다
 - /encapsulate-collection — [파일명]에서 컬렉션이 직접 노출됩니다
+- /consolidate-conditional — [파일명]에서 동일 결과 조건문이 분산됩니다
+- /introduce-assertion — [파일명]에서 암묵적 가정이 발견되었습니다
+- /replace-loop-with-pipeline — [파일명]에서 명령형 루프를 Stream으로 변환 가능합니다
 적용할 기법을 선택하세요 (slash command 또는 skip)
 ```
 
