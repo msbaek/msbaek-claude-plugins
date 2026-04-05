@@ -11,12 +11,12 @@
     {
       "name": "msbaek-tdd",
       "source": "./msbaek-tdd",
-      "description": "Java + Spring Boot TDD workflow plugin with RGB cycle orchestration and standalone tidying",
-      "version": "1.3.0",
+      "description": "Java + Spring Boot TDD workflow plugin with RGB cycle, local tidying, and system-wide refactoring",
+      "version": "1.4.0",
       "author": {
         "name": "msbaek"
       },
-      "keywords": ["tdd", "java", "spring-boot", "red-green-blue", "tidying"],
+      "keywords": ["tdd", "java", "spring-boot", "red-green-blue", "tidying", "refactoring"],
       "category": "development"
     }
   ]
