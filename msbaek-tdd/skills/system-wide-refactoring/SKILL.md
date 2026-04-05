@@ -11,7 +11,7 @@ argument-hint: "[commit-ref]"
 ## GOAL
 
 - **성공 = 사용자가 확인한 리팩토링이 별도 브랜치에서 기법별 커밋으로 완료되고, 원래 브랜치로 PR이 생성됨**
-- Extract Method / Domain Logic 이동 후보가 식별됨
+- Extract Method / Extract Delegate / Domain Logic 이동 / SoC(Split Phase, Split by Abstraction Layer, Split by Unrelated Complexity) 후보가 식별됨
 - 사용자와 질의응답으로 방향이 확정됨
 - 별도 브랜치에서 기법별 커밋 완료
 - 모든 테스트 통과
@@ -64,6 +64,20 @@ git diff --name-only <commit-ref> -- '*.java'
 - Tell, Don't Ask 위반 — getter 체이닝으로 로직 수행
 - Domain Service, Value Object, First Class Collection 추출 가능
 
+**Split by Abstraction Layer 후보**:
+- High-level 비즈니스 로직과 Low-level 인프라 코드(DB, I/O)가 한 메서드에 혼재
+- App 계층과 Domain 계층이 분리되지 않은 경우
+
+**Split by Unrelated Complexity 후보**:
+- 서로 관계없는 복잡성(예: 사용자 처리 로직과 상품 처리 로직)이 한 메서드/클래스에 혼재
+- 서로 다른 변경 이유를 가진 코드가 결합된 경우
+
+**Split Phase 후보** (Functional Core & Imperative Shell 포함):
+- 서로 다른 계산 단계가 한 메서드에 혼재 (예: 파싱 → 처리 → 포매팅)
+- 순수 로직과 부수효과(I/O)가 분리되지 않은 경우 (빵속빵 패턴)
+  - 패턴: I/O(impure) → 비즈니스 로직(pure) → I/O(impure)
+- 중간 데이터 구조(Intermediate Data Structure)로 단계를 연결
+
 #### 3. 리팩토링 후보 제시 — 사용자와 질의응답
 
 후보를 하나씩 제시하고 사용자 확인:
@@ -80,6 +94,23 @@ git diff --name-only <commit-ref> -- '*.java'
 **제안 변경**:
 - calculateDiscount() 메서드 추출 (라인 23-35)
 - validateInventory() 메서드 추출 (라인 37-42)
+
+**적용할까요?** (yes / no / 수정 요청)
+```
+
+```
+## 리팩토링 후보 N: Split Phase (Functional Core & Imperative Shell)
+
+**파일**: OrderService.java
+**대상**: processOrder() 메서드 (35줄)
+
+**현재 코드**:
+[해당 코드 블록 — DB 조회, 비즈니스 로직, DB 저장이 혼재]
+
+**제안 변경**:
+1. DB 조회를 메서드 상단으로 모음 (Imperative Shell — 빵)
+2. 순수 비즈니스 로직을 별도 메서드로 추출 (Functional Core — 속)
+3. DB 저장을 메서드 하단으로 모음 (Imperative Shell — 빵)
 
 **적용할까요?** (yes / no / 수정 요청)
 ```
@@ -114,6 +145,9 @@ git checkout -b "refactor/${CURRENT_BRANCH}"
 - `refactor: extract method [메서드명] from [클래스명]`
 - `refactor: extract delegate [클래스명] from [원본클래스명]`
 - `refactor: move [설명] to [대상 클래스]`
+- `refactor: split phase [설명] in [클래스명]`
+- `refactor: split by abstraction layer [설명] in [클래스명]`
+- `refactor: split unrelated complexity [설명] from [클래스명]`
 
 한글 커밋 메시지가 필요한 경우 Write tool로 임시 파일 생성 후 `git commit -F <파일>` 사용.
 
@@ -159,6 +193,21 @@ git checkout "${CURRENT_BRANCH}"
 - 적용된 리팩토링 목록
 - 리뷰 후 squash merge 안내
 
+리팩토링 과정에서 발견된 추가 개선 기회를 제안:
+
+```
+추가로 발견된 개선 기회:
+[발견 시에만 해당 항목 표시]
+- /extract-method-object — [파일명]에서 지역 변수 얽힘으로 Extract Method 불가
+- /replace-conditional-with-poly — [파일명]에 반복 switch/if-else [N]곳
+- /introduce-parameter-object — [파일명]에 3개 이상 파라미터 그룹 반복
+- /discover-value-object — [파일명]에 primitive 타입에 로직 집중
+- /first-class-collection — [파일명]에 컬렉션+관련 로직 산재
+- /lift-up-conditional — [파일명]에 동일 조건문 중복
+- /separate-query-modifier — [파일명]에 값 반환과 부수효과 혼재
+적용할 기법을 선택하세요 (slash command 또는 skip)
+```
+
 ## FAILURE CONDITIONS
 
 - ❌ 사용자 확인 없이 리팩토링 실행
@@ -167,3 +216,4 @@ git checkout "${CURRENT_BRANCH}"
 - ❌ git add -A로 전체 파일 추가
 - ❌ main 브랜치로 직접 PR 생성 (반드시 원래 작업 브랜치로)
 - ❌ Local Tidying 기법 수행 (Guard Clauses, Reorder 등은 tdd-tidy 전담)
+- ❌ Split Phase 적용 시 중간 데이터 구조 없이 단계만 분리 (단계 간 결합 유발)
