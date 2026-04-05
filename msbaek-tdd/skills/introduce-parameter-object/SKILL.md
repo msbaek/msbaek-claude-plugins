@@ -1,21 +1,51 @@
 ---
 name: introduce-parameter-object
-description: 반복되는 파라미터 그룹을 객체로 치환하여 Value Object 발견. /introduce-parameter-object로 호출.
+description: 반복되는 파라미터 그룹을 객체로 치환(IPO)하거나, 객체에서 꺼낸 값 대신 객체 자체를 전달(PWO). /introduce-parameter-object로 호출.
 argument-hint: "[commit-ref]"
 ---
 
-# Introduce Parameter Object Skill
+# Introduce Parameter Object / Preserve Whole Object
 
-반복되는 파라미터 그룹을 객체로 치환하여 응집도 높은 Value Object 발견.
+상황에 따라 두 가지 기법 중 적합한 것을 선택:
+
+- **Introduce Parameter Object (IPO)**: 파라미터에 행위를 추가해야 할 때 → 새 객체 생성 → 행위 이동 → Value Object 발견
+- **Preserve Whole Object (PWO)**: 기존 객체에서 값을 꺼내 전달할 때 → 객체 자체를 전달하여 파라미터 수 감소
 
 ## GOAL
 
-- **성공 = 반복 파라미터 그룹이 Parameter Object로 치환되어 별도 브랜치에서 커밋 완료, PR 생성됨**
-- 3개 이상의 파라미터가 함께 전달되는 패턴이 2회 이상 반복됨
-- 논리적으로 관련 있는 파라미터 그룹이 식별됨
-- 사용자 확인 후 Parameter Object 적용
+- **성공 = 반복 파라미터가 IPO 또는 PWO로 정리되어 별도 브랜치에서 커밋 완료, PR 생성됨**
+- IPO: 파라미터 그룹이 Parameter Object로 치환되고 관련 행위가 이동됨
+- PWO: 객체에서 꺼낸 값들이 객체 자체 전달로 대체됨
+- 사용자 확인 후 적용
 - 모든 테스트 통과
 - 원래 브랜치로 PR 생성
+
+## 기법 선택 기준
+
+| 상황 | 적용 기법 | 이유 |
+|---|---|---|
+| 파라미터들이 이미 하나의 객체에서 꺼내져 전달됨 | **Preserve Whole Object** | 객체가 이미 존재 — 꺼내지 말고 그대로 전달 |
+| 파라미터에 대한 행위를 추가해야 하는 경우 | **Introduce Parameter Object** | 새 객체 생성 → 행위 이동 → Value Object 발견 |
+
+### IPO의 진짜 목적
+
+> "더 큰 혜택은 파라미터 그룹에 대해서 동작하는 행위들을 파라미터 객체로 이동시킬 수 있는 것" — Fowler, Ch10
+
+IPO는 파라미터 묶기 자체가 목적이 아니라, **Value Object를 발견하는 시작점**:
+
+```
+Introduce Parameter Object
+  → Move Instance Method (관련 로직을 Parameter Object로 이동)
+    → Value Object 탄생 (데이터 + 행위를 가진 객체)
+```
+
+### 적용하면 안 되는 경우
+
+| 상황 | 이유 |
+|---|---|
+| 파라미터 간에 논리적 관계가 없음 | 억지로 묶으면 이상한 객체가 탄생 |
+| 한 메서드에서만 사용되는 파라미터 조합 | 반복이 없으면 추상화의 가치 없음 |
+| 파라미터 객체에 이동할 행위가 없음 | 단순 DTO가 되어 Anemic Domain Model 유발 (이 경우 PWO가 더 적합할 수 있음) |
 
 ## CONSTRAINTS
 
@@ -106,6 +136,29 @@ public class PriceService {
 }
 ```
 
+### Preserve Whole Object 패턴
+
+```java
+// Before: 객체에서 값을 꺼내서 전달
+int low = temperatureRange.getLow();
+int high = temperatureRange.getHigh();
+boolean withinRange = plan.isWithinRange(low, high);
+
+// After: 객체 자체를 전달
+boolean withinRange = plan.isWithinRange(temperatureRange);
+```
+
+```java
+// Before: DTO에서 여러 값을 꺼내서 전달
+String name = request.getName();
+String email = request.getEmail();
+int age = request.getAge();
+User user = createUser(name, email, age);
+
+// After: 객체 자체를 전달
+User user = createUser(request);
+```
+
 ## 적용 기준
 
 Introduce Parameter Object를 적용해야 하는 경우:
@@ -140,10 +193,17 @@ git diff --name-only <commit-ref> -- '*.java'
 
 대상 파일에서 다음 패턴을 찾는다:
 
+**패턴 A: Introduce Parameter Object**
 - 3개 이상의 파라미터를 받는 메서드
 - 동일한 파라미터 조합이 2곳 이상에서 반복
 - 파라미터들이 논리적으로 관련 있음 (같은 도메인 개념)
-- 파라미터 순서가 일관됨
+- 파라미터에 대한 계산/검증 로직이 여러 곳에서 중복
+- Move Method의 전 단계로 파라미터를 묶어야 하는 경우
+
+**패턴 B: Preserve Whole Object**
+- 하나의 객체에서 여러 값을 꺼내어 다른 메서드에 전달
+- `obj.getX()`, `obj.getY()`, `obj.getZ()`를 꺼낸 뒤 `method(x, y, z)` 호출
+- 객체 자체를 전달하면 파라미터 수가 줄어드는 경우
 
 #### 3. 리팩토링 후보 제시 — 사용자와 질의응답
 
@@ -172,6 +232,16 @@ String formatPrice(int originalPrice, int discountedPrice, String currency)
 4. 모든 메서드 시그니처를 Price로 변경
 
 **적용할까요?** (yes / no / 수정 요청)
+```
+
+```
+## 리팩토링 후보 2: Preserve Whole Object
+
+**파일**: HeatingPlan.java
+**현재**: temperatureRange에서 low, high를 꺼내어 isWithinRange(low, high) 호출
+**제안**: isWithinRange(temperatureRange)로 변경
+
+적용할까요? (yes / no / 수정 요청)
 ```
 
 - 사용자가 **yes** → 실행 목록에 추가
@@ -257,6 +327,31 @@ git checkout "${CURRENT_BRANCH}"
 - PR URL
 - 적용된 Parameter Object 목록
 - 리뷰 후 squash merge 안내
+
+## 실전 리팩토링 경로 (Vault 사례)
+
+### 사례 1: SequenceKey
+```
+Extract Method → Introduce Parameter Object → Move Instance Method → Convert Record to Class
+```
+효과: sequenceKey가 String → Value Object로 승격. format, increase 로직이 Value Object로 이동.
+
+### 사례 2: ProductPrice
+```
+Split Conditional → Extract Method → Introduce Parameter Object → Move Instance Method
+```
+효과: isDiscounted, getFinalPrice가 ProductPrice로 이동. 독립 테스트 가능.
+
+### 사례 3: StockChecker (빵속빵 패턴)
+```
+빵속빵(FCIS) 구조 만들기 → DTO 의존성을 파라미터로 전환 → Parameter Object 생성 → 관련 메서드 이동
+```
+패턴: Move Method 전 단계로 파라미터를 먼저 묶음.
+
+### 공통 패턴
+```
+IPO → Move Instance Method → Value Object 탄생
+```
 
 ## FAILURE CONDITIONS
 
