@@ -132,37 +132,73 @@ public void processOrder(Order order) {
 ```
 
 ##### 1. One Pile (inline method) — 조건부
-**목적**: 과도하게 분리된 작은 메서드들을 inline하여 전체 흐름을 명확히 파악
-**진입 조건**: 조숙한 리팩터링으로 Composed Method가 위배되어 코드의 의도가 전달되지 않을 때만 진행
+**목적**: 커플링된 관심사가 여러 메서드에 분산되어 있을 때, 한 곳에 모아 전체 흐름을 파악한 뒤 직교적으로 재분리
 
 > "커플링을 유발하는 관심사를 직교화할 방법을 찾을 때까지의 임시 방안" — Kent Beck
 
+**진입 조건** (하나 이상 해당 시):
+- 조숙한 리팩터링으로 Composed Method가 위배되어 코드 의도가 전달되지 않을 때
+- **여러 메서드에 걸친 관심사**: 자원 열기/닫기, 트랜잭션 시작/종료 등이 분산
+- **인스턴스 변수를 통한 암묵적 결합**: 한 메서드에서 열고, 다른 메서드에서 닫는 패턴
+- **적절한 추상화가 보이지 않을 때**: 분리의 축이 불분명한 상태
+
+**3단계 프로세스**:
+```
+관심사가 서로 섞여 있는 상태 (intermixed concerns)
+    ↓
+모든 것을 한 곳에 모음 (One Pile — interim design)
+    ↓  
+직교성이 보이면 관심사를 깔끔하게 분리
+```
+
 ```java
-// Before: 너무 작은 메서드들로 흐름이 불명확
-public OrderProcessResult processOrder(Order order, Customer customer) {
-    validateOrder(order);
-    checkCustomer(customer);
-    // ... 메인 로직
-}
-private void validateOrder(Order order) {
-    if (order == null) throw new IllegalArgumentException("Order is null");
-}
-private void checkCustomer(Customer customer) {
-    if (customer == null) throw new IllegalArgumentException("Customer is null");
+// 1단계: 자원 관리가 여러 메서드에 분산 (커플링 발생)
+class Processor {
+    File file; // 인스턴스 변수로 결합 유발
+    void step1() {
+        file = new File(...); // 여기서 열고
+        // ... step1 로직
+    }
+    void step2() { ... }    // 예외 시 파일 미정리 (암묵적 결합)
+    void step3() {
+        // ... step3 로직
+        file.close();        // 여기서 닫음
+    }
 }
 
-// After: Inline하여 흐름이 한눈에 보임
-public OrderProcessResult processOrder(Order order, Customer customer) {
-    if (order == null) throw new IllegalArgumentException("Order is null");
-    if (customer == null) throw new IllegalArgumentException("Customer is null");
-    // ... 메인 로직
+// 2단계: One Pile — 한 곳에 모아 전체 흐름 파악
+void process() {
+    File file = new File(...);
+    // step 1 로직
+    // step 2 로직
+    // step 3 로직
+    file.close();
+    // → 파일 열기/닫기가 한눈에 보임. 하지만 비즈니스 로직과 자원 관리가 뒤섞임
+}
+
+// 3단계: 직교성 발견 후 분리 (자원 관리 ↔ 비즈니스 로직)
+void process() {
+    File.openWhile(file -> {   // 자원 관리는 여기서 보장
+        step1(file);           // 비즈니스 로직만 담당
+        step2(file);
+        step3(file);
+    }); // 예외 발생해도 파일 반드시 닫힘
 }
 ```
 
+**직교성 판단 기준** (분리 시점):
+- 독립적으로 변경 가능한가?
+- 서로 다른 이유로 변경되는가?
+- 재사용 가능한 단위인가?
+→ 기준이 충족되지 않으면 One Pile 상태를 유지 (성급한 추상화보다 나음)
+
 **핵심 원칙**:
-- 관심사가 서로 섞여 있는 상태 → 한 곳에 모음 → 이후 관심사를 깔끔하게 분리
 - One Pile은 **중간 설계(interim design)** — 최종 목표가 아님
+- **성급한 추상화보다 One Pile 상태가 낫다**: 가장 강력한 추상화는 실행 중인 코드에서 발견됨 (need driven)
 - 직교하는 서로 다른 관심사를 발견할 때까지 합치고, 직교성이 보이면 분리
+
+**커밋 전략**: One Pile은 **항상** 별도 커밋으로 분리한다 (`refactor: one-pile [대상]`).
+중간 설계 상태를 반드시 기록하여, 이후 재분리에서 문제 발생 시 이 지점으로 복원 가능하게 한다.
 
 ##### 2. Reorder (Slide Statements)
 **목적**: 코드 읽기 순서를 개선하여 의도가 드러나도록 구성
