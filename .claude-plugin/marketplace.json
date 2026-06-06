@@ -4,8 +4,8 @@
     "name": "msbaek"
   },
   "metadata": {
-    "description": "TDD workflow plugins for Java/Spring Boot development",
-    "version": "1.1.0"
+    "description": "Personal Claude Code plugins — TDD workflow (Java/Spring Boot) and Obsidian vault automation",
+    "version": "1.2.0"
   },
   "plugins": [
     {
@@ -18,6 +18,17 @@
       },
       "keywords": ["tdd", "java", "spring-boot", "red-green-blue", "tidying", "refactoring", "split-phase", "value-object", "naming", "null-object", "stream-pipeline", "assertion", "functional-core"],
       "category": "development"
+    },
+    {
+      "name": "msbaek-obsidian",
+      "source": "./msbaek-obsidian",
+      "description": "Obsidian vault automation — summarize technical articles and YouTube videos into detailed Korean Zettelkasten notes",
+      "version": "0.1.0",
+      "author": {
+        "name": "msbaek"
+      },
+      "keywords": ["obsidian", "summarization", "article", "youtube", "zettelkasten", "playwright", "knowledge-management", "korean", "pkm"],
+      "category": "productivity"
     }
   ]
 }

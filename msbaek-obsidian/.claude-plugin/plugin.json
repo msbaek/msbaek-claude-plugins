@@ -1,0 +1,9 @@
+{
+  "name": "msbaek-obsidian",
+  "version": "0.1.0",
+  "description": "Obsidian vault automation — summarize technical articles and YouTube videos into detailed Korean Zettelkasten notes (Playwright extraction, wikilinks, atomic notes, related notes)",
+  "author": {
+    "name": "msbaek"
+  },
+  "keywords": ["obsidian", "summarization", "article", "youtube", "zettelkasten", "playwright", "knowledge-management", "korean", "pkm"]
+}
