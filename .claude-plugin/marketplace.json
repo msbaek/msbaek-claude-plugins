@@ -18,17 +18,6 @@
       },
       "keywords": ["tdd", "java", "spring-boot", "red-green-blue", "tidying", "refactoring", "split-phase", "value-object", "naming", "null-object", "stream-pipeline", "assertion", "functional-core"],
       "category": "development"
-    },
-    {
-      "name": "msbaek-obsidian",
-      "source": "./msbaek-obsidian",
-      "description": "Obsidian vault automation — summarize technical articles and YouTube videos into detailed Korean Zettelkasten notes",
-      "version": "0.1.0",
-      "author": {
-        "name": "msbaek"
-      },
-      "keywords": ["obsidian", "summarization", "article", "youtube", "zettelkasten", "playwright", "knowledge-management", "korean", "pkm"],
-      "category": "productivity"
     }
   ]
 }

@@ -149,11 +149,17 @@ Discover Value Object를 적용해야 하는 경우:
 3. **반복 검증**: 동일한 검증 로직이 여러 곳에서 반복
 4. **비즈니스 규칙**: primitive 값에 대한 비즈니스 규칙이 존재
 5. **함께 사용**: 여러 primitive가 항상 함께 사용됨 (예: amount + currency)
+6. **외부 라이브러리/API 타입 직접 노출**: 3rd-party 타입(`BigDecimal`, `LocalDate`, `UUID`, JDBC `ResultSet`, 외부 API 응답 DTO 등)이 도메인 개념을 그대로 대변
+   - 해당 타입에 대한 검증/변환/계산 로직이 호출부에 산재
+   - 수정/상속이 불가능해 **Wrapper(composition) 형태의 Local Extension**으로 감쌈 (Fowler: Introduce Local Extension)
+   - 일회성 편의 메서드만 필요하면 Value Object 대신 **Introduce Foreign Method**를 검토
 
 **발견 후보**:
 - Entity의 필드 (예: amount, price, email, phoneNumber)
 - 반복되는 파라미터 (Introduce Parameter Object와 연계)
 - 기능이 많은 primitive (검증/변환/포맷팅 로직 다수)
+- **외부 라이브러리 타입** (예: `BigDecimal` → `Money`, `LocalDate` → `BusinessDate`, `String` UUID → `OrderId`)
+- **외부 API/프로토콜 타입** (예: `PaymentApiResponse` → `PaymentResult`, `HttpResponse<String>` → `AuthToken`)
 
 ## OUTPUT FORMAT
 
@@ -183,6 +189,8 @@ git diff --name-only <commit-ref> -- '*.java'
 - 해당 필드에 대한 검증 로직이 2곳 이상
 - 해당 필드에 대한 변환/포맷팅 메서드가 존재
 - 여러 primitive가 항상 함께 사용됨
+- **외부 라이브러리 타입**(`BigDecimal`, `LocalDate`, `UUID` 등)이 필드/파라미터로 직접 노출되고, 관련 계산/검증 로직이 호출부에 산재
+- **외부 API 응답/DTO 타입**이 도메인 경계를 넘어 내부 로직에서 그대로 사용됨
 
 #### 3. 리팩토링 후보 제시 — 사용자와 질의응답
 
