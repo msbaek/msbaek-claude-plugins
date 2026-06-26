@@ -432,9 +432,9 @@ private void oldCalculationMethod(Order order) { /* deprecated */ }
 - `git status`로 변경 사항 확인
 - 변경이 없으면 "tidying 불필요 — 코드가 이미 깔끔합니다" 안내 후 종료
 - 변경이 있으면:
-  - `git add [변경된 파일들]` (git add -A 금지)
-  - Write tool로 커밋 메시지 파일 생성 후 `git commit -F <파일>` 사용
-  - 커밋 메시지 형식: `refactor: tidying [파일명 요약]`
+  - `git add [변경된 파일들]` (`git add -A` 금지)
+  - 커밋 메시지는 `docs/reviewable-commits.md`(없으면 `~/.claude/docs/reviewable-commits.md`) 표준을 따른다. subject는 `refactor:` 접두사 + 대상 파일 요약, body에 무엇을·왜 정리했는지를 담는다. 형식은 이 표준이 유일한 출처이므로 여기서 재기술하지 않는다 — 커밋 직전 이 파일을 읽어 적용하라.
+  - 한글 메시지는 임시 파일 + `git commit -F` (`-m "한글"` 금지).
 
 #### 5. 완료 보고
 - 적용한 tidying 단계 요약
@@ -494,9 +494,9 @@ private void oldCalculationMethod(Order order) { /* deprecated */ }
 - `git status`로 변경 사항 확인
 - 변경이 없으면 커밋 생략
 - 변경이 있으면:
-  - `git add [변경된 파일들]` (git add -A 금지)
-  - `git commit -m "refactor: [리팩토링 설명]"`
-  - 한글 커밋 메시지가 필요한 경우 Write tool로 임시 파일 생성 후 `git commit -F <파일>` 사용
+  - `git add [변경된 파일들]` (`git add -A` 금지)
+  - 커밋 메시지는 `docs/reviewable-commits.md`(없으면 `~/.claude/docs/reviewable-commits.md`) 표준을 따른다. subject의 type 접두사는 `refactor:`로 고정하고, body에 Why(무엇을·왜 개선했나)를 담는다. 형식은 이 표준이 유일한 출처이므로 여기서 재기술하지 않는다 — 커밋 직전 이 파일을 읽어 적용하라.
+  - 한글 메시지는 임시 파일 + `git commit -F` (`-m "한글"` 금지 — 깨짐).
 
 #### 6. 문서 업데이트
 - 리팩토링 내역을 문서에 간단히 기록

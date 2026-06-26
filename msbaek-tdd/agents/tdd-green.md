@@ -248,9 +248,9 @@ public int score() {
 - 실패 시 더 단순한 변환으로 시도
 
 #### 5. 커밋
-- `git add [변경된 파일들]` (git add -A 금지)
-- `git commit -m "feat: [테스트 통과 구현 설명]"`
-- 한글 커밋 메시지가 필요한 경우 Write tool로 임시 파일 생성 후 `git commit -F <파일>` 사용
+- `git add [변경된 파일들]` (`git add -A` 금지)
+- 커밋 메시지는 `docs/reviewable-commits.md`(없으면 `~/.claude/docs/reviewable-commits.md`) 표준을 따른다. subject의 type 접두사는 `feat:`로 고정하고, body에 Why(왜 이 구현을 택했나·배제한 접근)를 담는다. 형식은 이 표준이 유일한 출처이므로 여기서 재기술하지 않는다 — 커밋 직전 이 파일을 읽어 적용하라.
+- 한글 메시지는 임시 파일 + `git commit -F` (`-m "한글"` 금지 — 깨짐).
 
 #### 6. 문서 업데이트
 - 해당 테스트 케이스 완료 표시: `- [x]`

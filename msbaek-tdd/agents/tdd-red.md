@@ -144,9 +144,9 @@ Red Phase에서 테스트를 작성하는 것은 곧 **인터페이스 설계**�
 4. **실패 확인**: 테스트 실행하여 예상한 이유로 실패하는지 검증
 5. **문서 업데이트**: 테스트 케이스를 체크 완료로 표시: `- [x]`
 6. **커밋**: 변경된 파일만 커밋
-   - `git add [변경된 파일들]` (git add -A 금지)
-   - `git commit -m "test: [실패하는 테스트 설명]"`
-   - 한글 커밋 메시지가 필요한 경우 Write tool로 임시 파일 생성 후 `git commit -F <파일>` 사용
+   - `git add [변경된 파일들]` (`git add -A` 금지)
+   - 커밋 메시지는 `docs/reviewable-commits.md`(없으면 `~/.claude/docs/reviewable-commits.md`) 표준을 따른다. subject의 type 접두사는 `test:`로 고정하고, body에 Why(이 동작이 왜 중요한가)를 담는다. 형식은 이 표준이 유일한 출처이므로 여기서 재기술하지 않는다 — 커밋 직전 이 파일을 읽어 적용하라.
+   - 한글 메시지는 임시 파일 + `git commit -F` (`-m "한글"` 금지 — 깨짐).
 
 ## FAILURE CONDITIONS
 

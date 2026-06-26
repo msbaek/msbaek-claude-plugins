@@ -1,9 +1,9 @@
 {
   "name": "msbaek-tdd",
-  "version": "1.7.0",
-  "description": "Java + Spring Boot TDD workflow plugin with RGB cycle, local tidying, system-wide refactoring, and 17 optional refactoring skills",
+  "version": "1.8.0",
+  "description": "Java + Spring Boot TDD workflow plugin with RGB cycle, feature-level autonomous implementation, local tidying, system-wide refactoring, and 17 optional refactoring skills",
   "author": {
     "name": "msbaek"
   },
-  "keywords": ["tdd", "java", "spring-boot", "red-green-blue", "tidying", "refactoring", "split-phase", "value-object", "naming", "null-object", "stream-pipeline", "assertion", "functional-core"]
+  "keywords": ["tdd", "java", "spring-boot", "red-green-blue", "feature-driven", "autonomous", "reviewable-commits", "tidying", "refactoring", "split-phase", "value-object", "naming", "null-object", "stream-pipeline", "assertion", "functional-core"]
 }
