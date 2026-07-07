@@ -6,7 +6,7 @@ Kent Beck의 TDD 원칙을 기반으로, SRS 작성부터 Red-Green-Blue 사이�
 
 | 플러그인 | 설명 | 버전 |
 |----------|------|------|
-| **msbaek-tdd** | Java + Spring Boot TDD workflow with RGB cycle, feature-level autonomous implementation, local tidying, system-wide refactoring, and 16 optional refactoring skills | 1.8.0 |
+| **msbaek-tdd** | Java + Spring Boot TDD workflow with RGB cycle, feature-level autonomous implementation, local tidying, system-wide refactoring, and 18 optional refactoring skills | 1.9.0 |
 
 ## 설치
 
@@ -142,11 +142,11 @@ Guard Clauses → One Pile → Reorder → Normalize Symmetries
 /system-wide-refactoring HEAD~5   # 특정 커밋 기준
 ```
 
-### 선택 리팩토링 스킬 (16개)
+### 선택 리팩토링 스킬 (18개)
 
 `/tdd-tidy`나 `/system-wide-refactoring` 완료 후 추가로 적용할 수 있는 개별 리팩토링 기법입니다.
 
-#### Tidy 계열 — Local Tidying 확장 (8개)
+#### Tidy 계열 — Local Tidying 확장 (9개)
 
 | 스킬 | 설명 |
 |------|------|
@@ -155,11 +155,12 @@ Guard Clauses → One Pile → Reorder → Normalize Symmetries
 | `/replace-temp-with-query` | 임시 변수를 메서드 호출로 치환하여 중복 제거 및 가독성 향상 |
 | `/extract-method-object` | 지역 변수가 얽힌 거대 메서드를 별도 클래스(Method Object)로 추출 |
 | `/naming-process` | Arlo Belshee의 6단계 네이밍 프로세스로 코드 가독성 향상 |
+| `/intent-revealing-names` | 긴 메서드 하나를 grouping·comment로 정돈해 책임을 드러낸 뒤, 6단계 네이밍으로 extract를 유도하며 관통 리팩토링 |
 | `/lift-up-conditional` | 여러 곳에 중복된 조건문을 상위로 끌어올려 중복 제거 |
 | `/introduce-assertion` | 암묵적 가정을 Assert/Validate로 명시하여 가정 위반 시 즉시 발견 |
 | `/replace-loop-with-pipeline` | 명령형 루프를 Stream API/Collection Pipeline으로 변환 |
 
-#### System-wide 계열 — 구조적 리팩토링 (8개)
+#### System-wide 계열 — 구조적 리팩토링 (9개)
 
 | 스킬 | 설명 |
 |------|------|
@@ -171,6 +172,7 @@ Guard Clauses → One Pile → Reorder → Normalize Symmetries
 | `/separate-query-modifier` | 값 반환과 부수효과가 혼재된 메서드를 Query와 Modifier로 분리 (CQS) |
 | `/explicit-parameters` | 암묵적 의존성(전역변수, 클래스 필드)을 명시적 파라미터로 전환 |
 | `/introduce-special-case` | 반복되는 null 검사를 Special Case(Null Object) 클래스로 대체 |
+| `/segregate-functional-core` | 순수 비즈니스 로직(Functional Core)과 부수효과(Imperative Shell)를 분리 |
 
 ## 워크플로우 예시
 
@@ -235,22 +237,24 @@ msbaek-claude-plugins/
 │   │   ├── tdd-feature/              # /tdd-feature feature 단위 자율 구현
 │   │   ├── tdd-tidy/                 # /tdd-tidy 독립 tidying
 │   │   ├── system-wide-refactoring/  # /system-wide-refactoring
-│   │   ├── decompose-conditional/    # Tidy 계열 (8개)
+│   │   ├── decompose-conditional/    # Tidy 계열 (9개)
 │   │   ├── consolidate-conditional/
 │   │   ├── replace-temp-with-query/
 │   │   ├── extract-method-object/
 │   │   ├── naming-process/
+│   │   ├── intent-revealing-names/
 │   │   ├── lift-up-conditional/
 │   │   ├── introduce-assertion/
 │   │   ├── replace-loop-with-pipeline/
-│   │   ├── replace-conditional-with-poly/  # System-wide 계열 (8개)
+│   │   ├── replace-conditional-with-poly/  # System-wide 계열 (9개)
 │   │   ├── discover-value-object/
 │   │   ├── introduce-parameter-object/
 │   │   ├── first-class-collection/
 │   │   ├── encapsulate-collection/
 │   │   ├── separate-query-modifier/
 │   │   ├── explicit-parameters/
-│   │   └── introduce-special-case/
+│   │   ├── introduce-special-case/
+│   │   └── segregate-functional-core/
 │   └── agents/
 │       ├── tdd-red.md                # Red phase 전문 에이전트
 │       ├── tdd-green.md              # Green phase 전문 에이전트
@@ -292,14 +296,15 @@ msbaek-claude-plugins/
  ├── PR 생성
  └── 완료 후 선택 리팩토링 기법 제안
 
-선택 리팩토링 스킬 (16개)
- ├── Tidy 계열 (8개): decompose-conditional, consolidate-conditional,
+선택 리팩토링 스킬 (18개)
+ ├── Tidy 계열 (9개): decompose-conditional, consolidate-conditional,
  │   replace-temp-with-query, extract-method-object, naming-process,
- │   lift-up-conditional, introduce-assertion, replace-loop-with-pipeline
- └── System-wide 계열 (8개): replace-conditional-with-poly,
+ │   intent-revealing-names, lift-up-conditional, introduce-assertion,
+ │   replace-loop-with-pipeline
+ └── System-wide 계열 (9개): replace-conditional-with-poly,
      discover-value-object, introduce-parameter-object, first-class-collection,
      encapsulate-collection, separate-query-modifier, explicit-parameters,
-     introduce-special-case
+     introduce-special-case, segregate-functional-core
 ```
 
 ### 전문 에이전트

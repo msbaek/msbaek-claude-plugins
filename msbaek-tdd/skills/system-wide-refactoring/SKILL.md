@@ -228,6 +228,7 @@ git checkout "${CURRENT_BRANCH}"
 - /lift-up-conditional — [파일명]에 동일 조건문 중복
 - /separate-query-modifier — [파일명]에 값 반환과 부수효과 혼재
 - /introduce-special-case — [파일명]에 동일 타입 null 검사가 [N]곳 반복
+- /intent-revealing-names — [파일명]에 이름이 what만 나열하는 긴 메서드가 있어 이름 주도 관통 리팩토링(3단계 완전정직→extract→intent rename)이 유효합니다
 적용할 기법을 선택하세요 (slash command 또는 skip)
 ```
 

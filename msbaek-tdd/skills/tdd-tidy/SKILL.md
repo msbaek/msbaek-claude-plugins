@@ -86,6 +86,7 @@ tidying 과정에서 발견된 징후에 따라 선택 기법 제안:
 - /replace-temp-with-query — [파일명]에서 임시 변수가 반복 계산됩니다
 - /explicit-parameters — [파일명]에서 암묵적 필드 의존이 발견되었습니다
 - /naming-process — 의도가 불분명한 이름이 [N]건 있습니다
+- /intent-revealing-names — [파일명]에 긴 메서드가 남아 이름 주도 관통 리팩토링(grouping→comment→extract→6단계 rename)이 필요합니다
 - /encapsulate-collection — [파일명]에서 컬렉션이 직접 노출됩니다
 - /consolidate-conditional — [파일명]에서 동일 결과 조건문이 분산됩니다
 - /introduce-assertion — [파일명]에서 암묵적 가정이 발견되었습니다
