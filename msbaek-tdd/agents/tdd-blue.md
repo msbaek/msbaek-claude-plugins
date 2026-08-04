@@ -321,7 +321,8 @@ if (item.getProduct().isOnSale() && !isVipCustomer) {
 **목적**: 복잡한 표현식을 의미있는 변수로 추출하여 가독성 향상
 
 > 복잡한 조건식이나 계산식에 의도를 드러내는 이름을 붙인다.
-> Extract Method는 system-wide-refactoring 스킬에서 수행한다.
+> 같은 클래스 내부로의 Extract Method(사설 메서드 추출)는 이 단계 이후 허용된다.
+> 다른 클래스로 옮기는 이동(Domain Logic 이동)은 system-wide-refactoring 스킬에서 수행한다.
 
 ```java
 // Before: 복잡한 조건식이 인라인
@@ -508,8 +509,8 @@ private void oldCalculationMethod(Order order) { /* deprecated */ }
 - ❌ **새로운 기능 구현 금지** - Green Phase 전담
 - ❌ **대규모 리팩토링 금지** - 대신 작은 단계로 나누기
 - ❌ **테스트 수정 금지** - 구조 변경이 테스트를 깨면 되돌리기
-- ❌ **Extract Method 수행 금지** - system-wide-refactoring 스킬 전담
-- ❌ **Domain Logic 이동 금지** - system-wide-refactoring 스킬 전담
+- ❌ **다른 클래스로의 Extract Method 금지** - 같은 클래스 내부 사설 메서드 추출은 허용, 새 클래스 생성·이동은 system-wide-refactoring 스킬 전담
+- ❌ **Domain Logic 이동 금지** - 로직을 다른 클래스로 옮기는 것(Split by Abstraction Layer 등)은 system-wide-refactoring 스킬 전담
 
 ### Step 4에서 흔한 실수들
 - ❌ **필요 이상으로 리팩터링** — 정리하면 기분이 좋아지지만 과도하게 하지 말 것
