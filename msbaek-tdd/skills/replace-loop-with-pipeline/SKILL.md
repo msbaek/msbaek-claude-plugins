@@ -57,6 +57,24 @@ int total = items.stream()
     .sum();
 ```
 
+### 패턴 2-1: 집계 — 객체 타입 (BigDecimal 등)
+
+primitive가 아닌 타입은 `sum()`이 없으므로 `reduce(항등원, 누적 연산)`을 쓴다.
+금액(BigDecimal) 합산이 대표 사례:
+
+```java
+// Before
+BigDecimal total = BigDecimal.ZERO;
+for (Line line : lines) {
+    total = total.add(line.amount());
+}
+
+// After
+BigDecimal total = lines.stream()
+    .map(Line::amount)
+    .reduce(BigDecimal.ZERO, BigDecimal::add);
+```
+
 ### 패턴 3: 검색 (첫 번째 매칭)
 ```java
 // Before
@@ -137,6 +155,7 @@ Map<String, List<Employee>> byDept = employees.stream()
    - 루프 패턴 탐지:
      - `new ArrayList<>()` + for + `add()` → filter/map + toList
      - `int/long sum = 0` + for + `+=` → mapToInt + sum
+     - `T acc = 항등원` + for + 재대입 누적 (BigDecimal 등 객체 타입) → map + reduce(항등원, 누적 연산)
      - `T found = null` + for + break → filter + findFirst
      - `boolean flag = false` + for + break → anyMatch/noneMatch
      - `computeIfAbsent` + for → groupingBy
