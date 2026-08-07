@@ -67,6 +67,7 @@ superpowers·tdd-plan의 장황함을 덜어낸다. plan은 **합의에 꼭 필�
 
 - 완료 조건 = Kent Beck의 programmer test. **FIRST**(Fast, Isolated, Repeatable=Deterministic, Self-validating, Timely) + **Test Desiderata**를 만족하고, **동작(behavior)에 coupled / 구조(structure)에 decoupled**.
 - 작성 순서: degenerate(null·empty·0·경계) → interesting → general. (상세 기준은 `tdd-plan`·`tdd-rgb` 스킬 참조.)
+- 기능의 external behavior를 실행 가능한 명세(Cucumber `.feature`)로 구축해 주 검증층으로 쓸 때는 `cucumber-acceptance` 스킬 참조 — 그 경우 programmer test는 세밀한 분기 검증을 보조하는 역할로 좁혀진다.
 
 ## OUTPUT FORMAT
 
