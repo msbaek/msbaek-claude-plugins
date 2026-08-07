@@ -32,6 +32,13 @@ argument-hint: "[feature 설명 또는 요구사항 문서/.feature 경로]"
 
 ## 적용 패턴
 
+### 도입 시점 — 두 가지
+
+| 시점 | 방식 | 적합 |
+|---|---|---|
+| **구현 후 이관** (기본) | 기존 JUnit 인수 테스트를 `.feature`로 이관 — 아래 "기존 JUnit 인수 테스트 이관" 절차 | 이미 구현·테스트가 있는 프로젝트 |
+| **acceptance-first** (선택) | `tdd-plan` 단계 2의 Gherkin을 plan 합의 직후 `.feature` + Runner로 셋업. 미구현 시나리오는 `@pending`으로 두고, RGB가 진행되며 하나씩 태그 해제·green | plan부터 시작하는 신규 기능 — 외부 인수 루프 + 내부 TDD 루프의 이중 루프(Dave Farley) |
+
 ### 구조 — Four Layer 축소형
 
 ```
@@ -103,6 +110,7 @@ Scenario: B-4-1. 무관세 품목이어도 소비세는 부과된다
 ### ✅ 적용 대상
 - 고객·이해관계자가 보는 기능의 external behavior
 - 요구사항 문서에 Gherkin/기대값 표가 이미 있고, 코드와의 드리프트가 걱정되는 경우
+- `tdd-plan` 단계 2에서 Gherkin으로 작성한 예제 — 재작성 없이 그대로 `.feature`가 된다 (위 "도입 시점"의 acceptance-first)
 - 비개발자(PO·QA·도메인 전문가) 또는 AI가 명세를 리뷰·승인하는 워크플로우
 
 ### ❌ 적용 제외

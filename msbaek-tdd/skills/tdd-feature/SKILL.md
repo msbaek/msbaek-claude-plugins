@@ -60,7 +60,7 @@ argument-hint: "[feature/use case 설명 또는 plan-doc-path]"
 
 superpowers·tdd-plan의 장황함을 덜어낸다. plan은 **합의에 꼭 필요한 것**만 담는다.
 
-- **남길 것**: 문제(무엇을·왜), feature별 핵심 규칙, programmer test 목록.
+- **남길 것**: 문제(무엇을·왜), feature별 스토리 한 줄·핵심 규칙, programmer test 목록.
 - **버릴 것**: SRS의 완전성/명확성/일관성 메타설명, 예제별 입력/기대결과/설명 3중 기술, test 목록에 흡수 가능한 별도 경계조건 섹션.
 
 #### Programmer Test (완료 조건의 정의)
@@ -68,6 +68,7 @@ superpowers·tdd-plan의 장황함을 덜어낸다. plan은 **합의에 꼭 필�
 - 완료 조건 = Kent Beck의 programmer test. **FIRST**(Fast, Isolated, Repeatable=Deterministic, Self-validating, Timely) + **Test Desiderata**를 만족하고, **동작(behavior)에 coupled / 구조(structure)에 decoupled**.
 - 작성 순서: degenerate(null·empty·0·경계) → interesting → general. (상세 기준은 `tdd-plan`·`tdd-rgb` 스킬 참조.)
 - 기능의 external behavior를 실행 가능한 명세(Cucumber `.feature`)로 구축해 주 검증층으로 쓸 때는 `cucumber-acceptance` 스킬 참조 — 그 경우 programmer test는 세밀한 분기 검증을 보조하는 역할로 좁혀진다.
+- 요구사항 형식 선택 기준(0층 도메인 규칙 / User Story / Gherkin / 조건부 Use Case)은 `tdd-plan` 스킬이 단일 출처다 — 완료 조건을 Gherkin 핵심 예시로 쓰면 이후 `.feature`로 재작성 없이 이관된다.
 
 ## OUTPUT FORMAT
 
@@ -103,6 +104,7 @@ superpowers·tdd-plan의 장황함을 덜어낸다. plan은 **합의에 꼭 필�
 
 ## Features
 ### F1: {use case 이름}
+스토리: As a {역할}, I want {원하는 것}, so that {가치}   ← 한 줄 압축. so that이 비면 작업 지시다
 규칙: {핵심 비즈니스 규칙 1~3줄}
 완료 조건 (programmer tests):
 - [ ] {가장 단순한 degenerate case}

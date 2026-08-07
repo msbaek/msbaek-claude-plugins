@@ -401,7 +401,11 @@ ex. 테니스 게임 External Behavior 테스트 케이스
 5. **커밋** - 변경된 파일 커밋
    - `git add [변경된 파일들]` (git add -A 금지)
    - `git commit -m "docs: programmer test 목록 작성 - [기능명]"`
-6. **"/tdd-rgb 실행하세요" 안내** (General TDD의 경우)
+6. **다음 단계 안내**
+   - 기본: `/tdd-rgb`(단계별 확인) 또는 `/tdd-feature`(feature 단위 자율)로 구현
+   - acceptance-first(선택): plan 합의 직후 `/cucumber-acceptance`로 `.feature` +
+     Runner를 먼저 셋업(미구현 시나리오는 `@pending`) — RGB가 진행되며 시나리오가
+     하나씩 green이 되는 이중 루프(외부 인수 루프 + 내부 TDD 루프)
 
 ---
 
