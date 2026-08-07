@@ -61,7 +61,7 @@ argument-hint: "[feature/use case 설명 또는 plan-doc-path]"
 superpowers·tdd-plan의 장황함을 덜어낸다. plan은 **합의에 꼭 필요한 것**만 담는다.
 
 - **남길 것**: 문제(무엇을·왜), feature별 스토리 한 줄·핵심 규칙, programmer test 목록.
-- **버릴 것**: SRS의 완전성/명확성/일관성 메타설명, 예제별 입력/기대결과/설명 3중 기술, test 목록에 흡수 가능한 별도 경계조건 섹션.
+- **버릴 것**: 요구사항 작성 원칙(완전성/명확성/일관성)의 메타설명, INVEST 점검 서술, Gherkin `Rule:`/`Examples` 정식 서식(핵심 예시는 test 목록 항목으로 흡수), 별도 경계조건 섹션.
 
 #### Programmer Test (완료 조건의 정의)
 

@@ -37,7 +37,7 @@ argument-hint: "[feature 설명 또는 요구사항 문서/.feature 경로]"
 | 시점 | 방식 | 적합 |
 |---|---|---|
 | **구현 후 이관** (기본) | 기존 JUnit 인수 테스트를 `.feature`로 이관 — 아래 "기존 JUnit 인수 테스트 이관" 절차 | 이미 구현·테스트가 있는 프로젝트 |
-| **acceptance-first** (선택) | `tdd-plan` 단계 2의 Gherkin을 plan 합의 직후 `.feature` + Runner로 셋업. 미구현 시나리오는 `@pending`으로 두고, RGB가 진행되며 하나씩 태그 해제·green | plan부터 시작하는 신규 기능 — 외부 인수 루프 + 내부 TDD 루프의 이중 루프(Dave Farley) |
+| **acceptance-first** (선택) | `tdd-plan` 단계 2의 Gherkin을 plan 합의 직후 `.feature` + Runner로 셋업. 미구현 시나리오는 `@pending`으로 두고, RGB가 진행되며 하나씩 태그 해제·green — 태그 해제는 그 시나리오를 통과시킨 Green 단계가 같은 커밋에서 수행한다 | plan부터 시작하는 신규 기능 — 외부 인수 루프 + 내부 TDD 루프의 이중 루프(Dave Farley) |
 
 ### 구조 — Four Layer 축소형
 

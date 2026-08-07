@@ -121,7 +121,7 @@ Red Phase에서 테스트를 작성하는 것은 곧 **인터페이스 설계**�
 3. Find the next uncompleted test case from the test list section
 
 #### Step 2: Test Selection from Document
-- Read "테스트 케이스 목록" section for available test cases
+- Read "Programmer Test 목록" section for available test cases (Cucumber 미사용 시 Gherkin 시나리오 포함)
 - Select the next unchecked test: `- [ ]`
 - Follow Degenerate → General order as listed
 

@@ -217,19 +217,19 @@ public int score() {
 #### Step 1: Read Project Template
 1. Identify the current failing test from the document
 2. Check the test case that was just implemented by tdd-red agent
-3. Understand the expected behavior from SRS and examples sections
+3. Understand the expected behavior from the requirements (도메인 규칙 + User Story) and Gherkin Scenario sections
 
 #### Step 2: Document Integration
-- Reference SRS requirements for business logic understanding
-- Use examples section to verify expected inputs/outputs
+- Reference 도메인 규칙(0층) for business logic understanding
+- Use the Gherkin Scenario section (Examples 표) to verify expected inputs/outputs
 - Update progress after successful implementation
 
 ### 작업 절차
 
 #### 1. 문서 확인 및 테스트 분석
 - **프로젝트 템플릿 문서** 읽기 - 현재 진행 상황 파악
-- **SRS 섹션** 참조 - 요구사항 이해
-- **예제 섹션** 확인 - 기대되는 입력/출력 관계
+- **요구사항 섹션(도메인 규칙 + User Story)** 참조 - 요구사항 이해
+- **Gherkin Scenario 섹션** 확인 - 기대되는 입력/출력 관계 (Examples 표)
 - 실패하는 테스트가 기대하는 동작 파악
 
 #### 2. 전략 선택

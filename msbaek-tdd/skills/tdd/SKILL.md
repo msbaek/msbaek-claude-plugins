@@ -98,7 +98,7 @@ FQCN을 기반으로 다음 경로를 결정합니다:
 1. 체크박스 분석으로 현재 단계 파악
 2. 완료된 단계와 다음 단계 안내
 3. 적절한 다음 명령어 안내:
-   - SRS/예제/테스트목록 미완성 → **"/tdd-plan 실행하세요"**
+   - 요구사항(도메인 규칙 + User Story)/Gherkin Scenario/programmer test 목록 미완성 → **"/tdd-plan 실행하세요"**
    - 테스트 구현 단계 → **"/tdd-rgb 실행하세요"**
 
 ---
@@ -109,16 +109,16 @@ FQCN을 기반으로 다음 경로를 결정합니다:
 # {ClassName} TDD 구현
 
 ## 절차
-- [ ] 1. SRS 작성
-- [ ] 2. 예제 작성
-- [ ] 3. 테스트 케이스 목록 작성
+- [ ] 1. 요구사항 작성 (도메인 규칙 + User Story)
+- [ ] 2. Gherkin Scenario 작성
+- [ ] 3. Programmer Test 목록 작성
 - [ ] 4. 테스트 구현 (RGB 사이클)
 
-## 1. SRS
+## 1. 요구사항 — 도메인 규칙(0층) + User Story
 
-## 2. 예제
+## 2. Gherkin Scenario
 
-## 3. 테스트 케이스 목록
+## 3. Programmer Test 목록
 
 ## 4. 진행 기록
 ```
@@ -131,23 +131,23 @@ FQCN을 기반으로 다음 경로를 결정합니다:
 # AI와 Pair로 {ClassName} Usecase를 TDD로 구현하기
 
 ## 전체적인 절차
-- [ ] 1. SRS 작성
-- [ ] 2. 예제 작성
+- [ ] 1. 요구사항 작성 (도메인 규칙 + User Story, 조건부 Use Case)
+- [ ] 2. Gherkin Scenario 작성
 - [ ] 3. High Level Test 작성
-- [ ] 4. 테스트 케이스 목록 작성
+- [ ] 4. Programmer Test 목록 작성
 - [ ] 5. Walking Skeleton 구현
 - [ ] 6. 테스트 구현 (RGB 사이클)
 - [ ] 7. High Level Test 활성화
 - [ ] 8. JPA Repository 구현
 - [ ] 9. DSL 개선
 
-## 1. SRS
+## 1. 요구사항 — 도메인 규칙(0층) + User Story
 
-## 2. 예제
+## 2. Gherkin Scenario
 
 ## 3. High Level Test
 
-## 4. 테스트 케이스 목록
+## 4. Programmer Test 목록
 
 ## 5. Walking Skeleton
 
