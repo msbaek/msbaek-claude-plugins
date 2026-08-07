@@ -207,6 +207,12 @@ void process() {
 - **Reading Order**: 변수 선언을 사용 위치 가까이로 이동 (`Move declaration closer to usages`)
 - **Cohesion Order**: 관련된 로직끼리 함께 배치 (Step Down Rule 적용)
 
+문장 수준을 넘어 **클래스 멤버 수준**에도 같은 원칙을 적용한다:
+- **클래스 멤버 순서**: private field → constructor → public method → 그 public method들이
+  호출하는 private method (호출 순서를 따르는 step-down 배열). 논문의 요약·소개만 읽고도
+  전체를 파악할 수 있듯, 파일 위쪽만 읽으면 이 클래스가 무엇을 하는지 알 수 있게 한다.
+  여러 메서드가 호출하는 leaf 헬퍼(예: 절사·포맷 유틸)는 클래스 하단에 둔다.
+
 ```java
 // Before: 모든 변수를 맨 위에 선언 (사용과 거리가 멀음)
 public OrderProcessResult processOrder(Order order, Customer customer) {
