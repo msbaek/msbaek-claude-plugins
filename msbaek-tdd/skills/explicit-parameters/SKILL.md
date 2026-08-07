@@ -92,6 +92,7 @@ class PricingContext {
 - **도메인 상태 필드**: 객체의 본질적 상태 (e.g., `Customer.name`)
 - **불변 상수**: `private static final` 값
 - **파라미터 수 폭발**: 3개 이상이면 Parameter Object 고려
+- **Method Object의 입력·계산 상태 필드**: 인자 전달 최소화가 그 객체의 존재 이유 — 이 스킬의 대상은 협력 객체 의존성이지 계산 상태가 아니다 (extract-method-object의 "추출 후 데이터 결정" 참조)
 
 ### ⚠️ 주의사항
 - 파라미터 개수 증가는 신중히 판단
