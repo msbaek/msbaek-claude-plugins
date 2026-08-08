@@ -1,6 +1,6 @@
 ---
 name: tdd-plan
-description: TDD Planning - 도메인 규칙(0층) + User Story + Gherkin Scenario + programmer test 목록 작성, 복잡도가 흐름·상태에 있으면 조건부 Use Case 추가. /tdd-plan으로 호출.
+description: TDD Planning - 도메인 규칙(0층) + User Story + Gherkin Scenario(programmer test) + unit test 목록 작성, 복잡도가 흐름·상태에 있으면 조건부 Use Case 추가. /tdd-plan으로 호출.
 argument-hint: "[plan-doc-path]"
 allowed-tools: Write, Edit, Read, Bash(git add:*), Bash(git commit:*), Bash(git status:*)
 ---
@@ -8,16 +8,16 @@ allowed-tools: Write, Edit, Read, Bash(git add:*), Bash(git commit:*), Bash(git 
 # TDD Planning Skill
 
 Kent Beck의 TDD 원칙에 따라 구현 전 계획 문서를 작성하는 전문가입니다.
-요구사항(도메인 규칙 + User Story) → Gherkin Scenario → programmer test 목록 순서로
-진행하며, Web Usecase 유형에서는 High Level Test와 Walking Skeleton 단계가 추가됩니다.
+요구사항(도메인 규칙 + User Story) → Gherkin Scenario(programmer test) → unit test 목록
+순서로 진행하며, Web Usecase 유형에서는 High Level Test와 Walking Skeleton 단계가 추가됩니다.
 복잡도가 흐름·상태 전이에 있으면 Use Case를 조건부로 추가합니다.
 
 ## GOAL
 
-- **성공 = 도메인 규칙(0층), User Story, Gherkin Scenario, programmer test 목록이 템플릿 문서에 작성되고, 각 단계별 체크박스가 업데이트됨**
+- **성공 = 도메인 규칙(0층), User Story, Gherkin Scenario, unit test 목록이 템플릿 문서에 작성되고, 각 단계별 체크박스가 업데이트됨**
 - 단계 1: 요구사항 — 도메인 규칙(0층: 계산·제약의 근거 + 검산 전개)과 User Story(기능 나열)
-- 단계 2: Gherkin Scenario — 핵심 예시(경계·대표 예외 포함)를 실행 가능한 형식으로. 이후 `/cucumber-acceptance`의 `.feature` 원본이 된다
-- 단계 3: Programmer Test 목록 — Gherkin에 없는 세밀 분기·내부 협력만. RGB 구현 순서는 Gherkin 시나리오와 합쳐 Degenerate → General
+- 단계 2: Gherkin Scenario — 핵심 예시(경계·대표 예외 포함)를 실행 가능한 형식으로. Kent Beck이 말하는 programmer test(behavior에 coupled, structure에 decoupled)가 이 계층이다. 이후 `/cucumber-acceptance`의 `.feature` 원본이 된다
+- 단계 3: Unit Test 목록 — Gherkin에 없는 세밀 분기·내부 협력만. 구현 세부사항과 결합되는 classical unit test로, programmer test와는 별개 범주다(아래 "단계 3" 도입부 참조). RGB 구현 순서는 Gherkin 시나리오와 합쳐 Degenerate → General
 - (조건부) Use Case — 복잡도가 흐름·상태 전이에 있을 때만 추가 (판단 체크리스트 참조)
 - (Web Usecase) 단계 E-1: High Level Test 작성, 단계 E-2: Walking Skeleton 구현
 - 각 단계 완료 후 체크박스 업데이트 (`- [ ]` → `- [x]`)
@@ -231,7 +231,7 @@ Kent Beck의 TDD 원칙에 따라 구현 전 계획 문서를 작성하는 전�
 - `Rule:`로 User Story·비즈니스 규칙별로 그룹화한다 (US ↔ Rule 대응이 추적성)
 - 같은 규칙의 수치 변형은 `Scenario Outline` + `Examples` 표로 묶는다
 - **핵심 예시만** — happy path, 경계(임계값 전후), 대표 예외. 망라적 edge 나열
-  금지(시나리오 폭발). 커버리지용 분기는 단계 3 programmer test로
+  금지(시나리오 폭발). 커버리지용 분기는 단계 3 unit test로
 - 시나리오 선정 시 Principles의 "경계 조건 식별 가이드"를 사용한다
 - 숫자의 정본은 단계 1a의 검산 전개 — `Examples` 표는 파생 뷰임을 문서에 선언한다
 - 구현할 로직과 무관하거나 같은 규칙을 반복하는 시나리오는 제거하고 최대한 간결하게
@@ -300,7 +300,7 @@ BowlingGame이라면 gutter game · one spare · one strike · perfect game이 �
 
 ---
 
-### 단계 3: Programmer Test 목록
+### 단계 3: Unit Test 목록
 
 Gherkin 시나리오가 external behavior의 인수 목록을 담당하므로, 여기는 **Gherkin에
 없는 것만** 담는다:
@@ -309,14 +309,22 @@ Gherkin 시나리오가 external behavior의 인수 목록을 담당하므로, �
 - **내부 협력·기술 도메인** — 직렬화·동시성·성능 등 문제 도메인의 언어가 코드인 영역
 - **property-based 후보** — "모든 입력에 대해 성립"해야 하는 성질
 
+**"Unit Test"이지 "Programmer Test"가 아니다** — Kent Beck의 programmer test는
+FIRST 4번째 원칙(behavior change에 민감, structure change에 둔감)을 만족해야
+하는데, 위 세 범주는 정의상 구현 세부사항(분기·내부 협력)에 결합된다. 이 결합은
+리팩터링 시 깨지기 쉬운 대가를 감수하고 커버리지·엣지케이스를 얻는 의도적
+선택이다. 단계 2 Gherkin 시나리오가 이 프로젝트에서 programmer test 계층이다.
+
 Cucumber를 쓰지 않는 프로젝트에서는 Gherkin 시나리오도 이 목록에 합쳐 JUnit으로
-구현한다(시나리오당 테스트 1개). **RGB 구현 순서는 Gherkin 시나리오 + programmer
-test를 합쳐 Degenerate → General로 정렬한다.**
+구현한다(시나리오당 테스트 1개) — 이 경우 목록은 programmer test(Gherkin 유래)와
+unit test(세밀 분기)가 물리적으로 한 목록에 섞이지만, 개념적 구분은 유지된다.
+**RGB 구현 순서는 Gherkin 시나리오 + unit test를 합쳐 Degenerate → General로
+정렬한다.**
 
 #### 테스트 목록 작성 템플릿
 
 ```markdown
-## 3. Programmer Test 목록 작성
+## 3. Unit Test 목록 작성
 
 ### [기능명]을 위한 테스트 리스트
 
@@ -390,7 +398,7 @@ ex. 테니스 게임 External Behavior 테스트 케이스
 #### 중복 제거 기준
 - 비즈니스 규칙과 무관한 중복되는 테스트 케이스 제거
 - 동일한 비즈니스 규칙이 적용되는 테스트 케이스는 합치거나 제거
-- **Cucumber 병행 시, Gherkin 시나리오와 같은 검증을 programmer test로 중복 작성하지 않는다** (두 계층 중복 금지. Cucumber 미사용이면 단계 3 도입부대로 시나리오를 이 목록에 합친다 — 그건 중복이 아니라 유일한 구현처)
+- **Cucumber 병행 시, Gherkin 시나리오와 같은 검증을 unit test로 중복 작성하지 않는다** (두 계층 중복 금지. Cucumber 미사용이면 단계 3 도입부대로 시나리오를 이 목록에 합친다 — 그건 중복이 아니라 유일한 구현처)
 - 구현하려는 코드가 어떻게 동작해야 하는지 알고 있는 시나리오들을 나열
 
 #### 테스트 목록 작업 절차
@@ -401,12 +409,14 @@ ex. 테니스 게임 External Behavior 테스트 케이스
 4. 체크박스 업데이트
 5. **커밋** - 변경된 파일 커밋
    - `git add [변경된 파일들]` (git add -A 금지)
-   - `git commit -m "docs: programmer test 목록 작성 - [기능명]"`
+   - `git commit -m "docs: unit test 목록 작성 - [기능명]"`
 6. **다음 단계 안내**
-   - 기본: `/tdd-rgb`(단계별 확인) 또는 `/tdd-feature`(feature 단위 자율)로 구현
-   - acceptance-first(선택): plan 합의 직후 `/cucumber-acceptance`로 `.feature` +
+   - **기본(acceptance-first)**: plan 합의 직후 `/cucumber-acceptance`로 `.feature` +
      Runner를 먼저 셋업(미구현 시나리오는 `@pending`) — RGB가 진행되며 시나리오가
-     하나씩 green이 되는 이중 루프(외부 인수 루프 + 내부 TDD 루프)
+     하나씩 green이 되는 이중 루프(외부 인수 루프 + 내부 TDD 루프). `tdd-plan`을
+     거쳐 온 신규 기능은 기본적으로 이 경로를 따른다
+   - 대안: `/tdd-rgb`(단계별 확인) 또는 `/tdd-feature`(feature 단위 자율)로 Cucumber
+     없이 바로 구현 — 이미 구현·테스트가 있는 기존 프로젝트에 기능을 추가할 때
 
 ---
 

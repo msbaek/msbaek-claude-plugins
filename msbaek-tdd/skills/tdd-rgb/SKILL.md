@@ -401,7 +401,7 @@ BigDecimal discount = discountService.applyDiscount(
 
 #### Step 1: 현재 상태 확인
 
-1. 템플릿 문서(*.md)에서 programmer test 목록 확인 (Cucumber 미사용 시 Gherkin 시나리오 포함)
+1. 템플릿 문서(*.md)에서 unit test 목록 확인 (Cucumber 미사용 시 Gherkin 시나리오도 포함되어 programmer test와 섞임)
 2. 첫 미완성 테스트(`- [ ]`) 식별
 3. 현재 테스트 실행 상태 확인
 

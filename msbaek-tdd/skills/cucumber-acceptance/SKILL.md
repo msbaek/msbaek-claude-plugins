@@ -24,7 +24,7 @@ argument-hint: "[feature 설명 또는 요구사항 문서/.feature 경로]"
 | **property-based** ("모든 입력에 대해 성립") | jqwik 등 | Gherkin은 형식 자체가 example-based |
 | **문제 도메인의 언어가 코드인 경우** (직렬화·동시성·성능) | 각자의 도구 | "외부 사용자 관점의 도메인 언어"가 성립 안 함 |
 
-- **Gherkin에는 핵심 예시(key examples)만** — 망라적 edge를 시나리오로 나열하면 시나리오 폭발(Specification by Example의 규율). 커버리지용 분기는 programmer test로.
+- **Gherkin에는 핵심 예시(key examples)만** — 망라적 edge를 시나리오로 나열하면 시나리오 폭발(Specification by Example의 규율). 커버리지용 분기는 unit test로.
 - **Protocol Driver 분리** (Dave Farley Four Layer SoC): Steps(글루)는 파싱·위임만, SUT와의 실제 상호작용은 Driver에 격리. step definition에 SUT 호출·HTTP·UI 코드를 직접 넣지 않는다.
 - **주 검증층은 빨라야 한다**: in-process driver 우선. Cucumber가 programmer test 역할을 겸하려면 이 전제가 필수다. 채널이 바뀌어도(HTTP·UI) Steps는 불변, Driver만 교체.
 - **실행 불가능한 시나리오는 삭제하지 말고 태그로 제외** — 문서 가치는 남기고 실행만 빼는 가역적 처리.
@@ -36,8 +36,8 @@ argument-hint: "[feature 설명 또는 요구사항 문서/.feature 경로]"
 
 | 시점 | 방식 | 적합 |
 |---|---|---|
-| **구현 후 이관** (기본) | 기존 JUnit 인수 테스트를 `.feature`로 이관 — 아래 "기존 JUnit 인수 테스트 이관" 절차 | 이미 구현·테스트가 있는 프로젝트 |
-| **acceptance-first** (선택) | `tdd-plan` 단계 2의 Gherkin을 plan 합의 직후 `.feature` + Runner로 셋업. 미구현 시나리오는 `@pending`으로 두고, RGB가 진행되며 하나씩 태그 해제·green — 태그 해제는 그 시나리오를 통과시킨 Green 단계가 같은 커밋에서 수행한다 | plan부터 시작하는 신규 기능 — 외부 인수 루프 + 내부 TDD 루프의 이중 루프(Dave Farley) |
+| **acceptance-first** (기본) | `tdd-plan` 단계 2의 Gherkin을 plan 합의 직후 `.feature` + Runner로 셋업. 미구현 시나리오는 `@pending`으로 두고, RGB가 진행되며 하나씩 태그 해제·green — 태그 해제는 그 시나리오를 통과시킨 Green 단계가 같은 커밋에서 수행한다 | `tdd-plan` 절차를 거친 모든 신규 기능 — 외부 인수 루프 + 내부 TDD 루프의 이중 루프(Dave Farley) |
+| **구현 후 이관** (기존 프로젝트) | 기존 JUnit 인수 테스트를 `.feature`로 이관 — 아래 "기존 JUnit 인수 테스트 이관" 절차 | 이미 구현·테스트가 있는 프로젝트에 `tdd-plan` 없이 기능을 추가하는 경우 |
 
 ### 구조 — Four Layer 축소형
 
@@ -105,7 +105,7 @@ Claude가 아래 절차를 대신 수행하고, 사람은 결과(green + 의도�
 1. 요구사항 문서의 Gherkin을 `.feature`로 이관 (문서 쪽에는 "실행되는 원본은 `.feature`" 정본 선언)
 2. Runner + Driver + Steps 작성 → 전체 green 확인
 3. JUnit에서 **같은 검증을 하던 인수 테스트 제거** (같은 검증이 두 계층에 중복되면 안 됨)
-4. 분기 커버리지용 programmer test만 JUnit에 잔류
+4. 분기 커버리지용 unit test만 JUnit에 잔류
 5. `@Order`·`@TestClassOrder` 같은 순서 장치가 있었다면 함께 해체 — `.feature`는 파일에 적힌 순서가 곧 실행·표시 순서라 순서 어노테이션이 불필요하다
 
 ## 적용 기준
@@ -158,7 +158,7 @@ class RunCucumberTest {
 2. **`.feature` 작성/이관** — `src/test/resources/{package_path}/` 하위. 실행 불가 시나리오는 태그 부여. 문서에 정본 선언 갱신
 3. **Runner + Protocol Driver + Steps 작성** — Four Layer 축소형 구조
 4. **전체 green 확인** — 태그 제외가 의도한 시나리오만 SKIPPED인지 함께 확인
-5. **기존 JUnit 정리** — 중복 인수 테스트 제거, programmer test만 잔류, 순서 장치 해체
+5. **기존 JUnit 정리** — 중복 인수 테스트 제거, unit test만 잔류, 순서 장치 해체
 6. **문서 갱신** — 정본 선언·테스트 위치 표·프로젝트 CLAUDE.md의 두 계층 설명
 7. **커밋** — 단계별 분리(인프라 도입 / JUnit 이관 정리 / 문서 갱신). 메시지는 `docs/reviewable-commits.md`(없으면 `~/.claude/docs/reviewable-commits.md`) 표준을 따르고, 한글 메시지는 임시 파일 + `git commit -F`
 
