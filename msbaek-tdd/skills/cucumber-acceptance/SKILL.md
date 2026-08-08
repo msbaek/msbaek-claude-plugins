@@ -78,6 +78,49 @@ class CheckoutDriver {
 }
 ```
 
+### 타입 경계 — 도메인 타입 ≠ DTO 타입
+
+도메인 모델은 계산의 정확성이 요구하는 타입을 쓴다(금액이면 `BigDecimal`). **DTO는 그
+타입을 그대로 물려받지 않는다** — presentation에 용이한 타입을 골라 경계에서 변환한다.
+엔·원처럼 소수점이 없는 통화의 응답 금액은 `long`이 맞다.
+
+```java
+// 도메인: 절사·반올림 규칙이 BigDecimal을 요구한다
+BigDecimal ddp = JapanDdp.calculateDdp(lines);
+
+// 경계: presentation 타입으로 좁혀 내보낸다
+record DdpResponse(long ddpAmount) {}
+return new DdpResponse(ddp.longValueExact());
+```
+
+**왜 인수 테스트 스킬이 이걸 다루는가** — 이 실수는 인수 테스트의 고유 사각지대에 숨는다.
+`BigDecimal.setScale(-2)`처럼 scale이 음수면 Jackson이 `toString()`을 그대로 써서
+`{"ddpAmount":4.6E+3}`을 내보내는데, driver가 응답을 다시 `BigDecimal`로 역직렬화하고
+`isEqualByComparingTo`로 비교하면 **왕복(round-trip)은 통과한다.** 시나리오가 전부 green인데
+와이어 포맷만 틀린 상태가 된다. 게다가 `BigDecimal.ZERO`를 반환하는 경로는 평범하게 `0`으로
+나가므로 응답 형식이 실행 경로마다 갈린다.
+
+두 가지로 막는다.
+
+1. **와이어 포맷은 raw body로 검증하는 테스트를 따로 둔다.** 직렬화는 "문제 도메인의 언어가
+   코드인 영역"이라 Gherkin이 아니라 각자의 도구로 다룬다(위 Hard Rules 표).
+
+   ```java
+   String body = restTemplate.postForObject("/checkout/ddp", request, String.class);
+   assertThat(body).isEqualTo("{\"ddpAmount\":4600}");
+   ```
+
+   **Driver의 응답 타입을 좁히는 것으로는 가드가 안 된다** — Jackson의 `ACCEPT_FLOAT_AS_INT`가
+   기본 활성이라 `{"ddpAmount":4.6E+3}`을 `long` 필드에 예외 없이 `4600`으로 넣는다(2.18.2에서
+   확인). 타입을 맞춰도 숫자가 우연히 일치해 통과한다. 문자열을 눈으로 봐야 한다.
+2. **실제 채널로 한 번 호출해 눈으로 확인한다.** 문서에 요청·응답 예시를 적었다면 그 예시는
+   실행된 적이 있어야 한다.
+
+```bash
+curl -s -X POST localhost:8080/checkout/ddp -H 'Content-Type: application/json' \
+  -d '{"lines":[{"goodsPrice":30000,"hsCode":null}]}'
+```
+
 ### 태그 기반 가역적 제외
 
 ```gherkin
