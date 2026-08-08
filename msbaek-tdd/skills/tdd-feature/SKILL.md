@@ -132,7 +132,7 @@ superpowers·tdd-plan의 장황함을 덜어낸다. plan은 **합의에 꼭 필�
 
 ### Phase B: Feature 단위 자율 RGB (합의 후)
 
-선택된 feature의 programmer test 목록을 위에서 아래로 순회한다. 각 미완료 test(`- [ ]`)에 대해 R→G→B를 실행하되, **단계 사이에 사용자 피드백을 요청하지 않는다.**
+선택된 feature의 programmer test 목록을 위에서 아래로 순회한다(Cucumber 미사용 시 Gherkin 시나리오도 포함되어 unit test와 섞임 — `tdd-plan` 단계 6에서 Cucumber 없이 구현하기로 선택했다면 이 병합이 이미 끝나 있어야 한다). 각 미완료 test(`- [ ]`)에 대해 R→G→B를 실행하되, **단계 사이에 사용자 피드백을 요청하지 않는다.**
 
 #### 각 test의 RGB
 
