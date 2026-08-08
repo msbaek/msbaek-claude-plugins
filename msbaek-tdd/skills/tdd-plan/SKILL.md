@@ -418,11 +418,12 @@ ex. 테니스 게임 External Behavior 테스트 케이스
    - 대안: `/tdd-rgb`(단계별 확인) 또는 `/tdd-feature`(feature 단위 자율)로 Cucumber
      없이 바로 구현 — 이미 구현·테스트가 있는 기존 프로젝트에 기능을 추가할 때,
      또는 `tdd-plan`을 거쳤어도 이 기능만 Cucumber를 의도적으로 쓰지 않기로
-     사용자가 명시적으로 선택했을 때. **후자를 선택하면 구현 시작 전에 단계 3의
-     Unit Test 목록으로 돌아가 Gherkin 시나리오를 합쳐 넣는다**(단계 3 도입부의
-     "Cucumber를 쓰지 않는 프로젝트" 경로대로) — 단계 3은 acceptance-first를
-     가정하고 Gherkin이 담당할 검증을 목록에서 제외한 채 작성됐으므로, 병합 없이
-     그대로 구현하면 external behavior 검증이 어디에도 남지 않는다
+     사용자가 명시적으로 선택했을 때. **이 대안을 고르면(사유 무관) 구현 시작
+     전에 단계 3의 Unit Test 목록으로 돌아가 Gherkin 시나리오를 합쳐 넣고
+     체크박스·커밋을 갱신한다**(단계 3 도입부의 "Cucumber를 쓰지 않는 프로젝트"
+     경로대로) — 단계 3은 acceptance-first를 가정하고 Gherkin이 담당할 검증을
+     목록에서 제외한 채 작성됐으므로, 병합 없이 그대로 구현하면 external
+     behavior 검증이 어디에도 남지 않는다
 
 ---
 
