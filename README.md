@@ -145,6 +145,19 @@ Blue (Composed Method 지향 Local Tidying)
 
 > `/tdd-rgb`는 매 R/G/B 단계마다 피드백을 받지만, `/tdd-feature`는 plan 합의 후 feature를 끝까지 자율 진행합니다.
 
+#### `/tdd-legacy` — 레거시 코드 안전망 구축
+
+테스트 없는 기존 코드의 현재 행위를 고정하는 안전망을 만들고, 개선은 기존 스킬로 넘깁니다.
+
+```
+/tdd-legacy <대상 클래스 FQCN 또는 파일 경로>
+```
+
+- **1단계 Characterization** — golden master로 현재 행위 고정, SUT sabotage로 어설션 검증, scrubber로 비결정 출력 정규화
+- **2단계 Approval** — 조합 폭발 구간은 CombinationApprovals로 확장 (unit vs approval은 설계 품질 트레이드오프)
+- **3단계 Mutation 검증** — mutate4java(있으면) 또는 PIT로 안전망 실효성 확인
+- 완료 후 `/tdd-tidy`·`/system-wide-refactoring`으로 핸드오프 (개선은 범위 밖)
+
 #### `/tdd-tidy` — 독립 Tidying
 
 TDD 사이클 없이 git diff 기준 변경 파일을 자동 탐지하여 Composed Method 지향 Tidying Process를 실행합니다. 완료 후 적용 가능한 선택 리팩토링 기법을 제안합니다.
@@ -266,6 +279,7 @@ msbaek-claude-plugins/
 │   │   ├── tdd-rgb/                  # /tdd-rgb 사이클 조율 (step-wise)
 │   │   ├── tdd-feature/              # /tdd-feature feature 단위 자율 구현
 │   │   ├── cucumber-acceptance/      # /cucumber-acceptance 인수 테스트 구축
+│   │   ├── tdd-legacy/               # /tdd-legacy 레거시 안전망 구축
 │   │   ├── tdd-tidy/                 # /tdd-tidy 독립 tidying
 │   │   ├── system-wide-refactoring/  # /system-wide-refactoring
 │   │   ├── decompose-conditional/    # Tidy 계열 (9개)
@@ -312,6 +326,11 @@ msbaek-claude-plugins/
  ├── .feature를 실행 가능한 명세로 (주 검증층)
  ├── Steps → Protocol Driver → SUT (Four Layer 축소형)
  └── 태그 기반 가역 제외, 기존 JUnit 인수 테스트 이관
+
+/tdd-legacy (레거시 안전망)
+ ├── Characterization (sabotage 검증 + scrubber)
+ ├── Approval (CombinationApprovals)
+ └── Mutation 검증 (mutate4java/PIT) → tdd-tidy·system-wide-refactoring 핸드오프
 
 /tdd-rgb (사이클 조율 — 기어가 검토 밀도 결정, 기본 low = 매 단계 피드백)
  ├── tdd-red agent   → 실패하는 테스트 작성
