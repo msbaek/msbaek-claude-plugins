@@ -466,6 +466,9 @@ BigDecimal discount = discountService.applyDiscount(
 1. 템플릿 문서(*.md)에서 unit test 목록 확인 (Cucumber 미사용 시 Gherkin 시나리오도 포함되어 programmer test와 섞임)
 2. 첫 미완성 테스트(`- [ ]`) 식별
 3. 현재 테스트 실행 상태 확인
+4. **기어 결정**: `--gear` 파라미터 > 템플릿 문서의 기어 기록 > 기본 low 순으로 결정.
+   폭발 반경 점검("기어(Gears)" 섹션)을 수행하고, high-stakes 영역이면 한 단 낮은 기어를
+   권장하는 경고를 출력. 결정된 기어를 템플릿 문서 진행 기록에 기록.
 
 #### Step 2: RGB 사이클 실행
 
@@ -476,7 +479,7 @@ BigDecimal discount = discountService.applyDiscount(
 - 실패하는 테스트 작성
 - approved.txt 파일 생성 (필요 시)
 - 에이전트 내에서 `test:` 접두사로 커밋 수행
-- **사용자 피드백 대기**
+- **검토 지점이면 사용자 피드백 대기** (low: 매 phase 후 / mid·high: 대기 없이 다음 phase)
 
 ##### Green 단계
 - **tdd-green agent**에 위임
@@ -484,7 +487,7 @@ BigDecimal discount = discountService.applyDiscount(
 - TPP (Transformation Priority Premise) 적용
 - Make-it-Work 전략 (Obvious / Fake it / Triangulation)
 - 에이전트 내에서 `feat:` 접두사로 커밋 수행
-- **사용자 피드백 대기**
+- **검토 지점이면 사용자 피드백 대기** (low: 매 phase 후 / mid·high: 대기 없이 다음 phase)
 
 ##### Blue 단계
 - **tdd-blue agent**에 위임
@@ -499,12 +502,23 @@ BigDecimal discount = discountService.applyDiscount(
   - 7. Trimming (Advanced)
   - 8. 품질 게이트 (이해하기 어려워졌나? → One Pile 복귀)
 - 변경이 있는 경우 에이전트 내에서 `refactor:` 접두사로 커밋 수행
-- **사용자 피드백 대기**
+- **검토 지점이면 사용자 피드백 대기** (low: 매 phase 후 / mid·high: 대기 없이 다음 phase)
+
+##### 사이클 완료 시 (테스트 1개의 R→G→B 종료)
+
+- **mid 기어**: 여기가 검토 지점 — 사이클 요약(테스트·구현·리팩토링)을 보고하고 사용자 피드백 대기
+- **high 기어**: 대기 없이 다음 테스트로 진행
+- **기어 전환 점검** (모든 기어): "기어(Gears)" 섹션의 업/다운시프트 신호를 점검하고,
+  감지 시 전환을 제안. 사용자가 수락하면 템플릿 문서의 기어 기록을 갱신하고 다음
+  사이클부터 새 기어 적용
 
 #### Step 3: 완료 처리
 - 체크박스 업데이트 (`- [ ]` → `- [x]`)
 - 작업 내역을 마크다운 파일에 반영
 - 다음 테스트 안내 또는 전체 완료
+- **전체 완료 시 high 기어였다면**: 최종 사용자 검토 전에 적대적 리뷰를 실행
+  (아래 "high 기어: 적대적 리뷰" 섹션). green 스위트 + 적대적 리뷰 통과가
+  high 기어의 Definition of Done
 
 ---
 
