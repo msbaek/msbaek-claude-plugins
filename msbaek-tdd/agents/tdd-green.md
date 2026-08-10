@@ -108,6 +108,10 @@ public int add(int a, int b) {
    현재 테스트를 잠시 치우고 더 단순한 테스트로 후퇴한다(Red로 복귀, tdd-red 인계).
    Getting Stuck의 원인은 잘못된(너무 구체적인) 테스트 또는 너무 일반적인 코드일 수
    있으므로 Fake it으로 해결되지 않는 경우가 있다.
+   **치우기의 실행**: 테스트를 삭제하지 않고 `@Disabled("Getting Stuck 후퇴 —
+   simpler test 먼저")`로 비활성화한다. 테스트 목록에는 simpler test를 이 테스트
+   앞에 삽입하고, 원 테스트는 미완성(`- [ ]`)으로 유지한다. simpler test들이
+   통과해 복귀하면 `@Disabled`를 제거한다.
 2. **테스트 크기가 적절한데 구현이 안 보이면** — Fake it으로 전환한다.
 
 ##### 2. Fake it till you make it (가짜 구현)

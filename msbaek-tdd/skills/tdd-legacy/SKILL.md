@@ -58,8 +58,11 @@ argument-hint: "<대상 클래스 FQCN 또는 파일 경로>"
    - 실패하지 않는 어설션 = 동어반복 — 어설션을 고친다
 4. **비결정 출력 정규화 — scrubber**: 타임스탬프·랜덤·해시·순서 등 실행마다
    변하는 부분은 정규화(치환) 후 비교한다.
-5. 커밋: `test: <대상> characterization 테스트 추가` (reviewable-commits 표준 —
-   body에 어떤 행위를 고정했고 sabotage 검증 결과를 기록)
+5. 커밋: `test: <대상> characterization 테스트 추가`. 커밋 메시지는
+   `docs/reviewable-commits.md`(없으면 `~/.claude/docs/reviewable-commits.md`)
+   표준을 따른다 — body에 어떤 행위를 고정했고 sabotage 검증 결과를 기록.
+   커밋 직전 `git diff --stat`으로 테스트 외 파일 변경이 없는지 확인한다
+   (sabotage 원복 누락 차단).
 6. **사용자 검토 대기** — 고정한 행위 목록과 의심 동작 보고
 
 ### 2단계: Approval — 조합 커버리지 확장
@@ -83,7 +86,9 @@ argument-hint: "<대상 클래스 FQCN 또는 파일 경로>"
      - Maven: `org.pitest:pitest-maven` 플러그인 `<targetClasses>` 설정 →
        `mvn test-compile org.pitest:pitest-maven:mutationCoverage`
 2. 대상 클래스에 mutation 실행 → 살아남은 뮤턴트 = 안전망의 구멍
-3. 뮤턴트를 죽이는 테스트를 보강하고 재실행 (반복)
+3. 뮤턴트를 죽이는 테스트를 보강하고 재실행 (반복).
+   죽일 수 없는 동등 뮤턴트(equivalent mutant)로 판정되면 사유와 함께
+   사용자에게 보고하고 score 계산에서 제외를 합의한다 (무한 보강 루프 금지).
 4. **DoD**: 대상 메소드 기준 mutation score 100% 또는 사용자가 합의한 임계값
 5. 커밋: `test: <대상> 뮤턴트 킬 테스트 보강`
 6. **사용자 검토 대기** — mutation score 전/후 보고
