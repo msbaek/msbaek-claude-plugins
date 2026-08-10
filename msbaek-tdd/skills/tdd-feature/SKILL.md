@@ -142,6 +142,11 @@ superpowers·tdd-plan의 장황함을 덜어낸다. plan은 **합의에 꼭 필�
 4. test 체크박스 `- [ ]` → `- [x]`, 작업 내역을 plan 문서에 1~3줄 기록(코드 제외).
 5. **다음 test로 이동** (피드백 요청 없이).
 
+> **Getting Stuck 후퇴 수신**: Green 단계에서 tdd-green이 "Getting Stuck 복구 경로"
+> 1단계(simpler test로 후퇴)를 보고하면, 오케스트레이터가 원 테스트를 `@Disabled`
+> 처리하고 simpler test를 목록 앞에 삽입한 뒤 자율 진행을 계속한다. 후퇴 발생은
+> plan 문서 작업 내역에 남긴다 — 사용자 중단 없이 처리하되 최종 검토에서 보이게.
+
 #### 에이전트 위임 prompt 템플릿
 
 각 에이전트 호출 시 Agent 도구의 `subagent_type`에 `tdd-red`/`tdd-green`/`tdd-blue`를 지정하고, prompt에 **대상 test + 자율 지시**만 전달한다. 커밋 형식은 에이전트 정의의 commit 단계가 `reviewable-commits.md`를 참조해 처리하므로, prompt에 형식을 다시 적지 않는다(단일 출처 유지):
