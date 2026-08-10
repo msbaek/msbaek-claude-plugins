@@ -6,7 +6,7 @@ Kent Beck의 TDD 원칙을 기반으로, 요구사항(도메인 규칙 + User St
 
 | 플러그인 | 설명 | 버전 |
 |----------|------|------|
-| **msbaek-tdd** | Java + Spring Boot TDD workflow with RGB cycle, feature-level autonomous implementation, Cucumber acceptance testing, local tidying, system-wide refactoring, and 18 optional refactoring skills | 1.9.4 |
+| **msbaek-tdd** | Java + Spring Boot TDD workflow with RGB cycle, gear-based review density, feature-level autonomous implementation, Cucumber acceptance testing, local tidying, system-wide refactoring, and 18 optional refactoring skills | 1.10.0 |
 
 ## 설치
 
