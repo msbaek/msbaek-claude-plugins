@@ -103,7 +103,7 @@ TDD 프로젝트의 진입점입니다. 템플릿 문서와 테스트 클래스�
 테스트 목록의 각 항목에 대해 RGB 사이클을 실행합니다.
 
 ```
-/tdd-rgb
+/tdd-rgb [--gear=low|mid|high]
 ```
 
 ```
@@ -115,6 +115,21 @@ Blue (Composed Method 지향 Local Tidying)
   ↓
 [다음 테스트로 반복]
 ```
+
+**기어(Gears) — 검토 밀도 조절** (Kent Beck의 "driving in gears")
+
+이론에 대한 확신에 따라 사용자 검토 지점의 밀도를 조절합니다. 기어는 검토 지점의 밀도만 바꾸며, TDD 3법칙·phase별 커밋 등 나머지 규칙은 모든 기어에서 동일합니다.
+
+| 기어 | 검토 지점 | 대응 상황 |
+|------|-----------|-----------|
+| `low` (기본) | Red 후 · Green 후 · Blue 후 | 확신 없음, 낯선 도메인, 학습 목적 |
+| `mid` | 테스트 1개의 R→G→B 완료 후 1회 | 유사 문제 경험, 이론을 빠르게 확보할 것으로 기대 |
+| `high` | 전체 목록 완료 + 적대적 리뷰 통과 후 1회 | 이론이 상용구(boilerplate) 수준 |
+
+- 사이클 사이에 신호(설계 안정·지루함 ↔ revert·불투명)를 점검해 기어 전환을 **제안**합니다 — 결정은 항상 사용자
+- 인증·결제 등 폭발 반경(blast radius)이 큰 영역에서는 한 단 낮은 기어를 권장합니다
+- `high` 기어는 완료 후 적대적 리뷰(adversarial review)가 의무 — green 스위트 + 리뷰 통과가 Definition of Done
+- 기어 상태는 템플릿 문서 진행 기록에 남아 세션 재개 시 복원됩니다
 
 #### `/tdd-feature` — 간결 Plan → Feature 단위 자율 구현
 
@@ -298,7 +313,7 @@ msbaek-claude-plugins/
  ├── Steps → Protocol Driver → SUT (Four Layer 축소형)
  └── 태그 기반 가역 제외, 기존 JUnit 인수 테스트 이관
 
-/tdd-rgb (사이클 조율, step-wise — 매 단계 피드백)
+/tdd-rgb (사이클 조율 — 기어가 검토 밀도 결정, 기본 low = 매 단계 피드백)
  ├── tdd-red agent   → 실패하는 테스트 작성
  ├── tdd-green agent → 최소 구현으로 통과
  └── tdd-blue agent  → Composed Method 지향 Local Tidying Process
@@ -343,7 +358,7 @@ msbaek-claude-plugins/
 - **Test Addition Rule** — Degenerate(특수)에서 General(일반)으로 점진적 진행
 - **Programmer Test (FIRST)** — Fast, Isolated, Deterministic, Predictive, Specific
 - **Micro Cycle** — 각 단계는 2-3분 이내, 빠른 피드백
-- **사용자 피드백 대기** — 각 단계 완료 후 반드시 사용자 승인을 받고 다음 단계 진행
+- **사용자 피드백 대기** — 기어가 정의하는 검토 지점에서 반드시 사용자 승인을 받고 진행 (기본 low 기어 = 각 단계 완료 후)
 
 ### Prompt Contracts
 
