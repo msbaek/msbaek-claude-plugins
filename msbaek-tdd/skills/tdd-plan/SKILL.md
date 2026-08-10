@@ -321,6 +321,13 @@ unit test(세밀 분기)가 물리적으로 한 목록에 섞이지만, 개념�
 **RGB 구현 순서는 Gherkin 시나리오 + unit test를 합쳐 Degenerate → General로
 정렬한다.**
 
+**Degenerate → General 순서의 도출 절차** (결과가 아니라 만드는 방법):
+
+1. 가장 중요한 테스트(핵심 시나리오)를 먼저 적는다
+2. 거기 도달하기 위한 징검다리(stair-step) 테스트를 거슬러 내려간다
+3. most degenerate 테스트를 발견할 때까지 반복한다
+4. 목록을 **reverse order로 정렬**해 degenerate-first 순서를 만든다
+
 #### 테스트 목록 작성 템플릿
 
 ```markdown
