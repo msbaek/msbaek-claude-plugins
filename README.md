@@ -2,11 +2,11 @@
 
 Java/Spring Boot 프로젝트를 위한 TDD 워크플로우 Claude Code 플러그인입니다.
 
-Kent Beck의 TDD 원칙을 기반으로, SRS 작성부터 Red-Green-Blue 사이클, Composed Method 지향 리팩토링까지 체계적인 테스트 주도 개발을 지원합니다.
+Kent Beck의 TDD 원칙을 기반으로, 요구사항(도메인 규칙 + User Story) 작성부터 Gherkin Scenario, Red-Green-Blue 사이클, Cucumber 인수 테스트, Composed Method 지향 리팩토링까지 체계적인 테스트 주도 개발을 지원합니다.
 
 | 플러그인 | 설명 | 버전 |
 |----------|------|------|
-| **msbaek-tdd** | Java + Spring Boot TDD workflow with RGB cycle, feature-level autonomous implementation, local tidying, system-wide refactoring, and 18 optional refactoring skills | 1.9.0 |
+| **msbaek-tdd** | Java + Spring Boot TDD workflow with RGB cycle, feature-level autonomous implementation, Cucumber acceptance testing, local tidying, system-wide refactoring, and 18 optional refactoring skills | 1.9.4 |
 
 ## 설치
 
@@ -65,23 +65,38 @@ TDD 프로젝트의 진입점입니다. 템플릿 문서와 테스트 클래스�
 
 | 유형 | 설명 | 단계 |
 |------|------|------|
-| `general` | 일반 TDD | SRS → 예제 → 테스트 목록 → RGB 사이클 (4단계) |
-| `web-usecase` | Web Usecase TDD | SRS → 예제 → High Level Test → 테스트 목록 → Walking Skeleton → RGB 사이클 → HLT 활성화 → JPA → DSL (9단계) |
+| `general` | 일반 TDD | 요구사항 → Gherkin Scenario → Unit Test 목록 → RGB 사이클 (4단계) |
+| `web-usecase` | Web Usecase TDD | 요구사항 → Gherkin Scenario → High Level Test → Unit Test 목록 → Walking Skeleton → RGB 사이클 → HLT 활성화 → JPA → DSL (9단계) |
 
 #### `/tdd-plan` — TDD 계획 수립
 
-SRS, 예제, 테스트 케이스 목록을 순서대로 작성합니다.
+요구사항, Gherkin Scenario, unit test 목록을 순서대로 작성합니다.
 
 ```
 /tdd-plan
 ```
 
 **진행 단계:**
-1. **SRS 작성** — 비즈니스 규칙, 요구사항 정의
-2. **예제 작성** — Happy path, 경계 조건, 예외 상황 시나리오
-3. **테스트 케이스 목록** — Degenerate → Simple → General 순서로 정렬
-4. (web-usecase) **High Level Test** — End-to-end 테스트 작성
-5. (web-usecase) **Walking Skeleton** — 전체 레이어 연결 골격 구현
+1. **요구사항 작성** — 도메인 규칙(0층) + User Story
+2. **Gherkin Scenario 작성** — Happy path, 경계 조건, 예외 상황을 예제로 (Cucumber 병행 시 실행 가능한 명세가 됨)
+3. **Unit Test 목록** — Degenerate → Simple → General 순서로 정렬 (Gherkin 병행 시 세밀 분기만)
+4. (조건부) **Use Case 추가** — 복잡도가 흐름·상태에 있을 때만
+5. (web-usecase) **High Level Test** — End-to-end 테스트 작성
+6. (web-usecase) **Walking Skeleton** — 전체 레이어 연결 골격 구현
+
+#### `/cucumber-acceptance` — Cucumber 인수 테스트 (주 검증층)
+
+기능의 external behavior를 Cucumber 인수 테스트로 구축합니다. `.feature` 실행으로 문서↔코드 드리프트를 구조적으로 차단합니다.
+
+```
+/cucumber-acceptance
+```
+
+- **Four Layer 축소형**: Steps → Protocol Driver → SUT
+- **타입 경계**: 도메인 타입 ≠ DTO 타입
+- **태그 기반 가역 제외** — 미구현 시나리오를 태그로 제외했다가 구현 후 복원
+- 기존 JUnit 인수 테스트의 이관도 지원
+- 도입 시점: 프로젝트 시작 시 또는 나중에 (tdd-plan의 Gherkin Scenario를 실행 가능한 명세로 승격)
 
 #### `/tdd-rgb` — Red-Green-Blue 사이클
 
@@ -182,7 +197,7 @@ Guard Clauses → One Pile → Reorder → Normalize Symmetries
 # 1. 프로젝트 생성
 /tdd general com.example.bowling.BowlingGame
 
-# 2. SRS, 예제, 테스트 목록 작성
+# 2. 요구사항, Gherkin Scenario, unit test 목록 작성
 /tdd-plan
 
 # 3. RGB 사이클로 구현
@@ -198,7 +213,7 @@ Guard Clauses → One Pile → Reorder → Normalize Symmetries
 # 1. 프로젝트 생성
 /tdd web-usecase com.example.basket.CreateShoppingBasket
 
-# 2. SRS, 예제, High Level Test, 테스트 목록, Walking Skeleton 작성
+# 2. 요구사항, Gherkin Scenario, High Level Test, unit test 목록, Walking Skeleton 작성
 /tdd-plan
 
 # 3. RGB 사이클로 구현 + HLT 활성화 + JPA 전환 + DSL 개선
@@ -229,12 +244,13 @@ msbaek-claude-plugins/
 │   └── marketplace.json              # Marketplace 카탈로그
 ├── msbaek-tdd/                       # TDD 플러그인
 │   ├── .claude-plugin/
-│   │   └── plugin.json               # 플러그인 매니페스트 (v1.8.0)
+│   │   └── plugin.json               # 플러그인 매니페스트
 │   ├── skills/
 │   │   ├── tdd/                      # /tdd 오케스트레이터
 │   │   ├── tdd-plan/                 # /tdd-plan 계획 수립
 │   │   ├── tdd-rgb/                  # /tdd-rgb 사이클 조율 (step-wise)
 │   │   ├── tdd-feature/              # /tdd-feature feature 단위 자율 구현
+│   │   ├── cucumber-acceptance/      # /cucumber-acceptance 인수 테스트 구축
 │   │   ├── tdd-tidy/                 # /tdd-tidy 독립 tidying
 │   │   ├── system-wide-refactoring/  # /system-wide-refactoring
 │   │   ├── decompose-conditional/    # Tidy 계열 (9개)
@@ -272,9 +288,15 @@ msbaek-claude-plugins/
  └── /tdd-rgb 안내
 
 /tdd-plan (계획 수립)
- ├── SRS 작성
- ├── 예제 작성
- └── 테스트 케이스 목록 작성
+ ├── 요구사항 작성 — 도메인 규칙(0층) + User Story
+ ├── Gherkin Scenario 작성 (예제)
+ ├── Unit Test 목록 작성
+ └── (조건부) Use Case 추가
+
+/cucumber-acceptance (인수 테스트 구축)
+ ├── .feature를 실행 가능한 명세로 (주 검증층)
+ ├── Steps → Protocol Driver → SUT (Four Layer 축소형)
+ └── 태그 기반 가역 제외, 기존 JUnit 인수 테스트 이관
 
 /tdd-rgb (사이클 조율, step-wise — 매 단계 피드백)
  ├── tdd-red agent   → 실패하는 테스트 작성
