@@ -2,7 +2,7 @@
 
 - 날짜: 2026-08-10
 - 출처 개념: Kent Beck "driving in gears" (『TDD By Example』) 및 "Coding Agents: Driving In Gears" 글
-- 상태: 설계 승인됨 (구현 전)
+- 상태: 구현 완료 — 런타임 검증 대기 (feat/driving-in-gears)
 
 ## Goal (testable)
 
