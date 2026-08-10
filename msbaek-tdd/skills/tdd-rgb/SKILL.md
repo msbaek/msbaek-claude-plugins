@@ -479,6 +479,9 @@ BigDecimal discount = discountService.applyDiscount(
 ##### Red 단계
 - **tdd-red agent**에 위임
 - 실패하는 테스트 작성
+- 테스트 추가 후 구현 방향이 즉시 떠오르지 않으면 Getting Stuck으로 간주 —
+  tdd-green의 "Getting Stuck 복구 경로"(더 단순한 테스트로 후퇴 우선)를 따른다.
+  후퇴 결정은 Red/Green 경계를 넘으므로 오케스트레이터가 인지하고 조율한다
 - approved.txt 파일 생성 (필요 시)
 - 에이전트 내에서 `test:` 접두사로 커밋 수행
 - **검토 지점이면 사용자 피드백 대기** (low: 매 phase 후 / mid·high: 대기 없이 다음 phase)

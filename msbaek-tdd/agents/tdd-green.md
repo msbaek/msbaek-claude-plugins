@@ -102,7 +102,13 @@ public int add(int a, int b) {
 }
 ```
 
-**주의사항**: Getting Stuck 위험 - 막히면 즉시 Fake it으로 전환
+**주의사항 — Getting Stuck 복구 경로 (순서 준수)**:
+
+1. **테스트가 너무 큰 도약인지 먼저 판단** — 그렇다면 **Write a simpler test**:
+   현재 테스트를 잠시 치우고 더 단순한 테스트로 후퇴한다(Red로 복귀, tdd-red 인계).
+   Getting Stuck의 원인은 잘못된(너무 구체적인) 테스트 또는 너무 일반적인 코드일 수
+   있으므로 Fake it으로 해결되지 않는 경우가 있다.
+2. **테스트 크기가 적절한데 구현이 안 보이면** — Fake it으로 전환한다.
 
 ##### 2. Fake it till you make it (가짜 구현)
 **언제 사용**: 구현이 복잡하거나 불확실할 때
