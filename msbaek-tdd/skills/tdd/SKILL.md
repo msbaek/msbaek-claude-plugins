@@ -129,7 +129,7 @@ FQCN을 기반으로 다음 경로를 결정합니다:
 
 ---
 
-### Web Usecase TDD 템플릿 (9단계)
+### Web Usecase TDD 템플릿 (8단계)
 
 ```markdown
 # AI와 Pair로 {ClassName} Usecase를 TDD로 구현하기
@@ -137,19 +137,18 @@ FQCN을 기반으로 다음 경로를 결정합니다:
 ## 전체적인 절차
 - [ ] 1. 요구사항 작성 (도메인 규칙 + User Story, 조건부 Use Case)
 - [ ] 2. Gherkin Scenario 작성
-- [ ] 3. High Level Test 작성
+- [ ] 3. 인수 테스트 셋업 (.feature + Runner, 미구현은 @pending)
 - [ ] 4. Unit Test 목록 작성
 - [ ] 5. Walking Skeleton 구현
-- [ ] 6. 테스트 구현 (RGB 사이클)
-- [ ] 7. High Level Test 활성화
-- [ ] 8. JPA Repository 구현
-- [ ] 9. DSL 개선
+- [ ] 6. 테스트 구현 (RGB 사이클 — 각 Green이 자기 시나리오 @pending 해제)
+- [ ] 7. JPA Repository 완성 (계약 테스트로 InMemory와 동등성 검증)
+- [ ] 8. DSL 개선 (Steps·Protocol Driver·Test Data Builder)
 
 ## 1. 요구사항 — 도메인 규칙(0층) + User Story
 
 ## 2. Gherkin Scenario
 
-## 3. High Level Test
+## 3. 인수 테스트 셋업
 
 ## 4. Unit Test 목록
 
@@ -159,12 +158,15 @@ FQCN을 기반으로 다음 경로를 결정합니다:
 
 기어: low
 
-## 7. High Level Test 활성화
+## 7. JPA Repository
 
-## 8. JPA Repository
-
-## 9. DSL 개선
+## 8. DSL 개선
 ```
+
+> Web Usecase는 `/cucumber-acceptance`가 **필수**다 — 단계 2의 Gherkin이 `.feature`로
+> 실행되어 인수 계층을 담당한다. 별도 High Level Test(JUnit)를 두지 않는다(같은 검증이
+> 두 계층에 중복되면 안 됨). 프로젝트 제약으로 Cucumber를 도입할 수 없는 경우에만
+> 대표 시나리오 1개를 JUnit 인수 테스트로 작성해 대체한다.
 
 ## FAILURE CONDITIONS
 

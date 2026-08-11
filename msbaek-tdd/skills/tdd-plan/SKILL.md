@@ -9,7 +9,7 @@ allowed-tools: Write, Edit, Read, Bash(git add:*), Bash(git commit:*), Bash(git 
 
 Kent Beck의 TDD 원칙에 따라 구현 전 계획 문서를 작성하는 전문가입니다.
 요구사항(도메인 규칙 + User Story) → Gherkin Scenario(programmer test) → unit test 목록
-순서로 진행하며, Web Usecase 유형에서는 High Level Test와 Walking Skeleton 단계가 추가됩니다.
+순서로 진행하며, Web Usecase 유형에서는 인수 테스트 셋업(.feature)과 Walking Skeleton 단계가 추가됩니다.
 복잡도가 흐름·상태 전이에 있으면 Use Case를 조건부로 추가합니다.
 
 ## GOAL
@@ -19,7 +19,7 @@ Kent Beck의 TDD 원칙에 따라 구현 전 계획 문서를 작성하는 전�
 - 단계 2: Gherkin Scenario — 핵심 예시(경계·대표 예외 포함)를 실행 가능한 형식으로. Kent Beck이 말하는 programmer test(behavior에 coupled, structure에 decoupled)가 이 계층이다. 이후 `/cucumber-acceptance`의 `.feature` 원본이 된다
 - 단계 3: Unit Test 목록 — Gherkin에 없는 세밀 분기·내부 협력만. 구현 세부사항과 결합되는 classical unit test로, programmer test와는 별개 범주다(아래 "단계 3" 도입부 참조). RGB 구현 순서는 Gherkin 시나리오와 합쳐 Degenerate → General
 - (조건부) Use Case — 복잡도가 흐름·상태 전이에 있을 때만 추가 (판단 체크리스트 참조)
-- (Web Usecase) 단계 E-1: High Level Test 작성, 단계 E-2: Walking Skeleton 구현
+- (Web Usecase) 단계 E-1: 인수 테스트 셋업(.feature + Runner, `/cucumber-acceptance` 필수), 단계 E-2: Walking Skeleton 구현
 - 각 단계 완료 후 체크박스 업데이트 (`- [ ]` → `- [x]`)
 - 다음 단계 안내 제공
 
@@ -425,7 +425,9 @@ ex. 테니스 게임 External Behavior 테스트 케이스
    - 대안: `/tdd-rgb`(단계별 확인) 또는 `/tdd-feature`(feature 단위 자율)로 Cucumber
      없이 바로 구현 — 이미 구현·테스트가 있는 기존 프로젝트에 기능을 추가할 때,
      또는 `tdd-plan`을 거쳤어도 이 기능만 Cucumber를 의도적으로 쓰지 않기로
-     사용자가 명시적으로 선택했을 때. **이 대안을 고르면(사유 무관) 구현 시작
+     사용자가 명시적으로 선택했을 때. **단 `web-usecase` 유형은 Cucumber가 필수이므로,
+     프로젝트 제약(의존성 정책 등)으로 도입 불가한 경우에만 이 대안을 택하고
+     대표 시나리오 1개를 JUnit 인수 테스트로 작성한다**(단계 E-1의 탈출구). **이 대안을 고르면(사유 무관) 구현 시작
      전에 단계 3의 Unit Test 목록으로 돌아가 Gherkin 시나리오를 합쳐 넣고
      체크박스·커밋을 갱신한다**(단계 3 도입부의 "Cucumber를 쓰지 않는 프로젝트"
      경로대로) — 단계 3은 acceptance-first를 가정하고 Gherkin이 담당할 검증을
@@ -453,12 +455,12 @@ ex. 테니스 게임 External Behavior 테스트 케이스
   나열할 수 있지만 "정상 흐름의 어느 지점에서 갈라지는가"라는 구조는 확장절만
   표현한다
 - 계산 규칙은 0층(1a) 참조로 둔다 — Use Case 본문에 계산을 풀어쓰지 않는다
-- `web-usecase` 유형이면 E-1 High Level Test가 UC 주 성공 시나리오의 실행 가능한
-  형태다 — UC를 썼다면 HLT가 검증할 흐름·확장 지점이 문서로 먼저 확정된 것이다
+- `web-usecase` 유형이면 E-1의 `.feature` 시나리오가 UC 주 성공 시나리오의 실행 가능한
+  형태다 — UC를 썼다면 인수 테스트가 검증할 흐름·확장 지점이 문서로 먼저 확정된 것이다
 
 **UC Scenario(구체 인스턴스 전개)는 만들지 않는다** — 하던 일의 실행 가능한
 대체물이 이미 파이프라인에 있다: 구체 수치는 Gherkin `Examples` 표(실행됨), 주
-흐름의 단계별 추적은 High Level Test(Approvals 출력). 검산 전개만 0층에 남긴다.
+흐름의 단계별 추적은 `.feature` 시나리오(필요 시 Step의 Approvals 출력). 검산 전개만 0층에 남긴다.
 
 ---
 
@@ -466,75 +468,67 @@ ex. 테니스 게임 External Behavior 테스트 케이스
 
 > 다음 단계들은 TDD 유형이 `web-usecase`일 때만 진행합니다.
 
-#### 단계 E-1: High Level Test 작성
+#### 단계 E-1: 인수 테스트 셋업 (.feature + Runner)
 
-##### High Level Test 규칙
+##### 규칙
 
-- 대표 예제 선택: 단계 2 Gherkin 시나리오 중에서 요구사항의 제약 조건을 가장 많이 충족하는 경우(most general한 경우)를 선택
-- 이 예제를 통해 구현할 기능이 어떻게 사용되는지 감을 잡고, 어떤 결과를 갖게 될지 계획과 목표(Target Design)를 가지고 진행
+Web Usecase는 `/cucumber-acceptance`가 **필수**다. 단계 2에서 쓴 Gherkin이 그대로
+`.feature`로 실행되어 인수 계층을 담당하므로, **별도 High Level Test(JUnit)를 만들지
+않는다** — 같은 검증이 두 계층에 중복되면 안 된다(`cucumber-acceptance`의 Hard Rule).
 
-##### High Level Test 코드 샘플
+- `/cucumber-acceptance`를 호출해 `.feature` + Runner + Steps + Protocol Driver를 셋업
+- 미구현 시나리오는 `@pending` 태그로 제외 — 6단계 RGB 사이클에서 각 Green이 자기
+  시나리오의 태그를 같은 커밋에서 해제한다. `@Disabled` 일괄 토글이 아니라
+  **시나리오 단위 해제**다
+- Target Design(구현될 API 형상)은 Protocol Driver가 확정한다 — Steps는 파싱·위임만
+- 대표 예제(most general한 시나리오)는 별도 테스트가 아니라 `.feature`의 한 시나리오다
+
+> **탈출구**: 프로젝트 제약(의존성 정책 등)으로 Cucumber를 도입할 수 없는 경우에만,
+> 대표 시나리오 1개를 JUnit 인수 테스트(`@Disabled`로 시작 → 구현 완료 후 활성화)로
+> 작성해 대체한다. 이때도 나머지 절차는 동일하다.
+
+##### 전체 출력 잠금이 필요하면 — Approvals를 Step에 둔다
+
+영수증처럼 **출력 전체 형상**(품목 나열·소계·할인 줄 순서)을 잠그고 싶으면, 별도 JUnit
+테스트를 만들지 말고 Steps에서 Approvals를 호출한다. 이때 승인 파일명이 시나리오마다
+갈라지게 해야 한다 — Scenario Outline은 Examples 행이 모두 같은 step을 타므로, 구분자
+없이 쓰면 행끼리 같은 승인 파일을 덮어써서 검증이 조용히 통과한다.
+
+Cucumber `@Before` 훅에 주입되는 `Scenario` 객체의 `getId()`는 Examples 행마다 다르므로
+(uri + line 기반) 이를 승인 파일명 접미사로 쓴다:
 
 ```java
-@SpringBootTest
-@AutoConfigureMockMvc
-public class CreateShoppingBasketTest {
-    @Autowired
-    private MockMvc mockMvc;
+private String approvalKey;
 
-    @Autowired
-    private ObjectMapper objectMapper;
-
-    @Disabled("아직 기능 구현이 완료되지 않았습니다.")
-    @DisplayName("여러 상품이 있고 20,000원 초과 시 10% 할인 적용되는 청구서 생성")
-    @Test
-    void create_and_verify_basket() throws Exception {
-        // given
-        BasketItemRequests items = new BasketItemRequests(List.of(
-                new BasketItemRequest("스마트폰 케이스", BigDecimal.valueOf(15000), 1),
-                new BasketItemRequest("보호필름", BigDecimal.valueOf(5000), 2),
-                new BasketItemRequest("충전 케이블", BigDecimal.valueOf(8000), 1)
-        ));
-
-        // when
-        MvcResult postResult = mockMvc.perform(post("/api/baskets")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(items)))
-                .andExpect(status().isOk())
-                .andReturn();
-
-        BasketResponse response = objectMapper.readValue(
-                postResult.getResponse().getContentAsString(),
-                BasketResponse.class);
-
-        String basketId = response.basketId();
-
-        // assert: get을 통해 같은 api 레벨에서 결과 확인
-        MvcResult getResult = mockMvc.perform(get("/api/baskets/" + basketId))
-                .andExpect(status().isOk())
-                .andReturn();
-
-        BasketDetailsResponse basketDetails = objectMapper.readValue(
-                getResult.getResponse().getContentAsString(),
-                BasketDetailsResponse.class);
-
-        Approvals.verify(printBasketDetails(basketDetails));
-    }
-
-    private String printBasketDetails(BasketDetailsResponse basketDetails) {
-        return """
-                ===== 영수증 =====
-                품목:
-                - 스마트폰 케이스 1개 (단가: 15,000원, 총액: 15,000원)
-                - 보호필름 2개 (단가: 5,000원, 총액: 10,000원)
-                - 충전 케이블 1개 (단가: 8,000원, 총액: 8,000원)
-                소계: 33,000원
-                할인: 3,300원 (10% 할인)
-                최종 결제 금액: 29,700원
-                ==================
-                """;
-    }
+@Before
+public void 시나리오_기록(Scenario scenario) {
+    this.approvalKey = scenario.getId().replaceAll("\\W+", "_");
 }
+
+@Then("영수증이 출력된다")
+public void 영수증_출력() {
+    Approvals.verify(driver.printReceipt(),
+            new Options().forFile().withAdditionalInformation(approvalKey));
+}
+```
+
+##### Gherkin 시나리오 샘플
+
+```gherkin
+Feature: 장바구니 청구서
+
+  @pending
+  Scenario: 여러 상품이 있고 20,000원 초과 시 10% 할인 적용
+    Given 장바구니에 다음 상품이 담겨 있다
+      | 상품명       | 단가   | 수량 |
+      | 스마트폰 케이스 | 15000 | 1  |
+      | 보호필름      | 5000  | 2  |
+      | 충전 케이블    | 8000  | 1  |
+    When 청구서를 생성한다
+    Then 소계는 33,000원이다
+    And 할인은 3,300원이다
+    And 최종 결제 금액은 29,700원이다
+    And 영수증이 출력된다
 ```
 
 ##### DSL 개선 목표
@@ -569,18 +563,110 @@ void create_and_verify_basket() throws Exception {
 - class, attributes, relation만 표현
 - 금액 계산과 같은 행위 관련 부분은 추가하지 않음 (나중에 리팩터링을 통해 추가)
 
-##### @Disabled 처리
-- 초기에는 `@Disabled("아직 기능 구현이 완료되지 않았습니다.")` 추가
-- 모든 단계별 테스트 완료 후 활성화
+##### 미구현 시나리오 처리
+- 초기에는 `@pending` 태그로 실행에서 제외 (Runner 설정에서 `not @pending`)
+- 각 Green 단계가 자기 시나리오의 태그를 같은 커밋에서 해제 — 일괄 활성화 단계는 없다
+- (탈출구로 JUnit 인수 테스트를 쓰는 경우에만) `@Disabled("아직 기능 구현이 완료되지
+  않았습니다.")`로 시작해 구현 완료 후 제거
 
 ---
 
 #### 단계 E-2: Walking Skeleton 구현
 
-##### Walking Skeleton 목적
-- End-to-end 아키텍처의 기본 골격 구현
-- Controller부터 Repository까지 전체 레이어 연결
-- 실제 기능보다는 구조적 연결성 검증
+##### Walking Skeleton 목적 — 두 축: real과 thinnest
+
+GOOS(Growing Object-Oriented Software)의 정의: "자동으로 빌드·배포·테스트할 수 있는
+실제 기능(real functionality)의 가장 얇은 슬라이스(thinnest possible slice)".
+인프라 미지수(빌드 설정·DB 연결·wire 포맷)와 도메인 미지수를 한 방정식에 넣지 않기 위해,
+도메인 사이클(RGB) 시작 전에 인프라 경로를 먼저 증명한다. 이 단계의 테스트는
+기능 검증이 아니라 **뼈대 자체가 동작하는지 확인하는 테스트**다.
+
+**real과 "비즈니스 로직 제외"는 충돌하지 않는다 — 축이 다르다**:
+
+| 축 | 질문 | 기준 |
+|---|---|---|
+| **real** | 실행 경로가 진짜인가? | fake/하드코딩 금지 — 실제 HTTP → 실제 앱 → **실제 DB(docker MySQL)** 관통 |
+| **thinnest** | 기능이 얇은가? | 비즈니스 규칙(합산·할인·검증) 제외 — "너무 단순해서 흥미롭지 않을 정도"의 저장·조회 pass-through |
+
+하드코딩된 응답은 파이프라인을 거쳐도 real이 아니고, 비즈니스 규칙이 들어가면 thinnest가
+아니다. DB를 in-memory로 대체하는 것은 real 위반이자, DB 셋업류 unknown unknowns의
+발견을 정확히 뒤로 미루는 일이다.
+
+##### Repository와 Profile 규칙
+
+Walking Skeleton은 **진짜 JPA Repository 최소 구현 + docker MySQL(Testcontainers)**로
+관통한다. In-Memory 구현은 skeleton용이 아니라 **이후 RGB 사이클의 빠른 루프용**이다.
+이 단계에서 profile 구조를 함께 셋업한다:
+
+```java
+// 주석 토글("JPA 사용을 위해 주석 처리")이 아니라 profile로 전환한다 —
+// 코드 수정 없이 @ActiveProfiles / spring.profiles.active로 구현을 선택
+@Repository
+@Profile("inMemory")     // RGB 사이클의 빠른 루프 전용
+class InMemoryBasketRepository implements BasketRepository {
+    private final Map<Long, Basket> baskets = new ConcurrentHashMap<>();
+    private final AtomicLong idGenerator = new AtomicLong(1);
+
+    public Basket save(Basket basket) {
+        if (basket.getId() == null) {
+            Long id = idGenerator.getAndIncrement();
+            Basket savedBasket = new Basket(id, basket.getItems());
+            baskets.put(id, savedBasket);
+            return savedBasket;
+        }
+        baskets.put(basket.getId(), basket);
+        return basket;
+    }
+
+    public Optional<Basket> findById(Long id) {
+        return Optional.ofNullable(baskets.get(id));
+    }
+
+    public void clear() {    // 테스트 격리용 — @BeforeEach에서 호출
+        baskets.clear();
+        idGenerator.set(1);
+    }
+}
+
+@Repository
+@Profile("!inMemory")    // local, dev, stage, prod 전부 — 새 환경 추가 시 수정 불필요
+class JpaBasketRepository implements BasketRepository { ... }
+```
+
+`@Profile("!inMemory")`는 활성 profile이 없는 기본 상태에도 매칭된다 — 의도된 동작이다.
+"진짜 DB가 기본, in-memory는 명시적으로 요청할 때만"이 real 원칙의 기본값이다.
+
+RGB 사이클에서의 사용법. 도메인 테스트는 Spring 컨텍스트 없이 **직접 생성**해 쓰는 것이
+가장 빠르다 (profile 빈은 앱을 `inMemory`로 띄울 때 쓰인다):
+
+```java
+class AddItemToBasketTest {                        // Spring 부팅 없음 — 밀리초 단위
+    private final InMemoryBasketRepository repository = new InMemoryBasketRepository();
+
+    @BeforeEach
+    void setup() {
+        repository.clear();
+    }
+}
+```
+
+Spring 컨텍스트가 필요한 테스트(Controller 경유 등)만 profile로 전환한다 — JPA로 바꿀 때
+주석을 해제하는 게 아니라 `@ActiveProfiles` 값만 `local`로 바꾼다:
+
+```java
+@SpringBootTest
+@ActiveProfiles("inMemory")   // local로 바꾸면 같은 테스트가 docker MySQL로 실행
+class BasketControllerTest {
+    @Autowired
+    InMemoryBasketRepository repository;   // profile로 구현이 확정되므로 instanceof 검사 불필요
+}
+```
+
+- profile은 환경 이름 한 축으로 정렬: `inMemory` / `local`(docker MySQL) / `dev` / `stage` / `prod`
+- Walking Skeleton 테스트와 인수 테스트(`.feature`)는 **항상 `local`**(docker MySQL)에서
+  실행한다 — skeleton이 증명한 real 경로를 이후에도 지키는 것은 인수 테스트의 몫
+- RGB 사이클의 도메인 단위 테스트는 repository가 필요 없고, 저장이 필요한 테스트만
+  `inMemory` profile로 빠르게 실행한다
 
 ##### Walking Skeleton 테스트 샘플
 
@@ -619,69 +705,67 @@ void walking_skeleton_shopping_basket() throws Exception {
 }
 ```
 
-##### Fake Repository 규칙
+##### 테스트 클래스 설정 — 진짜 DB로
+
+skeleton 테스트에 Fake Repository를 주입하지 않는다(real 위반). docker MySQL을
+Testcontainers로 띄우고 진짜 JPA 경로로 관통한다:
 
 ```java
 @SpringBootTest
 @AutoConfigureMockMvc
+@ActiveProfiles("local")     // 진짜 JPA + docker MySQL — Fake/TestConfiguration 주입 금지
+@Transactional               // 테스트 격리: 각 테스트 후 롤백 (컨테이너는 클래스 단위 공유)
+@Testcontainers
 public class CreateShoppingBasketTest {
+    @Container @ServiceConnection
+    static MySQLContainer<?> mysql = new MySQLContainer<>("mysql:8");
+
     @Autowired
     private MockMvc mockMvc;
 
     @Autowired
     private ObjectMapper objectMapper;
-
-    @Autowired
-    private BasketRepository basketRepository;
-
-    @BeforeEach
-    void setup() {
-        if (basketRepository instanceof FakeBasketRepository) {
-            ((FakeBasketRepository) basketRepository).clear();
-        }
-    }
-
-    @TestConfiguration
-    static class TestConfig {
-        @Bean
-        public BasketRepository basketRepository() {
-            return new FakeBasketRepository();
-        }
-    }
-
-    static class FakeBasketRepository implements BasketRepository {
-        private final Map<Long, Basket> baskets = new ConcurrentHashMap<>();
-        private final AtomicLong idGenerator = new AtomicLong(1);
-
-        public Basket save(Basket basket) {
-            if (basket.getId() == null) {
-                Long id = idGenerator.getAndIncrement();
-                Basket savedBasket = new Basket(id, basket.getItems());
-                baskets.put(id, savedBasket);
-                return savedBasket;
-            } else {
-                baskets.put(basket.getId(), basket);
-                return basket;
-            }
-        }
-
-        public Optional<Basket> findById(Long id) {
-            return Optional.ofNullable(baskets.get(id));
-        }
-
-        public void clear() {
-            baskets.clear();
-            idGenerator.set(1);
-        }
-    }
 }
 ```
 
 ##### Controller 구현 원칙
 
-1. **Fake it 적용** - 복잡한 계산은 하드코딩으로 처리, 최소한의 구현
+1. **로직 없는 pass-through** - 저장하고 그대로 돌려준다. 계산이 필요한 시나리오는
+   skeleton 대상이 아니다 — 하드코딩할 로직 자체가 없을 만큼 얇은 시나리오를 고른다
 2. **절차적/명령형 스타일** - 하나의 메서드에 모든 로직 작성, 메서드 추출이나 클래스 분리 금지
 3. **Feature Envy 허용** - Controller가 모든 로직 담당, 데이터 중심 설계로 시작
+
+##### 이후 단계와의 연결
+
+아래 단계 번호는 Web Usecase TDD 템플릿의 "전체적인 절차" 8단계(tdd skill의 템플릿
+참조) 기준이다.
+
+- **6단계 RGB 사이클**: 도메인 규칙은 repository 없는 단위 테스트로 성장시키고,
+  저장이 필요한 테스트만 `inMemory` profile의 In-Memory 구현(Map 기반)을 사용
+- **7단계 JPA Repository**: "처음 구현"이 아니라 **완성** — skeleton의 최소 JPA를
+  성장한 도메인 전체를 커버하도록 확장하고, 같은 계약 테스트 스위트를 InMemory·JPA
+  양쪽에 실행해 두 구현의 동등성을 검증한다 (in-memory가 JPA 의미론과 조용히
+  어긋나는 드리프트 방지):
+
+```java
+abstract class BasketRepositoryContractTest {
+    abstract BasketRepository repository(); // 구현별로 제공
+
+    @Test
+    void 저장_후_조회하면_동일_상태의_바구니를_돌려준다() { ... }
+}
+
+class InMemoryBasketRepositoryTest extends BasketRepositoryContractTest { ... }  // 매 빌드
+
+@DataJpaTest
+@AutoConfigureTestDatabase(replace = NONE)   // 없으면 임베디드 DB로 조용히 대체됨 — MySQL 검증 무력화
+@Testcontainers
+class JpaBasketRepositoryTest extends BasketRepositoryContractTest { ... }       // docker MySQL
+```
+
+- **인수 테스트 실행**: 별도 활성화 단계 없음 — 각 Green이 자기 시나리오의 `@pending`을
+  같은 커밋에서 해제한다. 실행은 항상 `local` profile — in-memory로 인수 테스트를
+  통과시키지 않는다
 
 ## FAILURE CONDITIONS
 
@@ -694,4 +778,4 @@ public class CreateShoppingBasketTest {
 - [ ] Gherkin이 핵심 예시만 담았는가? (경계·대표 예외 포함, 망라적 edge 나열 금지)
 - [ ] 각 요구사항이 테스트로 검증 가능한가?
 - [ ] 애매모호한 표현·상호 모순되는 요구사항이 없는가?
-- [ ] UC Scenario 문서를 만들지 않았는가? (Gherkin Examples 표·High Level Test가 대체)
+- [ ] UC Scenario 문서를 만들지 않았는가? (Gherkin Examples 표·`.feature` 실행이 대체)
