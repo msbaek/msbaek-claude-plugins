@@ -14,7 +14,7 @@ Red → Green → Blue 사이클을 조율하여 테스트 목록의 각 항목�
 - 모든 테스트 케이스가 `- [x]`로 완료됨
 - 모든 테스트가 통과함
 - 작업 내역이 마크다운 파일에 반영됨
-- (Web Usecase의 경우) 모든 `.feature` 시나리오의 `@pending` 해제·green, JPA Repository 완성, DSL 개선까지 완료
+- (Web App의 경우) 모든 `.feature` 시나리오의 `@pending` 해제·green, JPA Repository 완성, DSL 개선까지 완료
 - 검토 지점의 밀도는 기어(low/mid/high)가 정한다 — 아래 "기어(Gears)" 섹션 참조
 
 ## CONSTRAINTS
@@ -548,7 +548,7 @@ BigDecimal discount = discountService.applyDiscount(
 - 체크박스 업데이트 (`- [ ]` → `- [x]`)
 - 작업 내역을 마크다운 파일에 반영
 - 다음 테스트 안내 또는 전체 완료
-- **전체 완료 시 high 기어였다면**: Web Usecase의 경우 추가 단계(인수 테스트 완료 확인·
+- **전체 완료 시 high 기어였다면**: Web App의 경우 추가 단계(인수 테스트 완료 확인·
   JPA Repository 완성·DSL 개선)까지 완료한 뒤 적대적 리뷰를 실행한다 — 리뷰 diff가 전체
   구현을 포함해야 하기 때문. 최종 사용자 검토 전에 적대적 리뷰를 실행
   (아래 "high 기어: 적대적 리뷰" 섹션). green 스위트 + 적대적 리뷰 통과가
@@ -617,7 +617,7 @@ high 기어에서 전체 테스트 목록이 green이 되면, 최종 사용자 �
 
 ---
 
-### Web Usecase 추가 단계
+### Web App 추가 단계
 
 > 모든 테스트(`- [ ]` → `- [x]`)가 완료된 후 진행합니다.
 

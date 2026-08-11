@@ -222,7 +222,7 @@ Marketplace를 추가한 후 개별 플러그인을 설치합니다:
 | 명령어 | 설명 |
 |--------|------|
 | `/tdd general com.example.bowling.BowlingGame` | General TDD 프로젝트 생성 |
-| `/tdd web-usecase com.example.order.CreateOrder` | Web Usecase TDD 프로젝트 생성 |
+| `/tdd web-app com.example.order.CreateOrder` | Web App TDD 프로젝트 생성 |
 | `/tdd-plan [plan-doc-path]` | SRS, 예제, 테스트 목록 작성 |
 | `/tdd-rgb [plan-doc-path]` | Red-Green-Blue 사이클 실행 |
 

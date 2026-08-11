@@ -1,7 +1,7 @@
 ---
 name: tdd
 description: TDD 오케스트레이터 - /tdd <type> <FQCN>으로 프로젝트 생성 및 워크플로우 안내
-argument-hint: "<general|web-usecase> <FQCN>"
+argument-hint: "<general|web-app> <FQCN>"
 ---
 
 # TDD 오케스트레이터
@@ -53,7 +53,7 @@ TDD 프로젝트 생성 및 진행 상황을 관리하는 진입점입니다.
 /tdd $1 $2
 ```
 
-- `$1` = `general` | `web-usecase` (TDD 유형)
+- `$1` = `general` | `web-app` (TDD 유형)
 - `$2` = FQCN (예: `com.example.bowling.BowlingGame`)
 
 FQCN에서 패키지명과 클래스명을 자동 파싱합니다.
@@ -61,7 +61,7 @@ FQCN에서 패키지명과 클래스명을 자동 파싱합니다.
 
 ```
 예: /tdd general com.example.bowling.BowlingGame
-예: /tdd web-usecase com.example.basket.CreateShoppingBasket
+예: /tdd web-app com.example.basket.CreateShoppingBasket
 ```
 
 ---
@@ -129,10 +129,10 @@ FQCN을 기반으로 다음 경로를 결정합니다:
 
 ---
 
-### Web Usecase TDD 템플릿 (8단계)
+### Web App TDD 템플릿 (8단계)
 
 ```markdown
-# AI와 Pair로 {ClassName} Usecase를 TDD로 구현하기
+# AI와 Pair로 {ClassName}을 TDD로 구현하기 (Web App)
 
 ## 전체적인 절차
 - [ ] 1. 요구사항 작성 (도메인 규칙 + User Story, 조건부 Use Case)
@@ -163,7 +163,7 @@ FQCN을 기반으로 다음 경로를 결정합니다:
 ## 8. DSL 개선
 ```
 
-> Web Usecase는 `/cucumber-acceptance`가 **필수**다 — 단계 2의 Gherkin이 `.feature`로
+> Web App은 `/cucumber-acceptance`가 **필수**다 — 단계 2의 Gherkin이 `.feature`로
 > 실행되어 인수 계층을 담당한다. 별도 High Level Test(JUnit)를 두지 않는다(같은 검증이
 > 두 계층에 중복되면 안 됨). 프로젝트 제약으로 Cucumber를 도입할 수 없는 경우에만
 > 대표 시나리오 1개를 JUnit 인수 테스트로 작성해 대체한다.

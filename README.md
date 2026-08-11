@@ -46,7 +46,7 @@ Kent Beck의 TDD 원칙을 기반으로, 요구사항(도메인 규칙 + User St
 ### 요구사항
 
 - **Claude Code** CLI (최신 버전 권장)
-- **Java 17+** / Spring Boot 3.x 프로젝트 (web-usecase 유형)
+- **Java 17+** / Spring Boot 3.x 프로젝트 (web-app 유형)
 - **Gradle** 또는 **Maven** 빌드 시스템
 - **커밋 표준 파일** — RGB 커밋이 참조하는 `reviewable-commits.md` 표준. 프로젝트 `docs/reviewable-commits.md` 또는 `~/.claude/docs/reviewable-commits.md` 중 하나에 두면 된다. 없으면 아래 ["커밋 표준"](#커밋-표준-reviewable-commits) 섹션의 전문을 복사해 생성하라.
 
@@ -60,13 +60,13 @@ TDD 프로젝트의 진입점입니다. 템플릿 문서와 테스트 클래스�
 
 ```
 /tdd general com.example.bowling.BowlingGame
-/tdd web-usecase com.example.order.CreateOrder
+/tdd web-app com.example.order.CreateOrder
 ```
 
 | 유형 | 설명 | 단계 |
 |------|------|------|
 | `general` | 일반 TDD | 요구사항 → Gherkin Scenario → Unit Test 목록 → RGB 사이클 (4단계) |
-| `web-usecase` | Web Usecase TDD | 요구사항 → Gherkin Scenario → High Level Test → Unit Test 목록 → Walking Skeleton → RGB 사이클 → HLT 활성화 → JPA → DSL (9단계) |
+| `web-app` | Web App TDD | 요구사항 → Gherkin Scenario → 인수 테스트 셋업(.feature) → Unit Test 목록 → Walking Skeleton → RGB 사이클 → JPA 완성 → DSL (8단계) |
 
 #### `/tdd-plan` — TDD 계획 수립
 
@@ -81,8 +81,8 @@ TDD 프로젝트의 진입점입니다. 템플릿 문서와 테스트 클래스�
 2. **Gherkin Scenario 작성** — Happy path, 경계 조건, 예외 상황을 예제로 (Cucumber 병행 시 실행 가능한 명세가 됨)
 3. **Unit Test 목록** — Degenerate → Simple → General 순서로 정렬 (Gherkin 병행 시 세밀 분기만)
 4. (조건부) **Use Case 추가** — 복잡도가 흐름·상태에 있을 때만
-5. (web-usecase) **High Level Test** — End-to-end 테스트 작성
-6. (web-usecase) **Walking Skeleton** — 전체 레이어 연결 골격 구현
+5. (web-app) **인수 테스트 셋업** — Gherkin을 `.feature` + Runner로 (미구현은 `@pending`)
+6. (web-app) **Walking Skeleton** — 진짜 DB(docker MySQL)까지 관통하는 최소 골격 구현
 
 #### `/cucumber-acceptance` — Cucumber 인수 테스트 (주 검증층)
 
@@ -235,16 +235,16 @@ Guard Clauses → One Pile → Reorder → Normalize Symmetries
 /tdd-tidy
 ```
 
-### Web Usecase TDD — CreateShoppingBasket
+### Web App TDD — CreateShoppingBasket
 
 ```bash
 # 1. 프로젝트 생성
-/tdd web-usecase com.example.basket.CreateShoppingBasket
+/tdd web-app com.example.basket.CreateShoppingBasket
 
-# 2. 요구사항, Gherkin Scenario, High Level Test, unit test 목록, Walking Skeleton 작성
+# 2. 요구사항, Gherkin Scenario, 인수 테스트 셋업, unit test 목록, Walking Skeleton 작성
 /tdd-plan
 
-# 3. RGB 사이클로 구현 + HLT 활성화 + JPA 전환 + DSL 개선
+# 3. RGB 사이클로 구현 (각 Green이 @pending 해제) + JPA 완성 + DSL 개선
 /tdd-rgb
 ```
 

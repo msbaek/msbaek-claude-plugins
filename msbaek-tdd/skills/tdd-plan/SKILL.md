@@ -9,7 +9,7 @@ allowed-tools: Write, Edit, Read, Bash(git add:*), Bash(git commit:*), Bash(git 
 
 Kent Beck의 TDD 원칙에 따라 구현 전 계획 문서를 작성하는 전문가입니다.
 요구사항(도메인 규칙 + User Story) → Gherkin Scenario(programmer test) → unit test 목록
-순서로 진행하며, Web Usecase 유형에서는 인수 테스트 셋업(.feature)과 Walking Skeleton 단계가 추가됩니다.
+순서로 진행하며, Web App 유형에서는 인수 테스트 셋업(.feature)과 Walking Skeleton 단계가 추가됩니다.
 복잡도가 흐름·상태 전이에 있으면 Use Case를 조건부로 추가합니다.
 
 ## GOAL
@@ -19,7 +19,7 @@ Kent Beck의 TDD 원칙에 따라 구현 전 계획 문서를 작성하는 전�
 - 단계 2: Gherkin Scenario — 핵심 예시(경계·대표 예외 포함)를 실행 가능한 형식으로. Kent Beck이 말하는 programmer test(behavior에 coupled, structure에 decoupled)가 이 계층이다. 이후 `/cucumber-acceptance`의 `.feature` 원본이 된다
 - 단계 3: Unit Test 목록 — Gherkin에 없는 세밀 분기·내부 협력만. 구현 세부사항과 결합되는 classical unit test로, programmer test와는 별개 범주다(아래 "단계 3" 도입부 참조). RGB 구현 순서는 Gherkin 시나리오와 합쳐 Degenerate → General
 - (조건부) Use Case — 복잡도가 흐름·상태 전이에 있을 때만 추가 (판단 체크리스트 참조)
-- (Web Usecase) 단계 E-1: 인수 테스트 셋업(.feature + Runner, `/cucumber-acceptance` 필수), 단계 E-2: Walking Skeleton 구현
+- (Web App) 단계 E-1: 인수 테스트 셋업(.feature + Runner, `/cucumber-acceptance` 필수), 단계 E-2: Walking Skeleton 구현
 - 각 단계 완료 후 체크박스 업데이트 (`- [ ]` → `- [x]`)
 - 다음 단계 안내 제공
 
@@ -425,7 +425,7 @@ ex. 테니스 게임 External Behavior 테스트 케이스
    - 대안: `/tdd-rgb`(단계별 확인) 또는 `/tdd-feature`(feature 단위 자율)로 Cucumber
      없이 바로 구현 — 이미 구현·테스트가 있는 기존 프로젝트에 기능을 추가할 때,
      또는 `tdd-plan`을 거쳤어도 이 기능만 Cucumber를 의도적으로 쓰지 않기로
-     사용자가 명시적으로 선택했을 때. **단 `web-usecase` 유형은 Cucumber가 필수이므로,
+     사용자가 명시적으로 선택했을 때. **단 `web-app` 유형은 Cucumber가 필수이므로,
      프로젝트 제약(의존성 정책 등)으로 도입 불가한 경우에만 이 대안을 택하고
      대표 시나리오 1개를 JUnit 인수 테스트로 작성한다**(단계 E-1의 탈출구). **이 대안을 고르면(사유 무관) 구현 시작
      전에 단계 3의 Unit Test 목록으로 돌아가 Gherkin 시나리오를 합쳐 넣고
@@ -440,7 +440,7 @@ ex. 테니스 게임 External Behavior 테스트 케이스
 
 복잡도가 **규칙**에 있으면 0층(1a)이 두꺼워지고 Use Case는 얇아진다 — 계산 중심
 도메인은 생략이 기본이다. 복잡도가 **흐름·상태 전이**에 있으면 Use Case의 확장절이
-주역이 된다 — 주로 `web-usecase` 유형에서 해당한다.
+주역이 된다 — 주로 `web-app` 유형에서 해당한다.
 
 **판단 체크리스트 — 2개 이상이면 추가한다:**
 
@@ -455,7 +455,7 @@ ex. 테니스 게임 External Behavior 테스트 케이스
   나열할 수 있지만 "정상 흐름의 어느 지점에서 갈라지는가"라는 구조는 확장절만
   표현한다
 - 계산 규칙은 0층(1a) 참조로 둔다 — Use Case 본문에 계산을 풀어쓰지 않는다
-- `web-usecase` 유형이면 E-1의 `.feature` 시나리오가 UC 주 성공 시나리오의 실행 가능한
+- `web-app` 유형이면 E-1의 `.feature` 시나리오가 UC 주 성공 시나리오의 실행 가능한
   형태다 — UC를 썼다면 인수 테스트가 검증할 흐름·확장 지점이 문서로 먼저 확정된 것이다
 
 **UC Scenario(구체 인스턴스 전개)는 만들지 않는다** — 하던 일의 실행 가능한
@@ -464,15 +464,15 @@ ex. 테니스 게임 External Behavior 테스트 케이스
 
 ---
 
-### Web Usecase 추가 단계
+### Web App 추가 단계
 
-> 다음 단계들은 TDD 유형이 `web-usecase`일 때만 진행합니다.
+> 다음 단계들은 TDD 유형이 `web-app`일 때만 진행합니다.
 
 #### 단계 E-1: 인수 테스트 셋업 (.feature + Runner)
 
 ##### 규칙
 
-Web Usecase는 `/cucumber-acceptance`가 **필수**다. 단계 2에서 쓴 Gherkin이 그대로
+Web App은 `/cucumber-acceptance`가 **필수**다. 단계 2에서 쓴 Gherkin이 그대로
 `.feature`로 실행되어 인수 계층을 담당하므로, **별도 High Level Test(JUnit)를 만들지
 않는다** — 같은 검증이 두 계층에 중복되면 안 된다(`cucumber-acceptance`의 Hard Rule).
 
@@ -737,7 +737,7 @@ public class CreateShoppingBasketTest {
 
 ##### 이후 단계와의 연결
 
-아래 단계 번호는 Web Usecase TDD 템플릿의 "전체적인 절차" 8단계(tdd skill의 템플릿
+아래 단계 번호는 Web App TDD 템플릿의 "전체적인 절차" 8단계(tdd skill의 템플릿
 참조) 기준이다.
 
 - **6단계 RGB 사이클**: 도메인 규칙은 repository 없는 단위 테스트로 성장시키고,
