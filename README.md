@@ -129,7 +129,16 @@ Blue (Composed Method 지향 Local Tidying)
 - 사이클 사이에 신호(설계 안정·지루함 ↔ revert·불투명)를 점검해 기어 전환을 **제안**합니다 — 결정은 항상 사용자
 - 인증·결제 등 폭발 반경(blast radius)이 큰 영역에서는 한 단 낮은 기어를 권장합니다
 - `high` 기어는 완료 후 적대적 리뷰(adversarial review)가 의무 — green 스위트 + 리뷰 통과가 Definition of Done
-- 기어 상태는 템플릿 문서 진행 기록에 남아 세션 재개 시 복원됩니다
+- 기어 상태는 템플릿 문서 진행 기록에 남아 세션 재개 시 복원됩니다 (`--gear` 생략 시 복원, 명시하면 우선)
+
+**기어별 호출 — 어떤 스킬을 쓰나**
+
+| 상황 | 기어 | 호출 |
+|------|------|------|
+| 낯선 도메인·학습 목적 | `low` | `/tdd-rgb --gear=low` |
+| 유사 경험 있음, 설계 안정화 중 | `mid` | `/tdd-rgb --gear=mid` |
+| 이론 명확, **테스트 목록 전체** 자율 | `high` | `/tdd-rgb --gear=high` |
+| 이론 명확, **feature 하나** plan 합의 후 자율 | `high` | `/tdd-feature` |
 
 #### `/tdd-feature` — 간결 Plan → Feature 단위 자율 구현
 
@@ -143,7 +152,9 @@ Blue (Composed Method 지향 Local Tidying)
 - **Phase B (자율)**: 합의 후 그 feature의 모든 test에 대해 R→G→B를 피드백 없이 끝까지, 각 단계를 reviewable-commits 표준(Why-body)으로 분리 커밋
 - **WIP = 1**: 한 번에 하나의 feature만. 남은 feature는 이어서 호출하거나 다른 세션에서.
 
-> `/tdd-rgb`는 매 R/G/B 단계마다 피드백을 받지만, `/tdd-feature`는 plan 합의 후 feature를 끝까지 자율 진행합니다.
+> `/tdd-rgb`는 기어가 정한 검토 지점에서 피드백을 받지만, `/tdd-feature`는 plan 합의 후 feature를 끝까지 자율 진행합니다.
+
+**기어 위치**: `/tdd-feature`는 `--gear`를 받지 않습니다 — Phase B 자율 진행이 곧 **feature 범위의 high 기어**이기 때문입니다. 따라서 high의 안전장치를 동일하게 적용합니다: 시작 전 폭발 반경 점검, 시작 커밋 해시 기록, 완료 보고 전 적대적 리뷰. low·mid 검토 밀도가 필요하면 `/tdd-feature` 대신 `/tdd-rgb --gear=low|mid`를 사용하세요.
 
 #### `/tdd-legacy` — 레거시 코드 안전망 구축
 

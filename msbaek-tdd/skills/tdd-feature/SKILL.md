@@ -29,7 +29,25 @@ argument-hint: "[feature/use case 설명 또는 plan-doc-path]"
 
 - **Phase A(plan)는 인터랙티브** — 각 단계마다 사용자 합의를 받고 다음으로 간다.
 - **Phase B(구현)는 자율** — plan이 합의되면 그 feature의 모든 test에 대해 R→G→B를 **피드백 요청 없이 끝까지** 실행한다.
-- 경계를 넘지 않는다: plan 미합의 상태로 구현 진입 금지, 합의 후 구현 중 불필요한 중단·재확인 금지. (이 점이 `/tdd-rgb`와의 근본 차이 — tdd-rgb는 매 R/G/B 단계마다 피드백을 받는다.)
+- 경계를 넘지 않는다: plan 미합의 상태로 구현 진입 금지, 합의 후 구현 중 불필요한 중단·재확인 금지. (이 점이 `/tdd-rgb`와의 근본 차이 — tdd-rgb는 기어가 정한 검토 지점마다 피드백을 받는다.)
+
+#### 2a. 기어(Gears) 위치 — Phase B = high 기어
+
+이 스킬은 `--gear` 옵션을 받지 않는다. **Phase B의 자율 진행 자체가 feature 범위의
+high 기어**이기 때문이다. 따라서 tdd-rgb의 high 기어 안전장치를 동일하게 적용한다
+(자율성만 가져오고 안전망을 빼는 것은 허용되지 않는다):
+
+- **시작 전 폭발 반경 점검** — 인증/인가, 결제·금액 계산, 데이터 삭제·변경, 외부 API
+  호출, 동시성에 해당하면 Phase B 진입 전에 경고하고 "`/tdd-rgb --gear=low|mid`로
+  단계별 검토"를 권한다. 결정은 사용자
+- **시작 커밋 해시 기록** — Phase B 시작 시 HEAD를 plan 문서에 남긴다(적대적 리뷰 diff 기준점)
+- **완료 보고 전 적대적 리뷰** — tdd-rgb의 "high 기어: 적대적 리뷰" 절차를 그대로 실행.
+  green 스위트 + 적대적 리뷰 통과가 이 스킬의 Definition of Done
+- **후퇴·놀라움 발생 시** — 자율을 중단하고 사용자에게 돌아가는 것이 다운시프트에 해당한다
+  (tdd-rgb의 다운시프트 신호와 동일: revert, 예상 밖 실패 반복, 최소 구현 초과)
+
+**low·mid 기어가 필요하면 이 스킬이 아니라 `/tdd-rgb --gear=low|mid`를 쓴다** — 낯선
+도메인, 학습 목적, 설계 확신 부족은 자율 구현의 전제(작동하는 이론 보유)를 만족하지 않는다.
 
 #### 3. RGB 분리 커밋
 
@@ -112,6 +130,9 @@ superpowers·tdd-plan의 장황함을 덜어낸다. plan은 **합의에 꼭 필�
 - [ ] {일반 case}
 
 ### F2: ...   ← 있으면 나열만, 구현은 한 번에 하나(WIP=1)
+
+## 진행 기록
+Phase B 시작 커밋: {F1: abc1234}   ← Phase B 진입 시 feature마다 HEAD 해시 기록 (적대적 리뷰 diff 기준점)
 ```
 
 #### 진행 단계
@@ -131,6 +152,11 @@ superpowers·tdd-plan의 장황함을 덜어낸다. plan은 **합의에 꼭 필�
 ---
 
 ### Phase B: Feature 단위 자율 RGB (합의 후)
+
+**진입 직전 (high 기어 안전장치, Hard Rule 2a)**: ① 폭발 반경 점검 — 해당하면 경고하고
+`/tdd-rgb --gear=low|mid` 대안을 제시한 뒤 사용자 결정을 기다린다. ② 현재 HEAD 해시를
+plan 문서의 `## 진행 기록` 섹션에 `Phase B 시작 커밋: {feature: 해시}` 형식으로 기록한다
+(위 plan 포맷 참조 — 적대적 리뷰가 이 값을 diff 기준점으로 읽는다).
 
 선택된 feature의 programmer test 목록을 위에서 아래로 순회한다(Cucumber 미사용 시 Gherkin 시나리오도 포함되어 unit test와 섞임 — `tdd-plan`에서 Cucumber 없이 구현하기로 선택했다면 단계 3의 Unit Test 목록으로 돌아가 Gherkin 시나리오를 합쳐 넣는 절차가 이미 끝나 있어야 한다). 각 미완료 test(`- [ ]`)에 대해 R→G→B를 실행하되, **단계 사이에 사용자 피드백을 요청하지 않는다.**
 
@@ -170,8 +196,13 @@ superpowers·tdd-plan의 장황함을 덜어낸다. plan은 **합의에 꼭 필�
 
 #### Feature 완료 처리
 
-- feature의 모든 test가 `- [x]`이고 전체 테스트가 통과하면 완료.
-- **완료 보고**: 구현된 test 목록, 커밋 해시 목록(test:/feat:/refactor:), 통과 상태를 요약한다.
+- feature의 모든 test가 `- [x]`이고 전체 테스트가 통과하면 구현 완료.
+- **적대적 리뷰 (필수)**: 완료 보고 **전에** 실행한다 — 시작 커밋 해시부터 HEAD까지의
+  diff를 대상으로, `tdd-rgb`의 "high 기어: 적대적 리뷰" 절차(리뷰어 선택·내장 프롬프트·
+  심각도 처리)를 그대로 따른다. green 스위트 + 적대적 리뷰 통과가 Definition of Done.
+- **완료 보고**: 구현된 test 목록, 커밋 해시 목록(test:/feat:/refactor:), 통과 상태,
+  적대적 리뷰 결과를 요약한다. 표본 정독용으로 대표 test 하나(가장 복잡했거나 후퇴가
+  있었던 것)를 추천해 함께 제시한다.
 - **WIP=1 안내**: plan에 다른 feature가 남아 있으면 — "feature {F} 완료. 남은 feature: {목록}. 이어서 진행하려면 `/tdd-feature {plan경로}`로 다시 호출하거나, 다른 세션에서 진행하세요." (자동으로 다음 feature를 시작하지 않는다.)
 
 ## FAILURE CONDITIONS
@@ -182,5 +213,9 @@ superpowers·tdd-plan의 장황함을 덜어낸다. plan은 **합의에 꼭 필�
 | feature 2개 이상을 한 실행에서 구현 시도 | WIP=1 위반 — 하나로 좁히고 나머지는 다음 실행으로 |
 | 커밋이 What만 담고 Why가 없음 | reviewable-commits 미달 — body에 Why·버린 대안 보강 후 amend |
 | 자율 구현(Phase B) 중 매 단계 피드백 요청 | `/tdd-rgb`와 혼동 — Phase B는 feature 끝까지 자율 |
+| 폭발 반경 점검 없이 Phase B 진입 | high 기어 안전장치 누락(Hard Rule 2a) — 점검 후 재진입, 해당 영역이면 `/tdd-rgb --gear=low\|mid` 권고 |
+| 시작 커밋 해시 미기록 | 적대적 리뷰의 diff 기준점 없음 — Phase B 진입 시점 커밋을 찾아 진행 기록에 보강 |
+| 적대적 리뷰 없이 완료 보고 | Definition of Done 미달 — 리뷰 실행 후 결과를 포함해 재보고 |
+| low·mid 검토 밀도를 요구받고도 이 스킬로 진행 | 기어 불일치 — `/tdd-rgb --gear=low\|mid`로 전환 안내 |
 | 추가 시점에 실패하지 않는 test | TDD 위반 — 모델 코드 수정이 필요한 failing test만 추가 |
 | 요구사항 이해 불확실 | 추측 말고 "제가 이해한 것이 맞는지 확인해주세요"로 질문 (Phase A 한정) |

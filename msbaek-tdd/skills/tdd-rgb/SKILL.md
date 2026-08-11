@@ -64,7 +64,30 @@ Kent Beck의 "driving in gears": 이론에 대한 확신(confidence)이 검토 �
 | **mid** | 테스트 1개의 R→G→B 사이클 완료 후 1회 | 사이클 경계의 diff 검토 + tidying 방향 지목·승인 (실행은 위임하되 판단은 유지) | 유사 문제 경험 있음, 작동하는 이론을 빠르게 확보할 것으로 기대 |
 | **high** | 전체 테스트 목록 완료 + 적대적 리뷰 통과 후 최종 1회 | 행동 명세(테스트 목록·Gherkin)로 이해 + 최종 검토에서 대표 슬라이스 하나를 골라 표본 정독 | 이론이 상용구(boilerplate) 수준으로 명확 |
 
+#### 호출 형식 — 기어별
+
+```
+/tdd-rgb                        # 기어 기록 있으면 복원, 없으면 low
+/tdd-rgb --gear=low             # 매 R/G/B phase마다 검토 (기본)
+/tdd-rgb --gear=mid             # 테스트 1개의 R→G→B 완료 후 검토
+/tdd-rgb --gear=high            # 전체 완료 + 적대적 리뷰 후 최종 검토
+/tdd-rgb {plan경로} --gear=mid  # plan 문서를 명시할 때
+```
+
 `--gear` 미지정 시: 템플릿 문서 진행 기록에 기어 기록이 있으면 그 기어로 복원, 없으면 low.
+`--gear`로 명시 지정하면 문서의 기존 기록보다 우선한다.
+
+#### tdd-feature와의 관계
+
+| 원하는 검토 밀도 | 호출 |
+|---|---|
+| low·mid (단계별·사이클별 검토) | `/tdd-rgb --gear=low` 또는 `--gear=mid` |
+| high, **테스트 목록 전체**를 자율로 | `/tdd-rgb --gear=high` |
+| high, **feature 하나**를 plan 합의 후 자율로 | `/tdd-feature` (Phase B가 feature 범위 high 기어) |
+
+`/tdd-feature`는 `--gear`를 받지 않는다 — Phase B 자체가 high다. 대신 high의 안전장치
+(폭발 반경 점검·시작 커밋 기록·적대적 리뷰)를 동일하게 적용한다. low·mid가 필요하면
+`/tdd-feature`가 아니라 `/tdd-rgb`를 쓴다.
 
 #### 기어 전환 — 신호와 제안
 
