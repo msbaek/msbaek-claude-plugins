@@ -93,7 +93,10 @@ Kent Beck의 TDD 원칙에 따라 구현 전 계획 문서를 작성하는 전�
 - 테스트에서 act와 assert는 같은 추상화 수준에서 이루어져야 함
 - 한 테스트 내에서 서로 다른 추상화 레벨 혼합 금지
 - api를 호출하여 행동을 수행하고, 같은 api 레벨에서 결과를 검증
-- 예: post로 생성하고 get으로 검증하는 방식
+- 예: post로 생성하고 get으로 검증하는 방식 — 단, **그 post가 실제 인수 조건일 때만**이다.
+  시나리오가 요구하지 않는 쓰기 API를 검증 편의를 위해 만들지 않는다(단계 E-2의
+  "인수 조건에 없는 API를 발명하지 않는다" 참조). 이때는 given을 Repository 시드로 두고
+  읽기 경로만 같은 레벨에서 검증한다
 
 ## OUTPUT FORMAT
 
@@ -633,6 +636,21 @@ class InMemoryBasketRepository implements BasketRepository {
 class JpaBasketRepository implements BasketRepository { ... }
 ```
 
+**네이밍 주의 — Spring Data 자동 프래그먼트와의 충돌 (실제 빌드 실패 사례)**
+
+Spring Data JPA는 리포지토리 인터페이스 `X`가 있으면 같은 패키지의 `XImpl`을 "커스텀
+구현 프래그먼트"로 **자동 병합**한다(직접 작성한 메서드를 추가하라고 만든 정식 기능).
+따라서 Spring Data 인터페이스명 뒤에 그대로 `Impl`을 붙인 이름을 **포트 구현체에 쓰면
+안 된다** — 프록시가 우리 어댑터를 프래그먼트로 삼고, 어댑터는 생성자로 그 인터페이스를
+다시 요구해 `BeanCurrentlyInCreationException`(순환 의존)이 난다.
+
+| | 안전 | 위험 |
+|---|---|---|
+| Spring Data 인터페이스 | `BasketRepositoryJpa` | `BasketRepositoryJpa` |
+| 포트 구현체(어댑터) | `BasketRepositoryImpl` (포트 `BasketRepository` + Impl) | `BasketRepositoryJpaImpl` ← 자동 병합 대상과 이름이 일치 |
+
+어댑터 이름은 **Spring Data 인터페이스가 아니라 포트 인터페이스 이름**에서 파생시킨다.
+
 `@Profile("!inMemory")`는 활성 profile이 없는 기본 상태에도 매칭된다 — 의도된 동작이다.
 "진짜 DB가 기본, in-memory는 명시적으로 요청할 때만"이 real 원칙의 기본값이다.
 
@@ -668,42 +686,44 @@ class BasketControllerTest {
 - RGB 사이클의 도메인 단위 테스트는 repository가 필요 없고, 저장이 필요한 테스트만
   `inMemory` profile로 빠르게 실행한다
 
-##### Walking Skeleton 테스트 샘플
+##### 인수 조건에 없는 API를 발명하지 않는다
+
+skeleton이 관통을 증명하려면 HTTP 요청이 필요하지만, **그 요청은 Gherkin 시나리오가
+실제로 요구하는 것이어야 한다.** 시나리오가 전부 "이미 상태가 정해진 장바구니"를 전제로
+시작한다면 생성(POST) API는 어떤 인수 조건도 요구하지 않는 발명품이다. 두 가지 이유로
+금지한다:
+
+- **Target Design 선점** — 구현될 API 형상은 Protocol Driver가 확정한다
+  (`cucumber-acceptance`). skeleton이 먼저 POST 계약을 못박으면 이 원칙과 충돌한다
+- **No overengineering** — 요구되지 않은 엔드포인트는 이후 계속 유지·검증해야 하는 부채다
+
+**판단 절차**: 단계 2 Gherkin에서 그 쓰기 경로를 요구하는 시나리오를 찾는다. 없으면
+API로 노출하지 말고 테스트의 `@BeforeEach`에서 Repository로 직접 시드한 뒤 **읽기 경로
+하나만 HTTP로 검증**한다 — 인프라 관통 증명에는 그것으로 충분하다.
 
 ```java
-@DisplayName("엔드-투-엔드 기능 구현: UI부터 데이터베이스까지 전체 시스템을 관통하는 기본적인 흐름 포함")
+@DisplayName("엔드-투-엔드 관통: HTTP → 앱 → 진짜 DB에서 읽어 응답한다")
 @Test
 void walking_skeleton_shopping_basket() throws Exception {
-    // given
-    BasketItemRequests items = new BasketItemRequests(List.of(
-            new BasketItemRequest("충전 케이블", BigDecimal.valueOf(8000), 1)
-    ));
+    // given — 쓰기 API가 인수 조건에 없으므로 Repository로 직접 시드
+    Long basketId = basketRepository.save(aBasketWith("충전 케이블", 8000, 1)).getId();
 
-    // when
-    MvcResult postResult = mockMvc.perform(post("/api/baskets")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(items)))
-            .andExpect(status().isOk())
-            .andReturn();
-
-    BasketResponse response = objectMapper.readValue(
-            postResult.getResponse().getContentAsString(),
-            BasketResponse.class);
-
-    String basketId = response.basketId();
-
-    // assert: get을 통해 같은 api 레벨에서 결과 확인
-    MvcResult getResult = mockMvc.perform(get("/api/baskets/" + basketId))
+    // when — 시나리오가 실제로 요구하는 읽기 경로만 HTTP로
+    MvcResult result = mockMvc.perform(get("/api/baskets/" + basketId))
             .andExpect(status().isOk())
             .andReturn();
 
     BasketDetailsResponse basketDetails = objectMapper.readValue(
-            getResult.getResponse().getContentAsString(),
+            result.getResponse().getContentAsString(),
             BasketDetailsResponse.class);
 
+    // then — 로직 없는 pass-through 확인 (금액 계산은 RGB 사이클에서)
     Approvals.verify(printBasketDetails(basketDetails));
 }
 ```
+
+> 생성이 실제 인수 조건인 경우(예: "고객이 장바구니를 만든다" 시나리오가 있음)에만
+> POST → GET 왕복으로 관통시킨다. 이때 act와 assert는 같은 API 레벨에서 이루어져야 한다.
 
 ##### 테스트 클래스 설정 — 진짜 DB로
 
@@ -725,8 +745,19 @@ public class CreateShoppingBasketTest {
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    @Autowired
+    private BasketRepository basketRepository;   // 시드용 — 위 skeleton 테스트가 사용
 }
 ```
+
+**docker MySQL을 띄우는 방법은 두 가지** — 어느 쪽이든 real 원칙(진짜 DB)은 동일하게
+지켜지므로 환경에 맞춰 고른다:
+
+| 방법 | 장점 | 주의 |
+|---|---|---|
+| **Testcontainers** (기본) | 테스트가 컨테이너 수명을 소유, CI에서 표준 | 일부 Docker 환경(OrbStack 등)에서 docker-java의 API 버전 협상이 실패하면 `1.32`로 폴백해 "minimum supported API version is 1.40" 오류. 라이브러리 문제이며 `systemProperty("api.version", "1.41")`로 우회 가능 |
+| **Spring Boot Docker Compose** | `compose.yaml` 하나를 `bootRun`과 테스트가 공유, `@Container`/`@ServiceConnection` 보일러플레이트 없음 | `spring.docker.compose.lifecycle-management=start-only` + `spring.docker.compose.skip.in-tests=false`(기본 true라 테스트에서 건너뜀), 의존성은 `testAndDevelopmentOnly` |
 
 ##### Controller 구현 원칙
 
@@ -734,6 +765,9 @@ public class CreateShoppingBasketTest {
    skeleton 대상이 아니다 — 하드코딩할 로직 자체가 없을 만큼 얇은 시나리오를 고른다
 2. **절차적/명령형 스타일** - 하나의 메서드에 모든 로직 작성, 메서드 추출이나 클래스 분리 금지
 3. **Feature Envy 허용** - Controller가 모든 로직 담당, 데이터 중심 설계로 시작
+4. **예외 처리는 처음부터 분리** - `@RestControllerAdvice` 전역 핸들러에 둔다. 컨트롤러
+   안에 `@ExceptionHandler`를 두지 않는다 — 컨트롤러가 늘어나면 같은 처리가 흩어진다.
+   (이것은 2번 "메서드 추출 금지"의 예외가 아니라 배치 위치의 문제다)
 
 ##### 이후 단계와의 연결
 
