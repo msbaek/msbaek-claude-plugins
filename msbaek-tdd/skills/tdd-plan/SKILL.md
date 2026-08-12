@@ -779,7 +779,7 @@ spring:
 
 ```kotlin
 // build.gradle.kts — 버전은 반드시 Spring Boot 버전에 맞춰 고른다 (아래 주의 참조)
-implementation("com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.12.1")
+implementation("com.github.gavlyukovskiy:p6spy-spring-boot-starter:2.0.1")
 ```
 
 ```yaml
@@ -791,12 +791,22 @@ decorator:
       logging: slf4j
 ```
 
-**버전 주의**: 이 스타터는 Spring Boot 메이저 버전에 묶여 있다. `1.12.1`은
-**Spring Boot 3.x** 호환이며, Spring Boot 4.x는 그보다 높은 버전을 써야 한다.
-좌표를 복사해 쓰기 전에
-[README](https://github.com/gavlyukovskiy/spring-boot-data-source-decorator)에서
-현재 프로젝트의 Spring Boot 버전에 맞는 값을 확인한다 — 맞지 않으면 자동 설정이
-적용되지 않고, 그 실패 역시 조용하다.
+**버전 주의**: 이 스타터는 Spring Boot 메이저 버전에 묶여 있다. 맞지 않는 조합을 쓰면
+자동 설정이 적용되지 않고, 그 실패 역시 조용하다.
+
+| Spring Boot | p6spy-spring-boot-starter |
+|---|---|
+| 4.x | `2.0.x` (2.0.0이 "Prepare for Spring Boot 4") |
+| 3.x | `1.12.1` |
+
+위 표는 이 문서를 쓴 시점의 값이다. 좌표를 복사하기 전에
+[README](https://github.com/gavlyukovskiy/spring-boot-data-source-decorator)의
+호환 표에서 현재 프로젝트에 맞는 최신 값을 확인한다.
+
+**Spring Boot 버전 선택**: 새 프로젝트를 만든다면 [start.spring.io](https://start.spring.io/)에서
+제공하는 **GA 최신 버전**을 쓴다 — 목록에 `(SNAPSHOT)`이 붙은 항목은 제외한다.
+이 문서 작성 시점의 GA 최신은 4.1.0이었다(4.1.1·4.0.8은 SNAPSHOT). 특정 버전을
+관성으로 복사하지 말고 매번 확인한다.
 
 **프로퍼티 이름 주의**: prefix는 `decorator.datasource.p6spy`이고 활성화 키는
 `enable-logging`이다. `logging`은 활성화 플래그가 아니라 appender 선택
