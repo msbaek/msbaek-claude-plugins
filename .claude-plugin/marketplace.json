@@ -12,7 +12,7 @@
       "name": "msbaek-tdd",
       "source": "./msbaek-tdd",
       "description": "Java + Spring Boot TDD workflow plugin with RGB cycle, feature-level autonomous implementation, Cucumber acceptance testing, local tidying, system-wide refactoring, and 18 optional refactoring skills",
-      "version": "1.19.0",
+      "version": "1.20.0",
       "author": {
         "name": "msbaek"
       },
