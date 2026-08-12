@@ -759,6 +759,51 @@ public class CreateShoppingBasketTest {
 | **Testcontainers** (기본) | 테스트가 컨테이너 수명을 소유, CI에서 표준 | 일부 Docker 환경(OrbStack 등)에서 docker-java의 API 버전 협상이 실패하면 `1.32`로 폴백해 "minimum supported API version is 1.40" 오류. 라이브러리 문제이며 `systemProperty("api.version", "1.41")`로 우회 가능 |
 | **Spring Boot Docker Compose** | `compose.yaml` 하나를 `bootRun`과 테스트가 공유, `@Container`/`@ServiceConnection` 보일러플레이트 없음 | `spring.docker.compose.lifecycle-management=start-only` + `spring.docker.compose.skip.in-tests=false`(기본 true라 테스트에서 건너뜀), 의존성은 `testAndDevelopmentOnly` |
 
+##### 관통 확인 — 실행 SQL 로깅
+
+real 원칙은 "진짜 DB를 거쳤다"고 **선언**하는 것으로 지켜지지 않는다. 이 단계의 실패는
+대부분 조용하다 — 임베디드 DB로 대체되거나(아래 7단계의 `replace = NONE` 항목),
+설정이 무시되어 의도한 경로가 아닌 곳으로 흐른다. 테스트는 그대로 초록색이다.
+그래서 skeleton을 세울 때 **실행된 SQL을 눈으로 확인할 수단**을 함께 넣는다.
+
+```yaml
+# 기본 — 의존성 추가 없음. 실행된 SQL 문장을 로그로 본다
+spring:
+  jpa:
+    show-sql: true
+```
+
+이것으로 "MySQL에 정말 쿼리가 나갔는가"는 확인된다. 다만 파라미터가 `?`로 남아
+**바인딩된 실제 값은 보이지 않는다**. 값까지 봐야 하거나 JPA를 거치지 않는 경로
+(`JdbcTemplate` 등)까지 덮으려면 p6spy를 얹는다:
+
+```kotlin
+// build.gradle.kts — 버전은 반드시 Spring Boot 버전에 맞춰 고른다 (아래 주의 참조)
+implementation("com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.12.1")
+```
+
+```yaml
+# application.yml — 최상위 prefix 는 decorator. `spring.` 을 앞에 붙이지 않는다
+decorator:
+  datasource:
+    p6spy:
+      enable-logging: true
+      logging: slf4j
+```
+
+**버전 주의**: 이 스타터는 Spring Boot 메이저 버전에 묶여 있다. `1.12.1`은
+**Spring Boot 3.x** 호환이며, Spring Boot 4.x는 그보다 높은 버전을 써야 한다.
+좌표를 복사해 쓰기 전에
+[README](https://github.com/gavlyukovskiy/spring-boot-data-source-decorator)에서
+현재 프로젝트의 Spring Boot 버전에 맞는 값을 확인한다 — 맞지 않으면 자동 설정이
+적용되지 않고, 그 실패 역시 조용하다.
+
+**프로퍼티 이름 주의**: prefix는 `decorator.datasource.p6spy`이고 활성화 키는
+`enable-logging`이다. `logging`은 활성화 플래그가 아니라 appender 선택
+(`slf4j`/`sysout`/`file`/`custom`)이다. Spring Boot는 인식하지 못하는 프로퍼티를
+조용히 무시하고, 스타터는 설정이 없어도 기본값으로 로그를 내보내므로 — **키를 틀려도
+SQL은 보인다.** "로그가 나온다"는 사실은 설정이 맞다는 증거가 되지 못한다.
+
 ##### Controller 구현 원칙
 
 1. **로직 없는 pass-through** - 저장하고 그대로 돌려준다. 계산이 필요한 시나리오는
