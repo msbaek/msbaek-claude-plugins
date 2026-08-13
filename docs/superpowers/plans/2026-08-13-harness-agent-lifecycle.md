@@ -206,10 +206,29 @@ CouponUsageLimit 도메인)에 위임해 Plan Phase 4개·RGB 3개 전부 실제
 변경만). 모든 보고는 커밋 히스토리·diff 직접 대조로 독립 검증했다(추측 없음).
 인덱스: `~/git/kt4u/review-explain/session-names.md` `harness-plan-phase-agent-delegation`.
 
+## Phase A — 인수 테스트·Walking Skeleton 에이전트화 (2026-08-13, 1.36.0)
+
+Web App 유형의 단계 E-1·E-2가 여전히 메인 컨텍스트 직접 수행이던 것을 에이전트화.
+
+- `tdd-acceptance-builder`(sonnet) — `cucumber-acceptance` 스킬이 대상(신규 셋업/기존
+  JUnit 이관) 파악 후 위임. Four Layer 구축·전체 green 확인·커밋까지 수행
+- `tdd-skeleton-builder`(opus) — `tdd-plan` 단계 E-2에서 위임. real≠thinnest 두 축,
+  OSIV 항상 off, "가드가 경계보다 먼저" 순서, save() 누출 가드의 실패 주입 검증까지
+  수행. opus를 택한 이유: 이 영역은 조용한 실패(테스트는 초록, 실서버는 500) 밀도가
+  가장 높아 다단계 판단이 필요
+- 두 스킬(`cucumber-acceptance`, `tdd-plan`)의 OUTPUT FORMAT을 "대상 파악/불변 규칙
+  요약은 스킬에 남기고, 구축 세부는 에이전트가 references를 정본으로 참조"로 재구성
+- hook 필터(`msbaek-tdd:tdd-*`)가 이름 패턴만으로 신규 에이전트를 자동 포함해 관측
+  계층 hook.json 변경 불필요
+
+**미검증**: RGB와 달리 Phase A 두 에이전트는 아직 크로스세션 실증을 거치지 않았다 —
+Web App 유형 테스트에는 실제 Spring Boot 프로젝트 + docker가 필요해 준비 비용이 크다.
+다음 검증 기회에 별도로 진행.
+
 ## 다음 단계 (이 plan 범위 밖)
 
-- Phase A(acceptance-builder·skeleton-builder), L(characterization-builder·safety-net-verifier),
-  R(refactoring-scout) — Phase P+I 효과 확인 후 판단
+- Phase L(characterization-builder·safety-net-verifier), R(refactoring-scout) — Phase A
+  효과 확인 후 판단
 - Plan Phase 팀 모드 전환 — 실증 결과 서브에이전트만으로 충분함이 확인됨(집계 경계
   스캔·`tools` 결함 잡기·80% 규칙 전부 순차 위임으로 달성). 지금 바꿀 근거가 약함
   (오버엔지니어링 경계) — 보류

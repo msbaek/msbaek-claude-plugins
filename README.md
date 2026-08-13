@@ -360,6 +360,8 @@ msbaek-claude-plugins/
 │       ├── tdd-example-designer.md   # Plan 단계 2 — Gherkin 핵심 예시 + 경계 조건 5종 스캔
 │       ├── tdd-test-list.md          # Plan 단계 3 — Unit Test 목록, Degenerate→General
 │       ├── tdd-plan-critic.md        # Plan 교차검증 — 정본 부재·모순·중복 탐지 (읽기 전용)
+│       ├── tdd-acceptance-builder.md # Web App E-1 — .feature + Four Layer 구축/이관
+│       ├── tdd-skeleton-builder.md   # Web App E-2 — Walking Skeleton + 영속성 경계 확정
 │       └── references/
 │           └── tidying-process.md    # tdd-blue가 참조하는 Tidying 절차 정본
 ├── README.md
@@ -381,10 +383,13 @@ msbaek-claude-plugins/
  ├── tdd-plan-critic agent     → §1~§3 교차검증 (정본 부재·모순·중복, 읽기 전용)
  └── (조건부) Use Case 추가 — 메인이 직접 작성
 
-/cucumber-acceptance (인수 테스트 구축)
- ├── .feature를 실행 가능한 명세로 (주 검증층)
- ├── Steps → Protocol Driver → SUT (Four Layer 축소형)
- └── 태그 기반 가역 제외, 기존 JUnit 인수 테스트 이관
+/cucumber-acceptance (인수 테스트 구축 — 대상 파악은 메인, 구축은 에이전트 위임)
+ └── tdd-acceptance-builder agent → .feature + Four Layer(Steps→Driver→SUT),
+     태그 기반 가역 제외, 기존 JUnit 인수 테스트 이관, 완료 후 직접 커밋
+
+Web App 단계 E-2: Walking Skeleton
+ └── tdd-skeleton-builder agent → real+thinnest 관통 슬라이스, OSIV·트랜잭션 경계·
+     LAZY·DTO 확정, save() 누출 가드(실패 주입 검증), 완료 후 직접 커밋
 
 /tdd-legacy (레거시 안전망)
  ├── Characterization (sabotage 검증 + scrubber)
@@ -433,10 +438,12 @@ msbaek-claude-plugins/
 | **tdd-example-designer** | Plan 단계 2 초안 — Gherkin 핵심 예시 | 경계 조건 5종 스캔(특히 집계 경계), Specification by Example |
 | **tdd-test-list** | Plan 단계 3 초안 — Unit Test 목록 | Gherkin과 두 계층 중복 금지, Degenerate→General 도출 절차 |
 | **tdd-plan-critic** | Plan 문서 교차검증 (읽기 전용) | §1~§3 동시 대조, 정본 부재·모순·집계 경계 누락 탐지, 재현 시나리오 기반 보고 |
+| **tdd-acceptance-builder** | Web App E-1 — 인수 테스트 구축/이관 | Four Layer(Protocol Driver 분리), 인수 조건에 없는 쓰기 API 미발명, 완료 후 직접 커밋 |
+| **tdd-skeleton-builder** | Web App E-2 — Walking Skeleton | real≠thinnest 두 축, OSIV 항상 off, 가드가 경계보다 먼저, 실패 주입으로 가드 비공허성 확인 |
 
 ### 관측 계층 (에이전트 호출 로그)
 
-7개 에이전트(RGB 3개 + Plan Phase 4개) 호출을 `hooks/observe-agent-start.sh`(PreToolUse)·
+9개 에이전트(RGB 3개 + Plan Phase 4개 + Web App E-1·E-2 2개) 호출을 `hooks/observe-agent-start.sh`(PreToolUse)·
 `observe-agent-end.sh`(PostToolUse) 쌍이 **토큰 비용 0**으로 기록한다. 에이전트 자신의
 컨텍스트를 전혀 쓰지 않고, 대상 프로젝트의 `.claude/tdd-observability/agent-log.jsonl`에
 append-only로 남긴다.

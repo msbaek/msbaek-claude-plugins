@@ -244,15 +244,29 @@ class RunCucumberTest {
 
 ## OUTPUT FORMAT
 
-### 실행 절차
+### 실행 절차 — 대상 파악은 메인, 구축은 에이전트 위임
 
-1. **대상 파악** — 요구사항 문서의 Gherkin(또는 인수 조건)과 기존 테스트 현황 확인
-2. **`.feature` 작성/이관** — `src/test/resources/{package_path}/` 하위. 실행 불가 시나리오는 태그 부여. 문서에 정본 선언 갱신
-3. **Runner + Protocol Driver + Steps 작성** — Four Layer 축소형 구조
-4. **전체 green 확인** — 태그 제외가 의도한 시나리오만 SKIPPED인지 함께 확인
-5. **기존 JUnit 정리** — 중복 인수 테스트 제거, unit test만 잔류, 순서 장치 해체
-6. **문서 갱신** — 정본 선언·테스트 위치 표·프로젝트 CLAUDE.md의 두 계층 설명
-7. **커밋** — 단계별 분리(인프라 도입 / JUnit 이관 정리 / 문서 갱신). 메시지는 `docs/reviewable-commits.md`(없으면 `~/.claude/docs/reviewable-commits.md`) 표준을 따르고, 한글 메시지는 임시 파일 + `git commit -F`
+1. **대상 파악** (메인 컨텍스트) — 요구사항 문서의 Gherkin(또는 인수 조건)과 기존 테스트
+   현황을 확인해 모드를 정한다: **신규 셋업**(acceptance-first, 승인된 Gherkin이 있음) 또는
+   **기존 JUnit 이관**(구현 후 이관)
+2. **`tdd-acceptance-builder` 에이전트에 위임** — 대상 문서 경로 + 판정한 모드를 전달.
+   `.feature` 작성/이관, Runner+Driver+Steps(Four Layer), 전체 green 확인, 기존 JUnit 정리,
+   문서 정본 선언 갱신, 커밋까지 에이전트가 수행한다(아래 "1~7단계" 상세는 에이전트가
+   자신의 정본으로 참조)
+3. **결과 보고** — 에이전트가 반환한 시나리오 수·제외 태그·green/SKIPPED 결과·커밋 해시를
+   사용자에게 전달
+
+### 에이전트가 수행하는 세부 단계 (참조용 — 위임 프롬프트에 재기술하지 않음)
+
+1. `.feature` 작성/이관 — `src/test/resources/{package_path}/` 하위. 실행 불가 시나리오는
+   태그 부여. 문서에 정본 선언 갱신
+2. Runner + Protocol Driver + Steps 작성 — Four Layer 축소형 구조
+3. 전체 green 확인 — 태그 제외가 의도한 시나리오만 SKIPPED인지 함께 확인
+4. 기존 JUnit 정리 — 중복 인수 테스트 제거, unit test만 잔류, 순서 장치 해체
+5. 문서 갱신 — 정본 선언·테스트 위치 표·프로젝트 CLAUDE.md의 두 계층 설명
+6. 커밋 — 단계별 분리(인프라 도입 / JUnit 이관 정리 / 문서 갱신). 메시지는
+   `docs/reviewable-commits.md`(없으면 `~/.claude/docs/reviewable-commits.md`) 표준을
+   따르고, 한글 메시지는 임시 파일 + `git commit -F`
 
 ## FAILURE CONDITIONS
 

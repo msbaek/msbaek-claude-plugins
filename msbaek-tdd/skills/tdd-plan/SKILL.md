@@ -434,26 +434,30 @@ JavaDoc 형식 목록, External Behavior 케이스 전개는 이 스킬 디렉�
 
 > 다음 단계들은 TDD 유형이 `web-app`일 때만 진행합니다.
 
-#### 단계 E-1: 인수 테스트 셋업 (.feature + Runner)
+#### 단계 E-1: 인수 테스트 셋업 (.feature + Runner) — `/cucumber-acceptance` 위임
 
 단계 2의 Gherkin을 `.feature` + Runner로 실행 가능하게 만든다. 이 계층이 external
 behavior의 주 검증층이므로 별도 High Level Test(JUnit)를 두지 않는다 — 같은 검증이 두
 계층에 중복되면 안 된다. 미구현 시나리오는 `@pending`으로 실행에서 제외하고, 각 Green이
 자기 시나리오의 태그를 **같은 커밋에서** 해제한다(일괄 활성화 단계는 없다).
 
-세부 — Four Layer 구조(Steps → Protocol Driver → SUT), 전체 출력 잠금이 필요할 때
-Approvals를 Step에 두는 방법, DSL 개선 목표, 클래스 다이어그램, Cucumber를 쓸 수 없을
-때의 탈출구 — 는 이 스킬 디렉터리의 `references/web-app-acceptance.md`를 `Read`로 읽는다.
+`/cucumber-acceptance`를 호출한다 — 그 스킬이 대상을 파악한 뒤 `tdd-acceptance-builder`
+에이전트에 실제 구축(Four Layer 셋업 + 커밋)을 위임한다. 세부(Four Layer 구조, Approvals
+배치, DSL 개선 목표, 탈출구)는 그 스킬과 `references/web-app-acceptance.md`가 정본이므로
+여기서 재기술하지 않는다.
 
 ---
 
-#### 단계 E-2: Walking Skeleton 구현
+#### 단계 E-2: Walking Skeleton 구현 — `tdd-skeleton-builder` 위임
 
 실제 HTTP → 실제 앱 → **실제 DB(docker MySQL)**를 관통하는 가장 얇은 슬라이스를 세운다.
 real(실행 경로가 진짜인가)과 thinnest(기능이 얇은가)는 다른 축이다 — DB를 in-memory로
 대체하면 real 위반이고, 합산·할인 같은 비즈니스 규칙이 들어가면 thinnest 위반이다.
 
-**이 단계에서 함께 확정하는 불변 규칙** — 미루면 우회가 쌓인 뒤에 되돌려야 한다:
+**`tdd-skeleton-builder` 에이전트에 위임한다** — 승인된 단계 2 문서 경로(어떤 HTTP 요청이
+인수 조건인지 판단 근거) + E-1에서 `tdd-acceptance-builder`가 확정한 Target Design을
+전달한다. 이 단계에서 함께 확정되는 불변 규칙(에이전트가 판단·적용하는 것 — 미루면 우회가
+쌓인 뒤에 되돌려야 한다):
 
 - `spring.jpa.open-in-view: false`를 **명시**한다. 항목이 아예 없으면 Spring Boot 기본값
   `true`가 적용된다 — **부재는 off가 아니라 on이다**(Principles의 "조용한 실패").
@@ -466,10 +470,10 @@ real(실행 경로가 진짜인가)과 thinnest(기능이 얇은가)는 다른 �
   JSON 직렬화가 트랜잭션 **밖**에서 일어난다. 이 실패는 테스트에 안 보인다(클래스 레벨
   `@Transactional` 안에서 직렬화가 끝나므로 테스트는 초록색, 실서버만 500)
 
-세부 — profile 구조(InMemory는 이후 RGB의 빠른 루프 전용), Testcontainers 설정, SQL
-로깅과 p6spy 도입 시점, 인수 조건에 없는 API를 지어내지 않기 — 는 이 스킬 디렉터리의
-`references/web-app-skeleton.md`를, 영속성 경계의 근거·명시적 `save()` 가드와 적용
-순서·계약 테스트·이후 단계 연결은 `references/web-app-persistence.md`를 `Read`로 읽는다.
+세부(profile 구조, Testcontainers 설정, SQL 로깅과 p6spy 도입 시점, 영속성 경계의
+근거·명시적 `save()` 가드와 적용 순서·계약 테스트)는 에이전트가
+`references/web-app-skeleton.md`·`references/web-app-persistence.md`를 정본으로 참조한다.
+완료 후 에이전트가 확정한 영속성 경계 결정을 보고받아 이후 RGB 사이클에 전달한다.
 
 ## FAILURE CONDITIONS
 
