@@ -176,65 +176,50 @@ String customerName;
 
 ### 실행 절차
 
-1. **대상 파일 수집**
-   ```bash
-   # commit-ref 제공 시
-   git diff <commit-ref> --name-only '*.java'
-   
-   # 미제공 시 현재 변경사항
-   git diff --name-only '*.java'
-   ```
+공통 골격(대상 파일 수집 → 후보 제시·승인 → 적용 → 테스트 → 커밋/되돌리기, 브랜치·PR이
+필요한 조건)은 이 스킬 디렉터리 기준 `../../references/refactoring-procedure.md`가 정본이다.
+아래는 이 기법에 고유한 부분만 규정한다.
 
-2. **Collapse All + Naming Smells 탐지**
-   - IDE Collapse All (구조만 보기)
-   - Naming Smells 패턴 탐지:
-     - 타입 반복 (orderList, nameString)
-     - -er/-Utils 클래스
-     - 불용어 (Data, Info, Manager)
-     - 단일 문자 변수 (루프 외)
-     - 축약어 (qty, nm, addr)
-   - 6단계 네이밍 프로세스로 현재 단계 평가
+#### 후보 식별 — Collapse All + Naming Smells 탐지 (공통 절차 2단계)
 
-3. **후보 제시**
-   ```
-   발견된 Naming Smells 5개:
-   
-   1. OrderProcessor.java (클래스)
-      현재: OrderProcessor
-      단계: 2 (Honest) - -er 클래스
-      제안: OrderService (단계 5: Intent Revealing)
-   
-   2. OrderProcessor.java:15 (변수)
-      현재: List<Order> orderList
-      단계: 2 (Honest) - 타입 반복
-      제안: List<Order> pendingOrders (단계 5: Intent Revealing)
-   
-   3. Customer.java:30 (메서드)
-      현재: void processData()
-      단계: 2 (Honest) - 불용어
-      제안: void calculateLoyaltyPoints() (단계 6: Domain Abstraction)
-   
-   적용하시겠습니까? (yes / no / 수정)
-   ```
+- IDE Collapse All (구조만 보기)
+- Naming Smells 패턴 탐지:
+  - 타입 반복 (orderList, nameString)
+  - -er/-Utils 클래스
+  - 불용어 (Data, Info, Manager)
+  - 단일 문자 변수 (루프 외)
+  - 축약어 (qty, nm, addr)
+- 6단계 네이밍 프로세스로 현재 단계 평가
 
-4. **IDE Rename 적용**
-   - IDE의 Rename 리팩토리 사용 (모든 참조 자동 업데이트)
-   - 한 번에 하나씩 적용 (충돌 방지)
+#### 후보 제시 예시 (공통 절차 3단계)
 
-5. **테스트 실행**
-   ```bash
-   ./gradlew test  # 또는 mvn test
-   ```
+```
+발견된 Naming Smells 5개:
 
-6. **커밋 또는 되돌리기**
-   ```bash
-   # 테스트 통과 시
-   git add <변경된파일.java>
-   git commit -m "refactor: improve naming in <클래스명>"
-   
-   # 테스트 실패 시
-   git checkout -- <변경된파일.java>
-   ```
+1. OrderProcessor.java (클래스)
+   현재: OrderProcessor
+   단계: 2 (Honest) - -er 클래스
+   제안: OrderService (단계 5: Intent Revealing)
+
+2. OrderProcessor.java:15 (변수)
+   현재: List<Order> orderList
+   단계: 2 (Honest) - 타입 반복
+   제안: List<Order> pendingOrders (단계 5: Intent Revealing)
+
+3. Customer.java:30 (메서드)
+   현재: void processData()
+   단계: 2 (Honest) - 불용어
+   제안: void calculateLoyaltyPoints() (단계 6: Domain Abstraction)
+
+적용하시겠습니까? (yes / no / 수정)
+```
+
+#### 리팩토링 적용 — IDE Rename (공통 절차 4단계)
+
+- IDE의 Rename 리팩토리 사용 (모든 참조 자동 업데이트)
+- 한 번에 하나씩 적용 (충돌 방지)
+
+커밋 메시지: `refactor: improve naming in <클래스명>` (공통 절차 6단계)
 
 ### 출력 예시
 ```
@@ -258,12 +243,9 @@ String customerName;
 
 ## FAILURE CONDITIONS
 
-이 조건 중 하나라도 발생 시 작업 실패로 간주:
+공통 실패 조건(승인 없이 적용, 테스트 실패 방치, 테스트 수정, 커밋 단위, `git add -A`, heredoc
+한글 메시지)은 `../../references/refactoring-procedure.md`에 있다. 아래는 이 기법에 고유한 것만.
 
-- [ ] 테스트가 실패함 (리팩토링 후)
 - [ ] 루프 인덱스(i, j, k)를 불필요하게 변경함
 - [ ] 도메인 표준 용어(HTTP, URL)를 축약어로 판단하여 변경함
-- [ ] 사용자 확인 없이 자동 적용함
-- [ ] 여러 개의 커밋으로 분리됨
-- [ ] `git add -A` 사용함
 - [ ] Parts of Speech 위반 (클래스가 동사, 메서드가 명사 등)

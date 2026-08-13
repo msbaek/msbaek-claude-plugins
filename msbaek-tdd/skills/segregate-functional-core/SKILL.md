@@ -10,13 +10,12 @@ I/O 호출이나 Mock collaborator 호출과 순수 계산이 뒤섞인 메서�
 
 ## GOAL
 
-- **성공 = I/O/Mock과 계산이 혼재된 메서드가 Functional Core와 Imperative Shell로 분리되어 별도 브랜치에서 커밋 완료, PR 생성됨**
+- **성공 = I/O/Mock과 계산이 혼재된 메서드가 Functional Core와 Imperative Shell로 분리되어 커밋 완료됨**
 - T1(I/O + 계산 혼재) 또는 T2(Mock stub + 계산 혼재) smell 식별
 - Functional Core는 순수 함수로 추출 (입력만 받고 결정/instruction 반환)
 - Imperative Shell은 I/O만 담당 (read → pure → write 순서)
 - Functional Core 테스트는 mock 없이 값 기반으로 작성
 - 모든 기존 테스트 통과
-- 원래 브랜치로 PR 생성
 
 ## CONSTRAINTS
 
@@ -341,23 +340,11 @@ class OrderDiscountDeciderTest {
 
 ### 실행 절차
 
-#### 1. 대상 파일 수집
+공통 골격(대상 파일 수집 → 후보 제시·승인 → 적용 → 테스트 → 커밋/되돌리기, 브랜치·PR이
+필요한 조건)은 이 스킬 디렉터리 기준 `../../references/refactoring-procedure.md`가 정본이다.
+아래는 이 기법에 고유한 부분만 규정한다.
 
-인자가 전달된 경우 해당 commit ref와 비교, 없으면 unstaged + staged 변경 파일 수집:
-
-```bash
-# 인자 없음: unstaged + staged 변경 파일
-git diff --name-only -- '*.java'
-git diff --cached --name-only -- '*.java'
-
-# 인자 있음: 특정 commit과 비교
-git diff --name-only <commit-ref> -- '*.java'
-```
-
-- 프로덕션 Java 파일만 대상, 테스트 파일(`*Test.java`, `*Tests.java`, `*Spec.java`)은 smell 탐지 보조 용도로만 사용
-- 변경 파일이 없으면: "리팩토링 대상 Java 파일이 없습니다." 안내 후 종료
-
-#### 2. Smell 후보 식별
+#### Smell 후보 식별 (공통 절차 2단계)
 
 대상 파일에서 T1/T2 smell을 탐지:
 
@@ -372,7 +359,7 @@ git diff --name-only <commit-ref> -- '*.java'
 
 이미 순수 함수이거나 I/O만 있는 단순 passthrough는 제외.
 
-#### 3. 리팩토링 후보 제시 — 사용자와 질의응답
+#### 후보 제시 예시 (공통 절차 3단계)
 
 후보를 하나씩 제시하고 사용자 확인:
 
@@ -408,14 +395,7 @@ git diff --name-only <commit-ref> -- '*.java'
 
 모든 후보 확인 후 최종 실행 목록을 보여주고 진행 여부 확인.
 
-#### 4. 브랜치 생성
-
-```bash
-CURRENT_BRANCH=$(git branch --show-current)
-git checkout -b "refactor/${CURRENT_BRANCH}"
-```
-
-#### 5. Functional Core / Imperative Shell 분리 실행
+#### Functional Core / Imperative Shell 분리 실행 (공통 절차 4단계)
 
 확정된 리팩토링을 하나씩 수행:
 
@@ -426,68 +406,22 @@ git checkout -b "refactor/${CURRENT_BRANCH}"
 5. 기존 테스트 실행 (gradle test 또는 mvn test)
 6. 통과 확인
 7. 변경된 파일만 명시적으로 git add (Core, Shell, 새 테스트)
-8. 커밋
 
 **커밋 메시지 형식**:
 ```
 refactor: segregate functional core from [원본클래스명].[메서드명]
 ```
 
-한글 커밋 메시지가 필요한 경우 Write tool로 임시 파일 생성 후 `git commit -F <파일>` 사용.
-
-테스트 실패 시:
-- 해당 리팩토링 변경사항 되돌리기 (`git checkout -- [파일]`)
-- 사용자에게 실패 사유 안내
-- 다음 리팩토링으로 진행
-
-#### 6. PR 생성
-
-모든 리팩토링 커밋 완료 후:
-
-```bash
-gh pr create \
-  --base "${CURRENT_BRANCH}" \
-  --title "refactor: segregate functional core for [대상 요약]" \
-  --body "$(cat <<'EOF'
-## Summary
-- Segregate Functional Core 적용: [메서드명]
-- Impure-Pure-Impure Sandwich 구조로 분리
-
-## Changes
-- Functional Core: 순수 static 함수/클래스로 판단 로직 추출
-- Instruction 값 타입 도입 (필요 시)
-- Imperative Shell: read → pure → write 3단계로 재배치
-- Functional Core 테스트 추가 (mock 없는 값 기반)
-
-## Benefits
-- 순수 함수로 엣지 케이스 테스트 용이
-- Mock stub 수 감소 → 테스트 fragility 감소
-- I/O와 비즈니스 로직 분리로 가독성 향상
-- Functional Core 재사용 가능
-
-## Test
-- [x] 기존 테스트 모두 통과
-- [x] Functional Core 값 기반 테스트 추가
-
-🤖 Generated with [Claude Code](https://claude.com/claude-code)
-EOF
-)"
-```
-
-#### 7. 원래 브랜치로 복귀 및 결과 보고
-
-```bash
-git checkout "${CURRENT_BRANCH}"
-```
+#### 결과 보고
 
 사용자에게 보고:
-- PR URL
 - 적용된 Functional Core 분리 목록 (대상 메서드, 생성된 Core 클래스, Instruction 타입)
-- 리뷰 후 squash merge 안내
 
 ## FAILURE CONDITIONS
 
-- ❌ 사용자 확인 없이 리팩토링 실행
+공통 실패 조건(승인 없이 적용, 테스트 실패 방치, 테스트 수정, 커밋 단위, `git add -A`, heredoc
+한글 메시지)은 `../../references/refactoring-procedure.md`에 있다. 아래는 이 기법에 고유한 것만.
+
 - ❌ Functional Core 내부에 I/O 호출 잔존 (진짜 pure 아님)
 - ❌ Functional Core 내부에서 mutation 발생 (입력 컬렉션 수정 등)
 - ❌ Imperative Shell이 여전히 판단 로직 포함 (read → write 사이에 분기 존재)
@@ -495,6 +429,3 @@ git checkout "${CURRENT_BRANCH}"
 - ❌ Functional Core 테스트에 mock 사용 (값 기반이어야 함)
 - ❌ DDD Trilemma 무시하고 성능 감당 불가능한 사전 로드 강행
 - ❌ 원자성이 필요한 read-modify-write를 분리하여 race condition 유발
-- ❌ 동작이 변경되어 기존 테스트 실패 (되돌리기 필수)
-- ❌ git add -A로 전체 파일 추가
-- ❌ main 브랜치로 직접 PR 생성 (반드시 원래 작업 브랜치로)

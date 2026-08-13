@@ -10,12 +10,11 @@ Primitive Obsession을 제거하여 도메인 개념을 명시적으로 표현�
 
 ## GOAL
 
-- **성공 = Primitive 타입이 Value Object로 치환되어 별도 브랜치에서 커밋 완료, PR 생성됨**
+- **성공 = Primitive 타입이 Value Object로 치환되어 커밋 완료됨**
 - Primitive 타입(int, String 등)에 도메인 로직이 산재함
 - 반복되는 검증/변환/포맷팅 로직이 식별됨
 - 사용자 확인 후 Value Object 추출
 - 모든 테스트 통과
-- 원래 브랜치로 PR 생성
 
 ## CONSTRAINTS
 
@@ -165,23 +164,11 @@ Discover Value Object를 적용해야 하는 경우:
 
 ### 실행 절차
 
-#### 1. 대상 파일 수집
+공통 골격(대상 파일 수집 → 후보 제시·승인 → 적용 → 테스트 → 커밋/되돌리기, 브랜치·PR이
+필요한 조건)은 이 스킬 디렉터리 기준 `../../references/refactoring-procedure.md`가 정본이다.
+아래는 이 기법에 고유한 부분만 규정한다.
 
-인자가 전달된 경우 해당 commit ref와 비교, 없으면 unstaged + staged 변경 파일 수집:
-
-```bash
-# 인자 없음: unstaged + staged 변경 파일
-git diff --name-only -- '*.java'
-git diff --cached --name-only -- '*.java'
-
-# 인자 있음: 특정 commit과 비교
-git diff --name-only <commit-ref> -- '*.java'
-```
-
-- 테스트 파일(`*Test.java`, `*Tests.java`, `*Spec.java`)은 **제외**
-- 변경 파일이 없으면: "리팩토링 대상 Java 파일이 없습니다." 안내 후 종료
-
-#### 2. Value Object 후보 식별
+#### Value Object 후보 식별 (공통 절차 2단계)
 
 대상 파일에서 다음 패턴을 찾는다:
 
@@ -192,7 +179,7 @@ git diff --name-only <commit-ref> -- '*.java'
 - **외부 라이브러리 타입**(`BigDecimal`, `LocalDate`, `UUID` 등)이 필드/파라미터로 직접 노출되고, 관련 계산/검증 로직이 호출부에 산재
 - **외부 API 응답/DTO 타입**이 도메인 경계를 넘어 내부 로직에서 그대로 사용됨
 
-#### 3. 리팩토링 후보 제시 — 사용자와 질의응답
+#### 후보 제시 예시 (공통 절차 3단계)
 
 후보를 하나씩 제시하고 사용자 확인:
 
@@ -229,17 +216,7 @@ git diff --name-only <commit-ref> -- '*.java'
 
 모든 후보 확인 후 최종 실행 목록을 보여주고 진행 여부 확인.
 
-#### 4. 브랜치 생성
-
-```bash
-# 현재 브랜치 이름 확인
-CURRENT_BRANCH=$(git branch --show-current)
-
-# refactor 브랜치 생성 및 전환
-git checkout -b "refactor/${CURRENT_BRANCH}"
-```
-
-#### 5. Value Object 추출 실행
+#### Value Object 추출 실행 (공통 절차 4단계)
 
 확정된 리팩토링을 하나씩 수행:
 
@@ -248,72 +225,22 @@ git checkout -b "refactor/${CURRENT_BRANCH}"
 3. 비즈니스 로직을 메서드로 이동
 4. Entity 필드 타입 변경
 5. 사용처 업데이트
-6. 테스트 실행 (gradle test 또는 mvn test)
-7. 테스트 통과 확인
-8. 해당 파일만 git add
-9. 커밋
 
 **커밋 메시지 형식**:
 ```
 refactor: discover value object [객체명] in [클래스명]
 ```
 
-한글 커밋 메시지가 필요한 경우 Write tool로 임시 파일 생성 후 `git commit -F <파일>` 사용.
-
-테스트 실패 시:
-- 해당 리팩토링 변경사항 되돌리기 (`git checkout -- [파일]`)
-- 사용자에게 실패 사유 안내
-- 다음 리팩토링으로 진행
-
-#### 6. PR 생성
-
-모든 리팩토링 커밋 완료 후:
-
-```bash
-# 원래 브랜치로 PR 생성
-gh pr create \
-  --base "${CURRENT_BRANCH}" \
-  --title "refactor: discover value object for [대상 요약]" \
-  --body "$(cat <<'EOF'
-## Summary
-- Discover Value Object 적용: [객체명]
-
-## Changes
-- Primitive Obsession 제거
-- 검증/변환/비즈니스 로직을 Value Object로 캡슐화
-- 도메인 개념을 명시적으로 표현
-
-## Benefits
-- 중복 검증 로직 제거
-- 도메인 개념이 타입으로 명시됨
-- 관련 로직이 한곳에 모여 응집도 향상
-- 불변성 보장으로 안전성 향상
-
-## Test
-- [x] 모든 기존 테스트 통과 확인
-
-🤖 Generated with [Claude Code](https://claude.com/claude-code)
-EOF
-)"
-```
-
-#### 7. 원래 브랜치로 복귀 및 결과 보고
-
-```bash
-git checkout "${CURRENT_BRANCH}"
-```
+#### 결과 보고
 
 사용자에게 보고:
-- PR URL
 - 적용된 Value Object 목록
-- 리뷰 후 squash merge 안내
 
 ## FAILURE CONDITIONS
 
-- ❌ 사용자 확인 없이 리팩토링 실행
+공통 실패 조건(승인 없이 적용, 테스트 실패 방치, 테스트 수정, 커밋 단위, `git add -A`, heredoc
+한글 메시지)은 `../../references/refactoring-procedure.md`에 있다. 아래는 이 기법에 고유한 것만.
+
 - ❌ 관련 로직 없는 모든 primitive를 객체로 감쌈 (불필요한 복잡도)
 - ❌ 단순 getter/setter만 있는 Value Object 생성 (의미 없음)
-- ❌ 동작이 변경되어 테스트 실패 (되돌리기 필수)
 - ❌ mutable Value Object 생성 (불변성 필수)
-- ❌ git add -A로 전체 파일 추가
-- ❌ main 브랜치로 직접 PR 생성 (반드시 원래 작업 브랜치로)

@@ -97,75 +97,61 @@ public int allocateSlots(int requested, int available) {
 
 ### 실행 절차
 
-1. **프로젝트 의존성 확인**
-   ```bash
-   # Gradle 프로젝트
-   grep -l "spring" build.gradle 2>/dev/null || grep -l "commons-lang3" build.gradle 2>/dev/null
-   
-   # Maven 프로젝트
-   grep -l "spring" pom.xml 2>/dev/null || grep -l "commons-lang3" pom.xml 2>/dev/null
-   ```
-   결과에 따라 assertion 도구를 선택하고 사용자에게 안내:
-   ```
-   프로젝트에서 Spring 의존성이 감지되었습니다.
-   org.springframework.util.Assert를 사용합니다.
-   ```
+공통 골격(대상 파일 수집 → 후보 제시·승인 → 적용 → 테스트 → 커밋/되돌리기, 브랜치·PR이
+필요한 조건)은 이 스킬 디렉터리 기준 `../../references/refactoring-procedure.md`가 정본이다.
+아래는 이 기법에 고유한 부분만 규정한다.
 
-2. **대상 파일 수집**
-   ```bash
-   # commit-ref 제공 시
-   git diff <commit-ref> --name-only '*.java'
-   
-   # 미제공 시 현재 변경사항
-   git diff --name-only '*.java'
-   ```
+#### 사전 확인: 프로젝트 의존성 (공통 절차 1단계 앞)
 
-3. **후보 식별 및 제시**
-   - 암묵적 가정 패턴 탐지:
-     - null 참조 없이 메서드 호출하는 경우
-     - 범위 가정 (양수, 0~1, 비어있지 않음 등)
-     - 상태 가정 (초기화 완료, 특정 상태 등)
-   - 각 후보에 대해:
-     - 파일명 및 라인 번호
-     - 가정 내용 설명
-     - 추가할 assertion 코드
+```bash
+# Gradle 프로젝트
+grep -l "spring" build.gradle 2>/dev/null || grep -l "commons-lang3" build.gradle 2>/dev/null
 
-4. **사용자 확인**
-   ```
-   발견된 후보 3개 (Spring Assert 사용):
-   
-   1. PricingService.java:20
-      가정: price > 0, rate는 0~1
-      → Assert.isTrue(price > 0, ...)
-      → Assert.isTrue(rate >= 0 && rate <= 1, ...)
-   
-   2. OrderProcessor.java:45
-      가정: order != null, order.getItems() 비어있지 않음
-      → Assert.notNull(order, ...)
-      → Assert.notEmpty(order.getItems(), ...)
-   
-   적용하시겠습니까? (yes / no / 수정)
-   ```
+# Maven 프로젝트
+grep -l "spring" pom.xml 2>/dev/null || grep -l "commons-lang3" pom.xml 2>/dev/null
+```
+결과에 따라 assertion 도구를 선택하고 사용자에게 안내:
+```
+프로젝트에서 Spring 의존성이 감지되었습니다.
+org.springframework.util.Assert를 사용합니다.
+```
 
-5. **리팩토링 적용**
-   - import 문 추가
-   - 메서드 시작 부분에 assertion 추가
-   - (사후 조건인 경우) return 직전에 assertion 추가
+#### 후보 식별 (공통 절차 2단계)
 
-6. **테스트 실행**
-   ```bash
-   ./gradlew test  # 또는 mvn test
-   ```
+- 암묵적 가정 패턴 탐지:
+  - null 참조 없이 메서드 호출하는 경우
+  - 범위 가정 (양수, 0~1, 비어있지 않음 등)
+  - 상태 가정 (초기화 완료, 특정 상태 등)
+- 각 후보에 대해:
+  - 파일명 및 라인 번호
+  - 가정 내용 설명
+  - 추가할 assertion 코드
 
-7. **커밋 또는 되돌리기**
-   ```bash
-   # 테스트 통과 시
-   git add <변경된파일.java>
-   git commit -m "refactor: introduce assertions in <클래스명>"
-   
-   # 테스트 실패 시
-   git checkout -- <변경된파일.java>
-   ```
+#### 후보 제시 예시 (공통 절차 3단계)
+
+```
+발견된 후보 3개 (Spring Assert 사용):
+
+1. PricingService.java:20
+   가정: price > 0, rate는 0~1
+   → Assert.isTrue(price > 0, ...)
+   → Assert.isTrue(rate >= 0 && rate <= 1, ...)
+
+2. OrderProcessor.java:45
+   가정: order != null, order.getItems() 비어있지 않음
+   → Assert.notNull(order, ...)
+   → Assert.notEmpty(order.getItems(), ...)
+
+적용하시겠습니까? (yes / no / 수정)
+```
+
+#### 리팩토링 적용 (공통 절차 4단계)
+
+- import 문 추가
+- 메서드 시작 부분에 assertion 추가
+- (사후 조건인 경우) return 직전에 assertion 추가
+
+커밋 메시지: `refactor: introduce assertions in <클래스명>` (공통 절차 6단계)
 
 ### 출력 예시
 ```
@@ -184,12 +170,10 @@ public int allocateSlots(int requested, int available) {
 
 ## FAILURE CONDITIONS
 
-이 조건 중 하나라도 발생 시 작업 실패로 간주:
+공통 실패 조건(승인 없이 적용, 테스트 실패 방치, 테스트 수정, 커밋 단위, `git add -A`, heredoc
+한글 메시지)은 `../../references/refactoring-procedure.md`에 있다. 아래는 이 기법에 고유한 것만.
 
 - [ ] 테스트가 실패함 (assertion 추가 후)
 - [ ] public API의 입력 검증에 assertion을 사용함 (예외를 써야 함)
 - [ ] Java `assert` 키워드를 사용함 (프로덕션 비활성화 위험)
 - [ ] 이미 Guard Clause로 보호된 조건에 중복 assertion 추가
-- [ ] 사용자 확인 없이 자동 적용함
-- [ ] 여러 개의 커밋으로 분리됨
-- [ ] `git add -A` 사용함

@@ -103,61 +103,46 @@ class PricingContext {
 
 ### 실행 절차
 
-1. **대상 파일 수집**
-   ```bash
-   # commit-ref 제공 시
-   git diff <commit-ref> --name-only '*.java'
-   
-   # 미제공 시 현재 변경사항
-   git diff --name-only '*.java'
-   ```
+공통 골격(대상 파일 수집 → 후보 제시·승인 → 적용 → 테스트 → 커밋/되돌리기, 브랜치·PR이
+필요한 조건)은 이 스킬 디렉터리 기준 `../../references/refactoring-procedure.md`가 정본이다.
+아래는 이 기법에 고유한 부분만 규정한다.
 
-2. **후보 식별 및 제시**
-   - 메서드 내에서만 참조되는 필드 탐지
-   - Singleton 패턴 호출 탐지
-   - 전역 변수 참조 탐지
-   - 각 후보에 대해:
-     - 파일명 및 라인 번호
-     - Before/After 코드 미리보기
-     - 영향받는 호출부 수 (Change Impact)
+#### 후보 식별 (공통 절차 2단계)
 
-3. **사용자 확인**
-   ```
-   발견된 후보 2개:
-   
-   1. OrderService.java:25 calculateTotal()
-      필드 의존: discountPolicy, taxCalculator
-      → 파라미터로 전환 (영향받는 호출부 5곳)
-   
-   2. PaymentProcessor.java:40 processPayment()
-      Singleton 의존: Logger.getInstance()
-      → 파라미터로 전환 (영향받는 호출부 3곳)
-   
-   적용하시겠습니까? (yes / no / 수정)
-   파라미터 3개 이상이면 Parameter Object 생성을 제안합니다.
-   ```
+- 메서드 내에서만 참조되는 필드 탐지
+- Singleton 패턴 호출 탐지
+- 전역 변수 참조 탐지
+- 각 후보에 대해:
+  - 파일명 및 라인 번호
+  - Before/After 코드 미리보기
+  - 영향받는 호출부 수 (Change Impact)
 
-4. **리팩토링 적용**
-   - 메서드 시그니처에 파라미터 추가
-   - 필드 참조를 파라미터 참조로 치환
-   - 모든 호출부에서 인자 전달
-   - (선택) 필드가 다른 곳에서 사용 안 되면 제거
-   - (선택) 파라미터 3개 이상 시 Parameter Object 생성
+#### 후보 제시 예시 (공통 절차 3단계)
 
-5. **테스트 실행**
-   ```bash
-   ./gradlew test  # 또는 mvn test
-   ```
+```
+발견된 후보 2개:
 
-6. **커밋 또는 되돌리기**
-   ```bash
-   # 테스트 통과 시
-   git add <변경된파일.java>
-   git commit -m "refactor: explicit parameters in <클래스명>"
-   
-   # 테스트 실패 시
-   git checkout -- <변경된파일.java>
-   ```
+1. OrderService.java:25 calculateTotal()
+   필드 의존: discountPolicy, taxCalculator
+   → 파라미터로 전환 (영향받는 호출부 5곳)
+
+2. PaymentProcessor.java:40 processPayment()
+   Singleton 의존: Logger.getInstance()
+   → 파라미터로 전환 (영향받는 호출부 3곳)
+
+적용하시겠습니까? (yes / no / 수정)
+파라미터 3개 이상이면 Parameter Object 생성을 제안합니다.
+```
+
+#### 리팩토링 적용 (공통 절차 4단계)
+
+- 메서드 시그니처에 파라미터 추가
+- 필드 참조를 파라미터 참조로 치환
+- 모든 호출부에서 인자 전달
+- (선택) 필드가 다른 곳에서 사용 안 되면 제거
+- (선택) 파라미터 3개 이상 시 Parameter Object 생성
+
+커밋 메시지: `refactor: explicit parameters in <클래스명>` (공통 절차 6단계)
 
 ### 출력 예시
 ```
@@ -180,12 +165,9 @@ class PricingContext {
 
 ## FAILURE CONDITIONS
 
-이 조건 중 하나라도 발생 시 작업 실패로 간주:
+공통 실패 조건(승인 없이 적용, 테스트 실패 방치, 테스트 수정, 커밋 단위, `git add -A`, heredoc
+한글 메시지)은 `../../references/refactoring-procedure.md`에 있다. 아래는 이 기법에 고유한 것만.
 
-- [ ] 테스트가 실패함 (리팩토링 후)
 - [ ] 도메인 상태 필드를 파라미터로 전환함
 - [ ] 생성자 주입 필드를 파라미터로 전환함 (DI 컨테이너 방해)
-- [ ] 사용자 확인 없이 자동 적용함
-- [ ] 여러 개의 커밋으로 분리됨
-- [ ] `git add -A` 사용함
 - [ ] 파라미터 5개 이상으로 증가 (Parameter Object 미적용)

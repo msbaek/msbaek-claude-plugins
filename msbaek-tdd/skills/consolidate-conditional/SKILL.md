@@ -100,57 +100,42 @@ if (isSpecialDeal() || isLoyalCustomer()) {
 
 ### 실행 절차
 
-1. **대상 파일 수집**
-   ```bash
-   # commit-ref 제공 시
-   git diff <commit-ref> --name-only '*.java'
-   
-   # 미제공 시 현재 변경사항
-   git diff --name-only '*.java'
-   ```
+공통 골격(대상 파일 수집 → 후보 제시·승인 → 적용 → 테스트 → 커밋/되돌리기, 브랜치·PR이
+필요한 조건)은 이 스킬 디렉터리 기준 `../../references/refactoring-procedure.md`가 정본이다.
+아래는 이 기법에 고유한 부분만 규정한다.
 
-2. **후보 식별 및 제시**
-   - 동일 결과(return/throw/assign)를 내는 연속 조건문 탐지
-   - 동일 결과를 내는 중첩 조건문 탐지 (AND 패턴)
-   - 각 후보에 대해:
-     - 파일명 및 라인 번호
-     - Before/After 코드 미리보기
-     - 통합 유형 (OR / AND)
+#### 후보 식별 (공통 절차 2단계)
 
-3. **사용자 확인**
-   ```
-   발견된 후보 2개:
-   
-   1. DisabilityService.java:15-17
-      OR 패턴: 3개 조건 → 동일 return 0
-      → isNotEligibleForDisability() 메서드 추출
-   
-   2. VacationPolicy.java:30-34
-      AND 패턴: 중첩 if 2단계
-      → 단일 조건으로 플래트닝
-   
-   적용하시겠습니까? (yes / no / 수정)
-   ```
+- 동일 결과(return/throw/assign)를 내는 연속 조건문 탐지
+- 동일 결과를 내는 중첩 조건문 탐지 (AND 패턴)
+- 각 후보에 대해:
+  - 파일명 및 라인 번호
+  - Before/After 코드 미리보기
+  - 통합 유형 (OR / AND)
 
-4. **리팩토링 적용**
-   - 조건문을 OR 또는 AND로 통합
-   - 통합된 조건을 boolean 반환 메서드로 추출
-   - (선택) 통합 후 복잡하면 decompose-conditional 제안
+#### 후보 제시 예시 (공통 절차 3단계)
 
-5. **테스트 실행**
-   ```bash
-   ./gradlew test  # 또는 mvn test
-   ```
+```
+발견된 후보 2개:
 
-6. **커밋 또는 되돌리기**
-   ```bash
-   # 테스트 통과 시
-   git add <변경된파일.java>
-   git commit -m "refactor: consolidate conditional in <클래스명>"
-   
-   # 테스트 실패 시
-   git checkout -- <변경된파일.java>
-   ```
+1. DisabilityService.java:15-17
+   OR 패턴: 3개 조건 → 동일 return 0
+   → isNotEligibleForDisability() 메서드 추출
+
+2. VacationPolicy.java:30-34
+   AND 패턴: 중첩 if 2단계
+   → 단일 조건으로 플래트닝
+
+적용하시겠습니까? (yes / no / 수정)
+```
+
+#### 리팩토링 적용 (공통 절차 4단계)
+
+- 조건문을 OR 또는 AND로 통합
+- 통합된 조건을 boolean 반환 메서드로 추출
+- (선택) 통합 후 복잡하면 decompose-conditional 제안
+
+커밋 메시지: `refactor: consolidate conditional in <클래스명>` (공통 절차 6단계)
 
 ### 출력 예시
 ```
@@ -172,11 +157,8 @@ if (isSpecialDeal() || isLoyalCustomer()) {
 
 ## FAILURE CONDITIONS
 
-이 조건 중 하나라도 발생 시 작업 실패로 간주:
+공통 실패 조건(승인 없이 적용, 테스트 실패 방치, 테스트 수정, 커밋 단위, `git add -A`, heredoc
+한글 메시지)은 `../../references/refactoring-procedure.md`에 있다. 아래는 이 기법에 고유한 것만.
 
-- [ ] 테스트가 실패함 (리팩토링 후)
 - [ ] 다른 결과를 내는 조건들을 억지로 통합함
 - [ ] 부수효과가 있는 조건 사이의 코드를 무시함
-- [ ] 사용자 확인 없이 자동 적용함
-- [ ] 여러 개의 커밋으로 분리됨
-- [ ] `git add -A` 사용함

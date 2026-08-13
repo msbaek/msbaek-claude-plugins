@@ -40,7 +40,7 @@ argument-hint: "[파일:메서드 | commit-ref]"
 
 - **대상은 하나의 긴 메서드** — 파일 전체 훑기가 아니라, 지정된(또는 가장 냄새나는) 긴 메서드 하나에 집중
 - **rename을 마지막에 몰지 말 것** — 이름 진화(3단계)가 extract(4단계)를 **유발**하고, extract 후 다시 rename(5단계)한다. 이 인터리빙이 이 스킬의 본질이다
-- **Extract는 국소(local)에 한정** — 대상 메서드를 **같은 클래스 내 private helper**로 쪼개는 것까지. 클래스 분리·도메인 이동 등 대규모 구조 변경은 `/system-wide-refactoring` 전담 (별도 브랜치/PR 금지 — 이 스킬은 self-contained 연속 흐름)
+- **Extract는 국소(local)에 한정** — 대상 메서드를 **같은 클래스 내 private helper**로 쪼개는 것까지. 클래스 분리·도메인 이동 등 대규모 구조 변경은 `/system-wide-refactoring` 전담 (이 스킬은 self-contained 연속 흐름)
 - **6단계는 가르치되 인계** — 운영상 이 스킬은 **5단계(Intent Revealing)까지 실행**하고, 6단계(Domain Abstraction)는 방향만 보여준 뒤 원시 집착을 지목해 값 객체·도메인 이동을 후속 스킬(`/discover-value-object` 등)로 **인계**한다. 승격을 이 스킬 흐름 안에서 실행하지 않는다
 
 ## 6단계 관통 프로세스 — "주문 처리" 예제
@@ -203,7 +203,7 @@ public Order placeOrder(Cart cart) {
 이 스킬은 self-contained하지만, 각 기법의 **정의는 재기술하지 않고 이름으로 인용**한다.
 
 - **grouping/comment 기법 상세** → `/tdd-tidy`(tdd-blue): Reorder, Chunk, Explaining Comment, Normalize Symmetries, Split Loop 등
-- **대규모 Extract / 클래스 분리 / 도메인 이동** → `/system-wide-refactoring` (별도 브랜치+PR). 이 스킬은 국소 private helper 추출까지만
+- **대규모 Extract / 클래스 분리 / 도메인 이동** → `/system-wide-refactoring`. 이 스킬은 국소 private helper 추출까지만
 - **개별 이름 rename 카탈로그(Naming Smells 탐지)** → `/naming-process`. 이 스킬은 "하나의 메서드를 6단계로 관통"이 목적 (개별 이름 스캔이 아님)
 - **값 객체/컬렉션/함수형 코어 승격 상세** → `/discover-value-object`, `/introduce-parameter-object`, `/first-class-collection`, `/segregate-functional-core`
 

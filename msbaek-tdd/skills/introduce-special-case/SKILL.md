@@ -8,12 +8,11 @@ argument-hint: "[commit-ref]"
 
 ## GOAL
 
-- **성공 = 반복 null 검사가 Special Case 클래스로 대체되어 별도 브랜치에서 커밋 완료, PR 생성됨**
+- **성공 = 반복 null 검사가 Special Case 클래스로 대체되어 커밋 완료됨**
 - 동일 타입에 대한 null 검사가 3곳 이상 반복됨
 - null일 때의 기본 동작이 Special Case 클래스에 캡슐화됨
 - 호출처의 null 검사가 제거됨
 - 모든 테스트 통과
-- 원래 브랜치로 PR 생성
 
 ## CONSTRAINTS
 
@@ -129,23 +128,11 @@ public class NullPaymentMethod implements PaymentMethod {
 
 ### 실행 절차
 
-#### 1. 대상 파일 수집
+공통 골격(대상 파일 수집 → 후보 제시·승인 → 적용 → 테스트 → 커밋/되돌리기, 브랜치·PR이
+필요한 조건)은 이 스킬 디렉터리 기준 `../../references/refactoring-procedure.md`가 정본이다.
+아래는 이 기법에 고유한 부분만 규정한다.
 
-인자가 전달된 경우 해당 commit ref와 비교, 없으면 unstaged + staged 변경 파일 수집:
-
-```bash
-# 인자 없음: unstaged + staged 변경 파일
-git diff --name-only -- '*.java'
-git diff --cached --name-only -- '*.java'
-
-# 인자 있음: 특정 commit과 비교
-git diff --name-only <commit-ref> -- '*.java'
-```
-
-- 테스트 파일(`*Test.java`, `*Tests.java`, `*Spec.java`)은 **제외**
-- 변경 파일이 없으면: "리팩토링 대상 Java 파일이 없습니다." 안내 후 종료
-
-#### 2. null 검사 반복 패턴 탐지
+#### null 검사 반복 패턴 탐지 (공통 절차 2단계)
 
 대상 파일에서 다음 패턴을 찾는다:
 
@@ -153,7 +140,7 @@ git diff --name-only <commit-ref> -- '*.java'
 - null일 때 반환하는 기본값이 일관됨
 - 대상 타입이 상속/구현 가능
 
-#### 3. 리팩토링 후보 제시 — 사용자와 질의응답
+#### 후보 제시 예시 (공통 절차 3단계)
 
 후보를 하나씩 제시하고 사용자 확인:
 
@@ -177,82 +164,34 @@ git diff --name-only <commit-ref> -- '*.java'
 **적용할까요?** (yes / no / 수정 요청)
 ```
 
-#### 4. 브랜치 생성
-
-```bash
-CURRENT_BRANCH=$(git branch --show-current)
-git checkout -b "refactor/${CURRENT_BRANCH}"
-```
-
-#### 5. 단계별 커밋 실행
+#### Special Case 도입 실행 (공통 절차 4단계)
 
 **커밋 1: Special Case 클래스 생성**
 1. Special Case 클래스 작성 (상속 또는 인터페이스 구현)
 2. 기본값을 반환하는 메서드 오버라이드
 3. isUnknown() 메서드 추가
-4. 테스트 실행
 5. 커밋: `refactor: introduce special case <클래스명>`
 
 **커밋 2: 소스에서 null 대신 Special Case 반환**
 1. null을 반환하던 곳에서 Special Case 인스턴스 반환
-2. 테스트 실행
 3. 커밋: `refactor: return <Special Case> instead of null in <소스클래스>`
 
 **커밋 3: 호출처 null 검사 제거**
 1. null 검사 코드 제거
 2. 직접 메서드 호출로 대체
-3. 테스트 실행
 4. 커밋: `refactor: remove null checks for <타입> in callers`
 
-한글 커밋 메시지가 필요한 경우 Write tool로 임시 파일 생성 후 `git commit -F <파일>` 사용.
-
-테스트 실패 시:
-- 해당 리팩토링 변경사항 되돌리기 (`git checkout -- [파일]`)
-- 사용자에게 실패 사유 안내
-- 다음 단계로 진행 또는 중단
-
-#### 6. PR 생성
-
-```bash
-gh pr create \
-  --base "${CURRENT_BRANCH}" \
-  --title "refactor: introduce special case for <대상 타입>" \
-  --body "$(cat <<'EOF'
-## Summary
-- Introduce Special Case 적용: <Special Case 클래스명>
-- null 검사 <N>곳 제거
-
-## Changes
-- Special Case 클래스 생성 (기본값 캡슐화)
-- 소스에서 null 대신 Special Case 반환
-- 호출처 null 검사 제거
-
-## Test
-- [x] 모든 기존 테스트 통과 확인
-
-🤖 Generated with [Claude Code](https://claude.com/claude-code)
-EOF
-)"
-```
-
-#### 7. 원래 브랜치로 복귀 및 결과 보고
-
-```bash
-git checkout "${CURRENT_BRANCH}"
-```
+#### 결과 보고
 
 사용자에게 보고:
-- PR URL
 - 생성된 Special Case 클래스
 - 제거된 null 검사 위치
-- 리뷰 후 squash merge 안내
 
 ## FAILURE CONDITIONS
 
-- ❌ 사용자 확인 없이 리팩토링 실행
+공통 실패 조건(승인 없이 적용, 테스트 실패 방치, 테스트 수정, 커밋 단위, `git add -A`, heredoc
+한글 메시지)은 `../../references/refactoring-procedure.md`에 있다. 아래는 이 기법에 고유한 것만.
+
 - ❌ null일 때 동작이 호출처마다 다른데 억지로 통합
 - ❌ null 검사가 1-2곳뿐인데 적용 (과도한 추상화)
 - ❌ final 클래스에 적용 시도
-- ❌ 동작이 변경되어 테스트 실패 (되돌리기 필수)
-- ❌ git add -A로 전체 파일 추가
-- ❌ main 브랜치로 직접 PR 생성 (반드시 원래 작업 브랜치로)
