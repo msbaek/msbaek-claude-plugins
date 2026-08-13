@@ -197,12 +197,26 @@ sub-agent + 내장 프롬프트"를 명시하고 있었다. 전역 `adversarial-
 reviewable-commits.md 표준(Why + 버린 대안 + 결정 순서)으로 작성. 커밋 단위는 Task별 분리
 (7개)와 논리적 묶음(에이전트 재작성 3개 + Plan 신설 4개 + 릴리스 1개) 중 다음 세션에서 결정.
 
+## 크로스세션 실증 검증 (2026-08-13, Phase P+I 완료 후)
+
+`tdd-agent-verifiyer` 저장소에서 두 피어 세션(`tdd-agent-verifier`→`tdd-spec-review-fixes`,
+CouponUsageLimit 도메인)에 위임해 Plan Phase 4개·RGB 3개 전부 실제 호출을 확인했다.
+집계 경계 스캔이 승인 반영 폭 결함(`+= 1`)까지 발견, `tdd-red`의 `tools` 결함 수정이
+우연히 통과하는 테스트를 실전에서 잡아냄, `tdd-blue`가 80% 규칙을 diff로 실증(2줄
+변경만). 모든 보고는 커밋 히스토리·diff 직접 대조로 독립 검증했다(추측 없음).
+인덱스: `~/git/kt4u/review-explain/session-names.md` `harness-plan-phase-agent-delegation`.
+
 ## 다음 단계 (이 plan 범위 밖)
 
 - Phase A(acceptance-builder·skeleton-builder), L(characterization-builder·safety-net-verifier),
   R(refactoring-scout) — Phase P+I 효과 확인 후 판단
-- Plan Phase 팀 모드 전환 — 서브 병렬로 운영해 보고 "교차검증이 실제로 결함을 잡는가"를 확인한 뒤
-- 관측 계층(PostToolUse 반복 레코드 JSONL) — delta B-4
+- Plan Phase 팀 모드 전환 — 실증 결과 서브에이전트만으로 충분함이 확인됨(집계 경계
+  스캔·`tools` 결함 잡기·80% 규칙 전부 순차 위임으로 달성). 지금 바꿀 근거가 약함
+  (오버엔지니어링 경계) — 보류
+- ~~관측 계층~~ → **완료 (1.35.0)**. `hooks/observe-agent-start.sh`(PreToolUse)·
+  `observe-agent-end.sh`(PostToolUse)가 토큰 비용 0으로 에이전트 이름·소요 시간·성공
+  여부를 `.claude/tdd-observability/agent-log.jsonl`에 기록. 책 원안의 토큰 필드는
+  PostToolUse 입력에 없고 서브에이전트 격리 컨텍스트라 신뢰성 있게 못 얻어 제외
 
 ## 결정 로그
 
