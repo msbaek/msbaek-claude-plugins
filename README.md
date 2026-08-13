@@ -434,6 +434,38 @@ msbaek-claude-plugins/
 | **tdd-test-list** | Plan 단계 3 초안 — Unit Test 목록 | Gherkin과 두 계층 중복 금지, Degenerate→General 도출 절차 |
 | **tdd-plan-critic** | Plan 문서 교차검증 (읽기 전용) | §1~§3 동시 대조, 정본 부재·모순·집계 경계 누락 탐지, 재현 시나리오 기반 보고 |
 
+### 관측 계층 (에이전트 호출 로그)
+
+7개 에이전트(RGB 3개 + Plan Phase 4개) 호출을 `hooks/observe-agent-start.sh`(PreToolUse)·
+`observe-agent-end.sh`(PostToolUse) 쌍이 **토큰 비용 0**으로 기록한다. 에이전트 자신의
+컨텍스트를 전혀 쓰지 않고, 대상 프로젝트의 `.claude/tdd-observability/agent-log.jsonl`에
+append-only로 남긴다.
+
+```json
+{"ts":"2026-08-13T12:28:04Z","session_id":"...","agent":"msbaek-tdd:tdd-domain-modeler","description":"...","duration_s":8,"success":true}
+```
+
+담는 필드는 신뢰성 있게 얻을 수 있는 것만이다 — 에이전트 이름·설명·소요 시간(초)·성공
+여부. 토큰 수(input/output/context)는 PostToolUse hook 입력에 없고, 서브에이전트가 별도
+격리 컨텍스트라 메인 세션 transcript로도 신뢰성 있게 얻을 수 없어 **의도적으로 비워둔다**
+(없는 데이터를 지어내지 않는다).
+
+이 로그로 답할 수 있는 질문:
+
+```bash
+# 에이전트별 호출 횟수
+jq -r '.agent' .claude/tdd-observability/agent-log.jsonl | sort | uniq -c | sort -rn
+
+# 실패(success=false) 기록만
+jq 'select(.success == false)' .claude/tdd-observability/agent-log.jsonl
+
+# 소요 시간 추세(느려지는 에이전트 찾기)
+jq -r '[.ts, .agent, .duration_s] | @tsv' .claude/tdd-observability/agent-log.jsonl
+```
+
+대상 프로젝트의 `.gitignore`에 `.claude/tdd-observability/`를 추가해 운영 텔레메트리를
+커밋 대상에서 제외할 것을 권장한다.
+
 ## 핵심 원칙
 
 - **Three Laws of TDD** — 실패하는 테스트 없이 프로덕션 코드를 작성하지 않음
