@@ -463,7 +463,7 @@ Walking Skeleton에서 최소 JPA로 시작해 RGB 사이클 동안 `inMemory` p
 2. **JPA Repository Interface**: JpaRepository를 상속받는 인터페이스 확장
 3. **Repository Impl**: `@Profile("!inMemory")` 구현이 도메인 전체를 커버하도록 확장
 4. **계약 테스트**: 같은 계약 테스트 스위트를 InMemory·JPA 양쪽에 실행해 두 구현의
-   동등성 검증 (tdd-plan의 "이후 단계와의 연결" 참조)
+   동등성 검증 (tdd-plan의 `references/web-app-persistence.md` "이후 단계와의 연결" 참조)
 5. **클래스 다이어그램**: Repository 관련 클래스들에 대해 mermaid 다이어그램 작성
 
 주의사항:
