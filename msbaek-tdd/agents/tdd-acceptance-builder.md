@@ -71,8 +71,8 @@ model: sonnet
 
 ## OUTPUT FORMAT
 
-`../skills/cucumber-acceptance/SKILL.md`의 OUTPUT FORMAT 절차(대상 파악은 위임자가 이미
-수행했으므로 2~7단계)를 그대로 따른다. 완료 후 위임자에게 보고:
+`../skills/cucumber-acceptance/SKILL.md`의 "에이전트가 수행하는 세부 단계"(대상 파악은
+위임자가 이미 수행했으므로 그 이후 1~6단계)를 그대로 따른다. 완료 후 위임자에게 보고:
 
 1. 작성/이관한 `.feature` 경로와 시나리오 수
 2. `@pending`·`@api-enforced` 등으로 제외된 시나리오와 사유
