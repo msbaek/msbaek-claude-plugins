@@ -230,8 +230,28 @@ Web App 유형의 단계 E-1·E-2가 여전히 메인 컨텍스트 직접 수행
 독립 재현해 `tests="1" skipped="1" failures="0" errors="0"`을 확인 — 에이전트 자체 보고와
 정확히 일치, 캐시된 결과가 아님을 확인했다.
 
-`tdd-skeleton-builder`는 docker(Testcontainers MySQL)가 필수라 여전히 미검증 —
-다음 Web App 기능을 실전에서 돌릴 때 자연스럽게 검증하기로 함.
+`tdd-skeleton-builder`도 이어서(같은 날 후속) docker(Testcontainers MySQL, OrbStack)로
+실증했다. `/Users/msbaek/temp/tdd-skeleton-verify`(Book 상세 조회, web-app 타입)에서
+`tdd-acceptance-builder`(E-1)→`tdd-skeleton-builder`(E-2) 순으로 실제 파이프라인을
+그대로 재현 — E-1이 `@pending` + Repository 시드 Driver를 세우고, E-2가 그 위에
+Controller/DTO/Entity를 구현해 태그를 해제했다.
+
+검증 항목과 결과:
+- **OSIV**: `application.yml`에 `open-in-view: false` 명시 확인. 그 줄을 지우고 재실행하니
+  `open-in-view is enabled by default` 경고가 실제로 뜸 — 부재 시 on이라는 원칙이 실증됨.
+- **트랜잭션 경계·DTO**: Controller 메서드에 `@Transactional(readOnly = true)`, 반환 타입은
+  엔티티가 아니라 `BookResponse` DTO. 코드 직접 확인.
+- **save() 누출 가드(fault injection)**: `readOnly = true`를 코드에서 실제로 지우고
+  재실행 → `BookControllerSaveLeakGuardTest`가 정확히 보고된 메시지로 실패
+  (`expected "Effective Java" but was "LEAKED — save() 없이 변경됨"`). 원상 복구 후
+  `git diff --stat`로 흔적 없음을 확인하고 재실행해 다시 green — 가드가 실제로 그
+  성질을 지키고 있음을 독립적으로 재현.
+- **real 축(임베디드 DB 아님)**: `--info` 로그에서 `Creating container for image: mysql:8.4`,
+  `jdbc:mysql://localhost:<port>/test`, `Hibernate: select ... from book ...`을 직접 확인.
+- **클린 재현**: `gradle clean test` 3개 테스트 `skipped="0" failures="0" errors="0"` —
+  에이전트 자체 보고와 정확히 일치.
+
+이로써 Phase A 두 에이전트 모두 RGB·Plan Phase와 동급으로 실증 검증 완료.
 
 ## 다음 단계 (이 plan 범위 밖)
 
