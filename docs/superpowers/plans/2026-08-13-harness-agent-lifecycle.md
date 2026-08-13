@@ -255,8 +255,9 @@ Controller/DTO/Entity를 구현해 태그를 해제했다.
 
 ## 다음 단계 (이 plan 범위 밖)
 
-- Phase L(characterization-builder·safety-net-verifier), R(refactoring-scout) — Phase A
-  효과 확인 후 판단
+- **다음 세션에서 진행 확정**: Phase L(characterization-builder·safety-net-verifier),
+  R(refactoring-scout) — Phase A와 동일한 절차(설계 → 스캐폴드에 위임 → docker/실제
+  프로젝트로 실증 검증 → plan 문서 기록)를 따른다
 - Plan Phase 팀 모드 전환 — 실증 결과 서브에이전트만으로 충분함이 확인됨(집계 경계
   스캔·`tools` 결함 잡기·80% 규칙 전부 순차 위임으로 달성). 지금 바꿀 근거가 약함
   (오버엔지니어링 경계) — 보류
