@@ -749,6 +749,8 @@ void walking_skeleton_shopping_basket() throws Exception {
 > 형태인데, 이 단계의 목적이 관통 증명이므로 **역직렬화하지 않고 응답 본문 그대로**
 > 승인하는 편이 낫다 — 재직렬화하면 수치 표기·필드 유무 같은 와이어 포맷 결함이
 > 보이지 않는다(`{"amount":4.6E+3}`). 비결정 값(id)은 Scrubber로 치환한다.
+> 읽기 좋은 출력이 함께 필요하면 raw를 **교체하지 말고** 한 승인 파일에 raw 구획 +
+> printer 구획 두 개로 담는다(skeleton은 페이로드가 짧아 이 형태가 잘 맞는다).
 > 판단 기준과 두 종류 승인의 구분은 `tdd-red` 에이전트의 "Approved Text Rule"이
 > 정본이다.
 
