@@ -51,7 +51,7 @@ Kent Beck의 TDD 원칙에 따라 구현 전 계획 문서를 작성하는 전�
 6. **Cheap to read** - 테스트 코드가 명확하고 이해하기 쉬워야 함
 7. **Cheap to change** - 하나의 동작 변경으로 인해 실패하는 테스트가 다수이면 안됨
 
-> ※ 전체 Test Desiderata 12가지 속성은 tdd-rgb skill 참조
+> ※ 전체 Test Desiderata 12가지 속성은 `../tdd-rgb/references/test-design-principles.md` 참조
 
 #### 피드백 규칙
 

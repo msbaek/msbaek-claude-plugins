@@ -41,8 +41,8 @@ high 기어**이기 때문이다. 따라서 tdd-rgb의 high 기어 안전장치�
   호출, 동시성에 해당하면 Phase B 진입 전에 경고하고 "`/tdd-rgb --gear=low|mid`로
   단계별 검토"를 권한다. 결정은 사용자
 - **시작 커밋 해시 기록** — Phase B 시작 시 HEAD를 plan 문서에 남긴다(적대적 리뷰 diff 기준점)
-- **완료 보고 전 적대적 리뷰** — tdd-rgb의 "적대적 리뷰" 절차를 그대로 실행.
-  green 스위트 + 적대적 리뷰 통과가 이 스킬의 Definition of Done
+- **완료 보고 전 적대적 리뷰** — `../tdd-rgb/references/adversarial-review.md`의 절차를
+  그대로 실행. green 스위트 + 적대적 리뷰 통과가 이 스킬의 Definition of Done
 - **후퇴·놀라움 발생 시** — 자율을 중단하고 사용자에게 돌아가는 것이 다운시프트에 해당한다
   (tdd-rgb의 다운시프트 신호와 동일: revert, 예상 밖 실패 반복, 최소 구현 초과)
 
@@ -208,8 +208,9 @@ plan 문서의 `## 진행 기록` 섹션에 `Phase B 시작 커밋: {feature: �
   덮는 테스트가 이미 있거나, 체크됐는데 대응 테스트가 없으면 그 자리에서 바로잡는다
   (자율 진행은 중간 검토가 없어 드리프트가 누적된다).
 - **적대적 리뷰 (필수)**: 완료 보고 **전에** 실행한다 — 시작 커밋 해시부터 HEAD까지의
-  diff를 대상으로, `tdd-rgb`의 "적대적 리뷰" 절차(리뷰어 선택·내장 프롬프트·
-  심각도 처리)를 그대로 따른다. green 스위트 + 적대적 리뷰 통과가 Definition of Done.
+  diff를 대상으로, `../tdd-rgb/references/adversarial-review.md`(리뷰어 선택·내장
+  프롬프트·심각도 처리)를 `Read`로 읽어 그대로 따른다. green 스위트 + 적대적 리뷰
+  통과가 Definition of Done.
 - **완료 보고**: 구현된 test 목록, 커밋 해시 목록(test:/feat:/refactor:), 통과 상태,
   적대적 리뷰 결과를 요약한다. 표본 정독용으로 대표 test 하나(가장 복잡했거나 후퇴가
   있었던 것)를 추천해 함께 제시한다.
