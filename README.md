@@ -355,7 +355,13 @@ msbaek-claude-plugins/
 │   └── agents/
 │       ├── tdd-red.md                # Red phase 전문 에이전트
 │       ├── tdd-green.md              # Green phase 전문 에이전트
-│       └── tdd-blue.md               # Blue phase 전문 에이전트
+│       ├── tdd-blue.md               # Blue phase 전문 에이전트
+│       ├── tdd-domain-modeler.md     # Plan 단계 1 — 도메인 규칙(0층) + User Story 초안
+│       ├── tdd-example-designer.md   # Plan 단계 2 — Gherkin 핵심 예시 + 경계 조건 5종 스캔
+│       ├── tdd-test-list.md          # Plan 단계 3 — Unit Test 목록, Degenerate→General
+│       ├── tdd-plan-critic.md        # Plan 교차검증 — 정본 부재·모순·중복 탐지 (읽기 전용)
+│       └── references/
+│           └── tidying-process.md    # tdd-blue가 참조하는 Tidying 절차 정본
 ├── README.md
 └── PUBLISHING-GUIDE.md               # Marketplace 배포 가이드
 ```
@@ -368,11 +374,12 @@ msbaek-claude-plugins/
  ├── /tdd-plan 안내
  └── /tdd-rgb 안내
 
-/tdd-plan (계획 수립)
- ├── 요구사항 작성 — 도메인 규칙(0층) + User Story
- ├── Gherkin Scenario 작성 (예제)
- ├── Unit Test 목록 작성
- └── (조건부) Use Case 추가
+/tdd-plan (계획 수립 — 각 단계 초안은 에이전트, 승인은 메인)
+ ├── tdd-domain-modeler agent  → 요구사항 초안 — 도메인 규칙(0층) + User Story
+ ├── tdd-example-designer agent → Gherkin Scenario 초안 (경계 조건 5종 스캔 포함)
+ ├── tdd-test-list agent       → Unit Test 목록 초안 (Degenerate→General)
+ ├── tdd-plan-critic agent     → §1~§3 교차검증 (정본 부재·모순·중복, 읽기 전용)
+ └── (조건부) Use Case 추가 — 메인이 직접 작성
 
 /cucumber-acceptance (인수 테스트 구축)
  ├── .feature를 실행 가능한 명세로 (주 검증층)
@@ -422,6 +429,10 @@ msbaek-claude-plugins/
 | **tdd-red** | 실패하는 테스트 작성 | TDD 1법칙: "Write NO production code except to pass a failing test" |
 | **tdd-green** | 최소 구현으로 테스트 통과 | TPP (Transformation Priority Premise), Make-it-Work 전략 (Obvious / Fake it / Triangulation) |
 | **tdd-blue** | Composed Method 지향 리팩토링 | Tidying Process: Guard Clauses → One Pile → Reorder → Normalize Symmetries → Chunk → Comment → Extract Variable → Split Loop → Trimming |
+| **tdd-domain-modeler** | Plan 단계 1 초안 — 도메인 규칙(0층) + User Story | 검산 전개 = 숫자의 정본, So that이 비면 작업 지시 |
+| **tdd-example-designer** | Plan 단계 2 초안 — Gherkin 핵심 예시 | 경계 조건 5종 스캔(특히 집계 경계), Specification by Example |
+| **tdd-test-list** | Plan 단계 3 초안 — Unit Test 목록 | Gherkin과 두 계층 중복 금지, Degenerate→General 도출 절차 |
+| **tdd-plan-critic** | Plan 문서 교차검증 (읽기 전용) | §1~§3 동시 대조, 정본 부재·모순·집계 경계 누락 탐지, 재현 시나리오 기반 보고 |
 
 ## 핵심 원칙
 
