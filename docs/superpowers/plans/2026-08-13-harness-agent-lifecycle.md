@@ -221,9 +221,17 @@ Web App 유형의 단계 E-1·E-2가 여전히 메인 컨텍스트 직접 수행
 - hook 필터(`msbaek-tdd:tdd-*`)가 이름 패턴만으로 신규 에이전트를 자동 포함해 관측
   계층 hook.json 변경 불필요
 
-**미검증**: RGB와 달리 Phase A 두 에이전트는 아직 크로스세션 실증을 거치지 않았다 —
-Web App 유형 테스트에는 실제 Spring Boot 프로젝트 + docker가 필요해 준비 비용이 크다.
-다음 검증 기회에 별도로 진행.
+**검증 (같은 날 후속)**: `tdd-acceptance-builder`는 docker 없이(in-process, DB 불필요)
+같은 세션에서 직접 실증했다. `/Users/msbaek/temp/tdd-acceptance-verify`(장바구니 청구서
+샘플, general 타입)에서 Agent 도구로 직접 호출 — Steps/Driver 분리가 코드로 실제
+지켜졌고(Steps에 SUT 호출 없음), 승인된 Gherkin을 재작성 없이 `.feature`로 그대로
+옮겼고, SUT 부재를 `@pending` + `UnsupportedOperationException`으로 명시해 `src/main`에는
+아무것도 만들지 않았다(도메인 구현과 경계를 정확히 지킴). 클린 빌드(`gradle clean test`)로
+독립 재현해 `tests="1" skipped="1" failures="0" errors="0"`을 확인 — 에이전트 자체 보고와
+정확히 일치, 캐시된 결과가 아님을 확인했다.
+
+`tdd-skeleton-builder`는 docker(Testcontainers MySQL)가 필수라 여전히 미검증 —
+다음 Web App 기능을 실전에서 돌릴 때 자연스럽게 검증하기로 함.
 
 ## 다음 단계 (이 plan 범위 밖)
 
