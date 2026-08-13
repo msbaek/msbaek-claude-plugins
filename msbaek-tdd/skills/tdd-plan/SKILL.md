@@ -499,7 +499,9 @@ Web App은 `/cucumber-acceptance`가 **필수**다. 단계 2에서 쓴 Gherkin�
 - `/cucumber-acceptance`를 호출해 `.feature` + Runner + Steps + Protocol Driver를 셋업
 - 미구현 시나리오는 `@pending` 태그로 제외 — 6단계 RGB 사이클에서 각 Green이 자기
   시나리오의 태그를 같은 커밋에서 해제한다. `@Disabled` 일괄 토글이 아니라
-  **시나리오 단위 해제**다
+  **시나리오 단위 해제**다. `Scenario Outline`의 Examples 행이 여러 규칙에 걸쳐 있으면
+  블록을 쪼개 더 작은 단위로 해제한다 — `cucumber-acceptance`의 "Scenario Outline —
+  Examples 블록 단위로 쪼개 한 걸음씩 해제" 참조 (전부 green이 되면 한 블록으로 합친다)
 - Target Design(구현될 API 형상)은 Protocol Driver가 확정한다 — Steps는 파싱·위임만
 - 대표 예제(most general한 시나리오)는 별도 테스트가 아니라 `.feature`의 한 시나리오다
 
@@ -752,6 +754,7 @@ Testcontainers로 띄우고 진짜 JPA 경로로 관통한다:
 @AutoConfigureMockMvc
 @ActiveProfiles("local")     // 진짜 JPA + docker MySQL — Fake/TestConfiguration 주입 금지
 @Transactional               // 테스트 격리: 각 테스트 후 롤백 (컨테이너는 클래스 단위 공유)
+                             // ※ Repository 계약 테스트는 반대다 — 트랜잭션 밖에서 실행 (7단계 참조)
 @Testcontainers
 public class CreateShoppingBasketTest {
     @Container @ServiceConnection
@@ -831,10 +834,48 @@ decorator:
 조용히 무시하고, 스타터는 설정이 없어도 기본값으로 로그를 내보내므로 — **키를 틀려도
 SQL은 보인다.** "로그가 나온다"는 사실은 설정이 맞다는 증거가 되지 못한다.
 
+##### 영속성 경계 — OSIV off, 트랜잭션은 Controller에
+
+skeleton을 세울 때 **영속성 경계를 함께 확정**한다. 나중에 정하면 그때는 이미 우회가
+쌓여 있다 — LAZY 접근이 터지는 지점마다 EAGER로 바꾸는 식으로 번지기 때문이다.
+
+```yaml
+spring:
+  jpa:
+    open-in-view: false    # 기본값이 true다 — 항목이 없으면 켜져 있다
+```
+
+OSIV(Open Session In View)가 켜져 있으면 영속성 컨텍스트가 뷰 렌더링까지 열려 있어,
+트랜잭션 밖에서도 LAZY 접근이 우연히 성공한다. 경계가 어디인지 코드로 드러나지 않고,
+DB 커넥션이 요청 처리 내내 붙잡힌다. **끄는 것이 기본**이고, 끄면 경계를 명시해야 한다:
+
+- **트랜잭션 경계는 Controller에 둔다(이 단계 한정)** — skeleton에는 서비스 계층이 없고
+  Controller가 Repository를 직접 호출한다("절차적 pass-through" 원칙). 경계만을 위해
+  서비스 계층을 새로 만들지 않는다. 조회는 `@Transactional(readOnly = true)`.
+  DTO 매핑을 이 경계 **안에서** 끝내면 LAZY 접근이 트랜잭션 안에서 해소된다
+- **연관관계는 LAZY를 유지한다** — "OSIV 밖에서 터지니까 EAGER로" 는 우회다. EAGER는
+  전역 결정이라 목록 조회가 생기는 순간 N+1이 되고, 그때는 되돌리기 어렵다. 필요한
+  지점에서 fetch join·`@EntityGraph`로 **명시적으로** 당겨 온다
+- **저장은 명시적 `save()` 호출을 관례로 한다** — JPA는 managed entity의 변경을 커밋
+  시점에 auto-flush하므로 프레임워크가 강제해 주지 않는다. **규율로 지킨다.**
+  회귀 가드를 테스트로 두려면 반드시 **트랜잭션 경계 안**(Controller 경계 테스트)에
+  둔다 — 아래 계약 테스트는 트랜잭션 밖에서 돌아 조회 결과가 즉시 detached이므로,
+  "`save()` 없는 변경이 새어 나가지 않는다"가 **항상 통과한다**(위험 경로를 한 번도
+  실행하지 않는 공허한 검증)
+
 ##### Controller 구현 원칙
 
 1. **로직 없는 pass-through** - 저장하고 그대로 돌려준다. 계산이 필요한 시나리오는
    skeleton 대상이 아니다 — 하드코딩할 로직 자체가 없을 만큼 얇은 시나리오를 고른다
+   - **단, 반환 타입은 엔티티가 아니라 DTO다** (위 skeleton 테스트의
+     `BasketDetailsResponse`). "그대로 돌려준다"는 *로직을 넣지 않는다*는 뜻이지
+     *엔티티를 그대로 노출한다*는 뜻이 아니다. OSIV를 끈 상태에서 엔티티를 반환하면
+     JSON 직렬화가 컨트롤러 메서드가 끝난 **뒤**(`HttpMessageConverter`) 일어나므로
+     트랜잭션 밖이고, LAZY 연관에 닿는 순간 `LazyInitializationException`(HTTP 500)이다.
+     **이 실패는 테스트에서 안 보인다** — skeleton 테스트는 클래스 레벨
+     `@Transactional`이라 직렬화까지 테스트 트랜잭션 안에서 끝난다. 테스트는 초록색,
+     실서버는 500. DTO 매핑을 트랜잭션 경계 안에서 끝내는 것이 이 경로를 막는다
+   - 이것은 2번 "메서드 추출 금지"의 예외가 아니라 **반환 타입 규정**이다
 2. **절차적/명령형 스타일** - 하나의 메서드에 모든 로직 작성, 메서드 추출이나 클래스 분리 금지
 3. **Feature Envy 허용** - Controller가 모든 로직 담당, 데이터 중심 설계로 시작
 4. **예외 처리는 처음부터 분리** - `@RestControllerAdvice` 전역 핸들러에 둔다. 컨트롤러
@@ -854,11 +895,19 @@ SQL은 보인다.** "로그가 나온다"는 사실은 설정이 맞다는 증�
   어긋나는 드리프트 방지):
 
 ```java
+import static org.springframework.transaction.annotation.Propagation.NOT_SUPPORTED;
+
+// 트랜잭션 속성은 "테스트 메서드가 선언된 클래스"에서 찾는다 — 계약 테스트 메서드는
+// 전부 이 부모에 선언돼 있으므로, 어노테이션도 여기 붙여야 적용된다 (아래 주의 참조)
+@Transactional(propagation = NOT_SUPPORTED)
 abstract class BasketRepositoryContractTest {
     abstract BasketRepository repository(); // 구현별로 제공
 
     @Test
     void 저장_후_조회하면_동일_상태의_바구니를_돌려준다() { ... }
+
+    @AfterEach
+    void 정리() { ... }   // 롤백이 없으므로 테스트가 스스로 치운다 (@Sql 도 가능)
 }
 
 class InMemoryBasketRepositoryTest extends BasketRepositoryContractTest { ... }  // 매 빌드
@@ -868,6 +917,44 @@ class InMemoryBasketRepositoryTest extends BasketRepositoryContractTest { ... } 
 @Testcontainers
 class JpaBasketRepositoryTest extends BasketRepositoryContractTest { ... }       // docker MySQL
 ```
+
+**계약 테스트만 트랜잭션 밖에서 실행한다 — Walking Skeleton 테스트의 `@Transactional`과
+모순이 아니라 역할 분담이다:**
+
+| 테스트 | 트랜잭션 | 정리 | 이유 |
+|---|---|---|---|
+| Walking Skeleton·인수 테스트 | `@Transactional` 롤백 유지 | 자동 | 목적이 **격리**다. 왕복 자체를 검증하지 않는다 |
+| Repository 계약 테스트 | **없음** (`NOT_SUPPORTED`) | `@AfterEach`·`@Sql` | 목적이 **왕복 검증**이다 |
+
+테스트 트랜잭션 안에서는 1차 캐시(영속성 컨텍스트)가 살아 있어 `findById`가 DB가
+아니라 캐시를 돌려준다. 그러면 "저장 후 조회하면 같은 상태"라는 계약이 **DB를 거치지
+않고도 통과**한다 — 검증이 공허해진다(vacuous). `@DataJpaTest`는 기본이 트랜잭션 +
+롤백이므로, 계약 테스트에서는 명시적으로 꺼야 한다.
+
+**어노테이션을 붙이는 위치가 곧 동작을 가른다 — 하위 클래스에 붙이면 무시된다.**
+Spring은 트랜잭션 속성을 "가장 구체적인 메서드 → **그 메서드의 선언 클래스**" 순으로
+찾는다. 계약 테스트 메서드는 하위 클래스가 오버라이드하지 않은 상속 메서드이므로,
+선언 클래스는 언제나 부모 계약 클래스다. `JpaBasketRepositoryTest`에 붙인
+`@Transactional`은 그 탐색 경로에 없어 **조용히 무시된다** — `@DataJpaTest`의 기본
+트랜잭션이 그대로 남아 검증이 공허해지는데 테스트는 초록색이다. 같은 이유로
+`@DataJpaTest`가 주는 트랜잭션도 상속 메서드에는 적용 여부가 갈리므로, **의도를
+부모에 명시**해 두 경우 모두 확정한다.
+
+트랜잭션을 켠 채로 왕복을 검증하려 하면 우회가 겹겹이 쌓인다 — `flush()` + `clear()`로
+1차 캐시 수동 비우기, 위 탐색 규칙 때문에 트랜잭션이 실제로 걸렸는지 확인하는 가드
+코드, LAZY 회귀 테스트만 개별적으로 전파 속성을 무력화하기. **트랜잭션 밖에서
+실행하면 셋이 전부 사라진다** — 각 `save()`·`findById()`가 자기 트랜잭션으로 커밋되어
+애초에 캐시가 공유되지 않기 때문이다.
+
+**트랜잭션 밖 실행의 대가 세 가지** (롤백이 없어지면서 따라온다):
+
+- **데이터가 남는다** — 같은 docker MySQL을 쓰는 Walking Skeleton·인수 테스트와
+  간섭한다. `@AfterEach`에서 FK 역순으로 지우거나 `@Sql` 정리 스크립트를 둔다
+- **LAZY 연관은 검증할 수 없다** — 세션이 닫혀 있어 접근 시
+  `LazyInitializationException`이다. 계약 테스트는 fetch join·`@EntityGraph`로 당겨 오거나
+  연관을 검증 대상에서 뺀다
+- **`@DataJpaTest`는 슬라이스다** — `local` profile의 DataSource 설정·SQL 로깅이 그대로
+  적용되는지는 별도로 확인한다
 
 - **인수 테스트 실행**: 별도 활성화 단계 없음 — 각 Green이 자기 시나리오의 `@pending`을
   같은 커밋에서 해제한다. 실행은 항상 `local` profile — in-memory로 인수 테스트를

@@ -102,6 +102,40 @@ class Order {
 }
 ```
 
+### 반대 방향도 같다 — 생성자로 받은 컬렉션을 그대로 보관하지 않는다
+
+getter는 컬렉션이 **나가는** 지점이고 생성자는 **들어오는** 지점이다. 나가는 쪽만
+막으면 캡슐화는 절반이다 — 호출자가 넘긴 리스트를 참조로 보관하면, 그 리스트는
+객체 밖에 여전히 살아 있어 호출자가 나중에 바꿀 수 있고, 반대로 그 리스트의 성질
+(불변인지 가변인지)이 객체 안으로 그대로 새어 들어온다.
+
+```java
+class Cart {
+    private List<CartLine> lines;
+
+    public Cart(List<CartLine> lines) {
+        this.lines = lines;                    // ❌ 참조를 그대로 보관
+    }
+}
+
+class Cart {
+    private final List<CartLine> lines;
+
+    public Cart(List<CartLine> lines) {
+        this.lines = new ArrayList<>(lines);   // ✅ 들어올 때 복사
+    }
+}
+```
+
+**JPA 엔티티에서 실제로 터지는 형태**: `List.of(...)`로 만든 리스트를 그대로 보관한
+엔티티를 재저장하면 Hibernate가 병합 과정에서 그 컬렉션에 `clear()`를 호출해
+`UnsupportedOperationException`이 난다. 이때 손볼 곳은 Hibernate 설정이 아니라
+생성자다 — 불변 리스트가 필드로 들어간 것이 원인이고, 생성자 복사가 그 경로를 끊는다.
+
+`private final`로 두면 컴파일러가 재할당을 막아 주지만 **컬렉션 내용의 변경은 막지
+못한다** — final은 참조를 고정할 뿐이다. 들어올 때 복사(생성자) + 나갈 때 보호
+(getter, 위 예시) 두 지점을 모두 막아야 캡슐화가 닫힌다.
+
 ## First Class Collection으로 발전
 
 이 기법 적용 후 `/first-class-collection` 스킬로 전용 클래스 추출 가능:
@@ -131,6 +165,7 @@ class Students {
 - 내부 컬렉션을 그대로 반환하는 getter
 - 외부에서 `getXxx().add()` 호출하는 코드
 - 도메인 객체의 컬렉션 필드
+- **생성자·팩토리가 받은 컬렉션을 그대로 필드에 보관하는 코드** (위 "반대 방향" 참조)
 
 ### ❌ 적용 제외
 - **DTO/VO**: 단순 데이터 전송 객체 (불변성 불필요)
