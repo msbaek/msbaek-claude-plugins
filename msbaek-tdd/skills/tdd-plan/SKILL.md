@@ -511,6 +511,10 @@ Web App은 `/cucumber-acceptance`가 **필수**다. 단계 2에서 쓴 Gherkin�
 
 ##### 전체 출력 잠금이 필요하면 — Approvals를 Step에 둔다
 
+> 이 절은 **배치 문제**(Approvals를 어디에 두는가, 승인 파일명을 어떻게 가르는가)를
+> 다룬다. Approvals를 **언제 쓰는가**의 판단 기준과 두 종류 승인(와이어 포맷 /
+> 도메인 출력)의 구분은 `tdd-red` 에이전트의 "Approved Text Rule"이 정본이다.
+
 영수증처럼 **출력 전체 형상**(품목 나열·소계·할인 줄 순서)을 잠그고 싶으면, 별도 JUnit
 테스트를 만들지 말고 Steps에서 Approvals를 호출한다. 이때 승인 파일명이 시나리오마다
 갈라지게 해야 한다 — Scenario Outline은 Examples 행이 모두 같은 step을 타므로, 구분자
@@ -740,6 +744,13 @@ void walking_skeleton_shopping_basket() throws Exception {
     Approvals.verify(printBasketDetails(basketDetails));
 }
 ```
+
+> **skeleton의 승인 대상은 raw body다.** 위 예시는 응답을 DTO로 읽어 다시 찍는
+> 형태인데, 이 단계의 목적이 관통 증명이므로 **역직렬화하지 않고 응답 본문 그대로**
+> 승인하는 편이 낫다 — 재직렬화하면 수치 표기·필드 유무 같은 와이어 포맷 결함이
+> 보이지 않는다(`{"amount":4.6E+3}`). 비결정 값(id)은 Scrubber로 치환한다.
+> 판단 기준과 두 종류 승인의 구분은 `tdd-red` 에이전트의 "Approved Text Rule"이
+> 정본이다.
 
 > 생성이 실제 인수 조건인 경우(예: "고객이 장바구니를 만든다" 시나리오가 있음)에만
 > POST → GET 왕복으로 관통시킨다. 이때 act와 assert는 같은 API 레벨에서 이루어져야 한다.
