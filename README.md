@@ -199,7 +199,7 @@ Blue (Composed Method 지향 Local Tidying)
 
 완료 보고 시 하드닝 제안(선택)을 함께 제시한다 — CRAP·DRY(빠름)·mutation(느림)을
 전역 에이전트(crap4java-analyzer·dry4java-analyzer·mutate4java-runner)로 실행하는
-명령을 제안만 하고, 실행 여부는 사용자가 결정한다 (Maven 프로젝트 한정).
+명령을 제안만 하고, 실행 여부는 사용자가 결정한다 (CRAP·mutation은 Maven 프로젝트 한정, DRY는 무관).
 
 #### `/tdd-legacy` — 레거시 코드 안전망 구축
 

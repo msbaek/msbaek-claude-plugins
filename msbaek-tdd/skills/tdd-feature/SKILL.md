@@ -217,7 +217,8 @@ plan 문서의 `## 진행 기록` 섹션에 `Phase B 시작 커밋: {feature: �
 - **하드닝 제안 (실행 아님)**: 완료 보고 마지막에 `../tdd-rgb/references/hardening-gate.md`를
   `Read`로 읽어 그 규칙대로 제안 블록을 붙인다 — CRAP·DRY(빠름, 변경 파일 한정)와
   mutation(느림, 파일 1개)을 사용자가 복사해 실행할 수 있는 명령으로. 적용 조건
-  (Java·Maven·src/main 변경 존재) 미충족 시 생략 사실만 한 줄 보고. **자동 실행 금지.**
+  (Java·src/main 변경 존재, CRAP·mutation은 추가로 Maven 필요) 미충족 시 생략 사실만
+  한 줄 보고. **자동 실행 금지.**
 - **WIP=1 안내**: plan에 다른 feature가 남아 있으면 — "feature {F} 완료. 남은 feature: {목록}. 이어서 진행하려면 `/tdd-feature {plan경로}`로 다시 호출하거나, 다른 세션에서 진행하세요." (자동으로 다음 feature를 시작하지 않는다.)
 
 ## FAILURE CONDITIONS
