@@ -1,6 +1,6 @@
 {
   "name": "msbaek-tdd",
-  "version": "1.37.0",
+  "version": "1.37.1",
   "description": "Java + Spring Boot TDD workflow plugin with requirements input drafting, RGB cycle, feature-level autonomous implementation, Cucumber acceptance testing, local tidying, system-wide refactoring, and 18 optional refactoring skills. Plan phase and Web App acceptance/skeleton setup now delegate to dedicated agents instead of running in the main context. Zero-token observability layer logs agent invocations (duration, success) via PostToolUse hooks.",
   "author": {
     "name": "msbaek"
