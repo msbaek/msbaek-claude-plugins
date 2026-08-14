@@ -265,6 +265,10 @@ Controller/DTO/Entity를 구현해 태그를 해제했다.
   `observe-agent-end.sh`(PostToolUse)가 토큰 비용 0으로 에이전트 이름·소요 시간·성공
   여부를 `.claude/tdd-observability/agent-log.jsonl`에 기록. 책 원안의 토큰 필드는
   PostToolUse 입력에 없고 서브에이전트 격리 컨텍스트라 신뢰성 있게 못 얻어 제외
+- ~~hardener 게이트~~ → **완료 (1.37.0, 2026-08-14)**: SwarmForge six-pack 대조에서
+  발견한 gap — 전역 crap4java·dry4java·mutate4java 에이전트를 tdd-feature 완료 보고의
+  "제안만" 게이트로 편입 (자동 실행 없음, Maven 한정). 정본:
+  `skills/tdd-rgb/references/hardening-gate.md`. plan: `2026-08-14-hardening-gate-proposal.md`
 
 ## 결정 로그
 

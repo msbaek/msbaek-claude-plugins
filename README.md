@@ -197,6 +197,10 @@ Blue (Composed Method 지향 Local Tidying)
 
 **기어 위치**: `/tdd-feature`는 `--gear`를 받지 않습니다 — Phase B 자율 진행이 곧 **feature 범위의 high 기어**이기 때문입니다. 따라서 high의 안전장치를 동일하게 적용합니다: 시작 전 폭발 반경 점검, 시작 커밋 해시 기록, 완료 보고 전 적대적 리뷰. low·mid 검토 밀도가 필요하면 `/tdd-feature` 대신 `/tdd-rgb --gear=low|mid`를 사용하세요.
 
+완료 보고 시 하드닝 제안(선택)을 함께 제시한다 — CRAP·DRY(빠름)·mutation(느림)을
+전역 에이전트(crap4java-analyzer·dry4java-analyzer·mutate4java-runner)로 실행하는
+명령을 제안만 하고, 실행 여부는 사용자가 결정한다 (Maven 프로젝트 한정).
+
 #### `/tdd-legacy` — 레거시 코드 안전망 구축
 
 테스트 없는 기존 코드의 현재 행위를 고정하는 안전망을 만들고, 개선은 기존 스킬로 넘깁니다.
