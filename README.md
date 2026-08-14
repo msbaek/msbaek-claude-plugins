@@ -372,6 +372,20 @@ msbaek-claude-plugins/
 └── PUBLISHING-GUIDE.md               # Marketplace 배포 가이드
 ```
 
+### 아키텍처 지도 (인터랙티브)
+
+전체 스킬 27개·에이전트 9개·정본 references 15개를 한눈에 보려면
+[`docs/architecture-map.html`](https://htmlpreview.github.io/?https://github.com/msbaek/msbaek-claude-plugins/blob/main/docs/architecture-map.html)을 열어보세요
+(GitHub 클론 없이 바로 렌더링됩니다). 로컬에서는 `open docs/architecture-map.html`.
+
+- **탭 ① 라이프사이클 흐름** — 사용자 관점. `/tdd-plan-input`부터 RGB·하드닝 제안까지
+  전체 흐름을 단계별로 보여줍니다.
+- **탭 ② 의존 그래프** — 유지보수 관점. 스킬→에이전트 위임, 스킬/에이전트→정본
+  references 참조를 실제 파일 스캔 결과대로 표시합니다.
+- 노드를 클릭하면 오른쪽에 호출법·model·tools·위임 대상이 표시됩니다.
+- **갱신 규칙**: 스킬·에이전트·references 추가/삭제 시 이 HTML 파일도 함께 갱신합니다
+  (파일 상단 주석 참조).
+
 ### Skills과 Agents 관계
 
 ```

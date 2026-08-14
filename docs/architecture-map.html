@@ -1,0 +1,596 @@
+<!doctype html>
+<!--
+  msbaek-tdd 플러그인 아키텍처 지도.
+  갱신 규칙: 스킬/에이전트/references 추가·삭제 시 이 파일의 mermaid 정의와
+  NODE_INFO를 함께 갱신한다. 엣지는 실제 파일 grep 스캔 결과만 반영한다(추정 금지) —
+  갱신 시에도 동일 원칙: `grep -rn "<name>" skills/*/SKILL.md agents/*.md`로 재확인 후 반영.
+-->
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>msbaek-tdd 아키텍처 지도</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.8/dist/mermaid.min.js"
+        integrity="sha384-N3QqR/7q+xm3BGX+CBbNI8AUmRRqcsDzToy+0z1NLDI0QmTKW8zvwLvqulJgk3dP"
+        crossorigin="anonymous"></script>
+<style>
+  :root {
+    --bg: #ffffff;
+    --bg-panel: #f6f7f9;
+    --border: #d8dde3;
+    --text: #1d2530;
+    --text-muted: #5b6673;
+    --accent: #2563eb;
+    --accent-soft: #e8effe;
+    --tag-plan: #7c3aed;
+    --tag-exec: #059669;
+    --tag-ref: #d97706;
+    --tag-refactor: #dc2626;
+    --code-bg: #eef1f5;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #14181f;
+      --bg-panel: #1b212b;
+      --border: #2c3542;
+      --text: #e6e9ee;
+      --text-muted: #9aa5b3;
+      --accent: #5b8cff;
+      --accent-soft: #1e2a4a;
+      --code-bg: #232b38;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #14181f;
+    --bg-panel: #1b212b;
+    --border: #2c3542;
+    --text: #e6e9ee;
+    --text-muted: #9aa5b3;
+    --accent: #5b8cff;
+    --accent-soft: #1e2a4a;
+    --code-bg: #232b38;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, "Segoe UI", "Noto Sans KR", sans-serif;
+    line-height: 1.5;
+  }
+  header {
+    padding: 20px 24px 8px;
+    border-bottom: 1px solid var(--border);
+  }
+  h1 { font-size: 1.35rem; margin: 0 0 4px; }
+  .subtitle { color: var(--text-muted); font-size: 0.9rem; margin: 0 0 14px; }
+  .legend {
+    display: flex; flex-wrap: wrap; gap: 14px;
+    font-size: 0.78rem; color: var(--text-muted); margin-bottom: 12px;
+  }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .swatch { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+  .tabs { display: flex; gap: 4px; }
+  .tab-btn {
+    padding: 8px 16px; border: 1px solid var(--border); border-bottom: none;
+    background: var(--bg-panel); color: var(--text-muted); cursor: pointer;
+    border-radius: 8px 8px 0 0; font-size: 0.88rem;
+  }
+  .tab-btn.active { color: var(--text); background: var(--bg); font-weight: 600; }
+  .layout {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 0;
+    height: calc(100vh - 132px);
+  }
+  @media (max-width: 860px) {
+    .layout { grid-template-columns: 1fr; height: auto; }
+    .panel { border-left: none; border-top: 1px solid var(--border); }
+  }
+  .diagram-area {
+    overflow: auto;
+    padding: 20px;
+  }
+  .diagram-view { display: none; }
+  .diagram-view.active { display: block; }
+  .panel {
+    border-left: 1px solid var(--border);
+    background: var(--bg-panel);
+    padding: 18px;
+    overflow-y: auto;
+  }
+  .panel h2 { font-size: 1.05rem; margin: 0 0 4px; }
+  .panel .kind-tag {
+    display: inline-block; font-size: 0.72rem; padding: 2px 8px;
+    border-radius: 999px; margin-bottom: 10px; font-weight: 600;
+  }
+  .panel .field { margin-bottom: 12px; }
+  .panel .field-label {
+    font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.04em;
+    color: var(--text-muted); margin-bottom: 3px;
+  }
+  .panel .field-value { font-size: 0.88rem; }
+  .panel code {
+    background: var(--code-bg); padding: 1px 5px; border-radius: 4px;
+    font-size: 0.82rem;
+  }
+  .panel ul { margin: 4px 0 0; padding-left: 18px; font-size: 0.85rem; }
+  .panel .empty-state { color: var(--text-muted); font-size: 0.88rem; }
+  .mermaid { font-size: 14px; }
+  .node-clickable { cursor: pointer; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>msbaek-tdd 아키텍처 지도</h1>
+  <p class="subtitle">스킬 27개 · 에이전트 9개 · 정본 references 15개 — 노드를 클릭하면 오른쪽에 상세가 뜹니다.</p>
+  <div class="legend">
+    <span><i class="swatch" style="background:var(--tag-plan)"></i>Plan 단계</span>
+    <span><i class="swatch" style="background:var(--tag-exec)"></i>Execution(RGB/Acceptance)</span>
+    <span><i class="swatch" style="background:var(--tag-ref)"></i>정본 references</span>
+    <span><i class="swatch" style="background:var(--tag-refactor)"></i>리팩토링 툴킷</span>
+  </div>
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="lifecycle">① 라이프사이클 흐름</button>
+    <button class="tab-btn" data-tab="deps">② 의존 그래프</button>
+  </div>
+</header>
+
+<div class="layout">
+  <div class="diagram-area">
+    <div id="view-lifecycle" class="diagram-view active">
+      <pre class="mermaid">
+%%{init: {"theme": "base", "themeVariables": {"fontSize": "14px"}}}%%
+flowchart TB
+  subgraph ENTRY["진입점"]
+    direction LR
+    tddplaninput["/tdd-plan-input<br/>요구사항 원천 문서 작성<br/>(선택)"]
+    tdd["/tdd &lt;type&gt; &lt;FQCN&gt;<br/>프로젝트/템플릿 생성"]
+    tddlegacy["/tdd-legacy<br/>레거시 안전망 구축<br/>(별도 진입점)"]
+  end
+
+  subgraph PLANPHASE["Plan Phase — /tdd-plan"]
+    direction LR
+    tddplan["/tdd-plan<br/>도메인규칙·Story·Gherkin·테스트목록"]
+    agdomain["tdd-domain-modeler(opus)<br/>0층 도메인 규칙"]
+    agexample["tdd-example-designer(opus)<br/>Gherkin 핵심 예시"]
+    agtestlist["tdd-test-list(sonnet)<br/>unit test 목록"]
+    agcritic["tdd-plan-critic(opus, 읽기전용)<br/>plan 적대적 검증"]
+  end
+
+  subgraph WEBAPP["Web App 추가 단계 (조건부)"]
+    direction LR
+    cucumber["/cucumber-acceptance<br/>인수 테스트 구축·이관"]
+    agaccept["tdd-acceptance-builder(sonnet)<br/>Four Layer 구축"]
+    agskeleton["tdd-skeleton-builder(opus)<br/>Walking Skeleton"]
+  end
+
+  subgraph RGBEXEC["RGB 실행 — /tdd-rgb 또는 /tdd-feature"]
+    direction LR
+    tddrgb["/tdd-rgb<br/>step-wise, 매 단계 피드백"]
+    tddfeature["/tdd-feature<br/>feature 단위 자율 실행"]
+    agred["tdd-red(sonnet)"]
+    aggreen["tdd-green(sonnet)"]
+    agblue["tdd-blue(sonnet)"]
+  end
+
+  tddtidy["/tdd-tidy<br/>diff 기반 독립 Tidying + 기법 제안"]
+  refactortoolkit["리팩토링 툴킷 (20개 스킬)<br/>Extract Method Object, Encapsulate Collection,<br/>Replace Conditional with Poly 등"]
+
+  tddplaninput -.참조로 전달.-> tddplan
+  tdd --> tddplan
+  tddplan --> agdomain --> agexample --> agtestlist --> agcritic
+  tddplan -- "Web App 유형" --> cucumber
+  cucumber --> agaccept
+  tddplan -- "Web App E-2" --> agskeleton
+  tddplan --> tddrgb
+  tddplan --> tddfeature
+  tddrgb --> agred --> aggreen --> agblue
+  tddfeature --> agred
+  agblue -. "배치 정리(선택)" .-> tddtidy
+  tddtidy -. "기법 제안(8종)" .-> refactortoolkit
+  tddlegacy -. "안전망 구축 후 핸드오프" .-> refactortoolkit
+
+  click tddplaninput cb_tddplaninput
+  click tdd cb_tdd
+  click tddlegacy cb_tddlegacy
+  click tddplan cb_tddplan
+  click agdomain cb_agdomain
+  click agexample cb_agexample
+  click agtestlist cb_agtestlist
+  click agcritic cb_agcritic
+  click cucumber cb_cucumber
+  click agaccept cb_agaccept
+  click agskeleton cb_agskeleton
+  click tddrgb cb_tddrgb
+  click tddfeature cb_tddfeature
+  click agred cb_agred
+  click aggreen cb_aggreen
+  click agblue cb_agblue
+  click tddtidy cb_tddtidy
+  click refactortoolkit cb_refactortoolkit
+      </pre>
+    </div>
+
+    <div id="view-deps" class="diagram-view">
+      <pre class="mermaid">
+%%{init: {"theme": "base", "themeVariables": {"fontSize": "13px"}}}%%
+graph LR
+  subgraph SK_PLAN["스킬 · Plan"]
+    s_tddplaninput["tdd-plan-input"]
+    s_tdd["tdd"]
+    s_tddplan["tdd-plan"]
+  end
+
+  subgraph SK_EXEC["스킬 · Execution"]
+    s_cucumber["cucumber-acceptance"]
+    s_tddrgb["tdd-rgb"]
+    s_tddfeature["tdd-feature"]
+    s_tddtidy["tdd-tidy"]
+    s_tddlegacy["tdd-legacy"]
+  end
+
+  subgraph AG_PLAN["에이전트 · Plan"]
+    a_domain["tdd-domain-modeler"]
+    a_example["tdd-example-designer"]
+    a_testlist["tdd-test-list"]
+    a_critic["tdd-plan-critic"]
+  end
+
+  subgraph AG_EXEC["에이전트 · Execution"]
+    a_accept["tdd-acceptance-builder"]
+    a_skeleton["tdd-skeleton-builder"]
+    a_red["tdd-red"]
+    a_green["tdd-green"]
+    a_blue["tdd-blue"]
+  end
+
+  subgraph REF["정본 references"]
+    r_examples["tdd-plan/references/examples.md"]
+    r_webskel["tdd-plan/references/web-app-skeleton.md"]
+    r_webpersist["tdd-plan/references/web-app-persistence.md"]
+    r_tidying["agents/references/tidying-process.md"]
+    r_adversarial["tdd-rgb/references/adversarial-review.md"]
+    r_hardening["tdd-rgb/references/hardening-gate.md"]
+    r_gears["tdd-rgb/references/gears.md"]
+    r_testdesign["tdd-rgb/references/test-design-principles.md"]
+  end
+
+  subgraph TOOLKIT["리팩토링 툴킷 (tdd-tidy가 제안하는 8개)"]
+    t_decompose["decompose-conditional"]
+    t_replacetemp["replace-temp-with-query"]
+    t_explicit["explicit-parameters"]
+    t_naming["naming-process"]
+    t_encapsulate["encapsulate-collection"]
+    t_consolidate["consolidate-conditional"]
+    t_assertion["introduce-assertion"]
+    t_pipeline["replace-loop-with-pipeline"]
+  end
+
+  subgraph STANDALONE["독립 호출 가능 (tdd-tidy 제안 목록 밖, 12개)"]
+    st_discover["discover-value-object"]
+    st_extractmo["extract-method-object"]
+    st_firstclass["first-class-collection"]
+    st_intent["intent-revealing-names"]
+    st_ipo["introduce-parameter-object"]
+    st_special["introduce-special-case"]
+    st_lift["lift-up-conditional"]
+    st_poly["replace-conditional-with-poly"]
+    st_segregate["segregate-functional-core"]
+    st_separate["separate-query-modifier"]
+    st_system["system-wide-refactoring"]
+  end
+
+  s_tddplaninput -. "참조 전달" .-> s_tddplan
+  s_tdd --> s_tddplan
+  s_tddplan --> a_domain
+  s_tddplan --> a_example
+  s_tddplan --> a_testlist
+  s_tddplan --> a_critic
+  s_tddplan --> a_accept
+  s_tddplan --> a_skeleton
+  s_cucumber --> a_accept
+  s_tddrgb --> a_red
+  s_tddrgb --> a_green
+  s_tddrgb --> a_blue
+  s_tddfeature --> a_red
+  s_tddfeature --> a_green
+  s_tddfeature --> a_blue
+  s_tddtidy --> a_blue
+
+  a_domain -.참조.-> r_examples
+  a_example -.참조.-> r_examples
+  a_testlist -.참조.-> r_examples
+  a_skeleton -.참조.-> r_webskel
+  a_skeleton -.참조.-> r_webpersist
+  a_blue -.참조.-> r_tidying
+  s_tddfeature -.참조.-> r_adversarial
+  s_tddfeature -.참조.-> r_hardening
+  s_tddplan -.참조.-> r_testdesign
+  s_tdd -.참조.-> r_gears
+
+  s_tddtidy -. "제안" .-> t_decompose
+  s_tddtidy -. "제안" .-> t_replacetemp
+  s_tddtidy -. "제안" .-> t_explicit
+  s_tddtidy -. "제안" .-> t_naming
+  s_tddtidy -. "제안" .-> t_encapsulate
+  s_tddtidy -. "제안" .-> t_consolidate
+  s_tddtidy -. "제안" .-> t_assertion
+  s_tddtidy -. "제안" .-> t_pipeline
+  s_tddtidy -. "전담 위임(교차 클래스)" .-> st_system
+  st_intent -. "정의 인용" .-> s_tddtidy
+
+  click s_tddplaninput cb_tddplaninput
+  click s_tdd cb_tdd
+  click s_tddplan cb_tddplan
+  click s_cucumber cb_cucumber
+  click s_tddrgb cb_tddrgb
+  click s_tddfeature cb_tddfeature
+  click s_tddtidy cb_tddtidy
+  click s_tddlegacy cb_tddlegacy
+  click a_domain cb_agdomain
+  click a_example cb_agexample
+  click a_testlist cb_agtestlist
+  click a_critic cb_agcritic
+  click a_accept cb_agaccept
+  click a_skeleton cb_agskeleton
+  click a_red cb_agred
+  click a_green cb_aggreen
+  click a_blue cb_agblue
+  click r_examples cb_ref_examples
+  click r_webskel cb_ref_webskel
+  click r_webpersist cb_ref_webpersist
+  click r_tidying cb_ref_tidying
+  click r_adversarial cb_ref_adversarial
+  click r_hardening cb_ref_hardening
+  click r_gears cb_ref_gears
+  click r_testdesign cb_ref_testdesign
+  click t_decompose cb_toolkit_generic
+  click t_replacetemp cb_toolkit_generic
+  click t_explicit cb_toolkit_generic
+  click t_naming cb_toolkit_generic
+  click t_encapsulate cb_toolkit_generic
+  click t_consolidate cb_toolkit_generic
+  click t_assertion cb_toolkit_generic
+  click t_pipeline cb_toolkit_generic
+  click st_discover cb_toolkit_generic
+  click st_extractmo cb_toolkit_generic
+  click st_firstclass cb_toolkit_generic
+  click st_intent cb_toolkit_generic
+  click st_ipo cb_toolkit_generic
+  click st_special cb_toolkit_generic
+  click st_lift cb_toolkit_generic
+  click st_poly cb_toolkit_generic
+  click st_segregate cb_toolkit_generic
+  click st_separate cb_toolkit_generic
+  click st_system cb_toolkit_generic
+      </pre>
+    </div>
+  </div>
+
+  <aside class="panel" id="panel">
+    <div class="empty-state">노드를 클릭하면 여기에 상세 정보가 표시됩니다.</div>
+  </aside>
+</div>
+
+<script>
+  mermaid.initialize({
+    startOnLoad: false,
+    securityLevel: "loose",
+    theme: "base",
+    flowchart: { curve: "basis" }
+  });
+
+  // display:none 상태에서 렌더링하면 mermaid가 크기를 0으로 잡는다 —
+  // 각 탭이 실제로 보이는 시점에 그 탭 안의 .mermaid만 지연 렌더링한다.
+  const renderedTabs = new Set();
+  function renderTab(tabName) {
+    if (renderedTabs.has(tabName)) return;
+    renderedTabs.add(tabName);
+    const container = document.getElementById("view-" + tabName);
+    mermaid.run({ nodes: container.querySelectorAll(".mermaid") });
+  }
+
+  const NODE_INFO = {
+    tddplaninput: {
+      kind: "스킬", tag: "plan",
+      title: "/tdd-plan-input",
+      desc: "tdd-plan에 넘길 요구사항 원천 문서(xxx-plan-input.md)를 질의응답으로 점진 작성. 범위·도메인 규칙·예제·경계 조건·미확정 사항을 채운다.",
+      invoke: "/tdd-plan-input [주제 한 줄 | 기존 자료 경로]",
+      delegates: [], refs: []
+    },
+    tdd: {
+      kind: "스킬", tag: "plan",
+      title: "/tdd",
+      desc: "TDD 오케스트레이터 — 프로젝트/템플릿 문서 생성 및 워크플로우 안내.",
+      invoke: "/tdd <java|web-app> <FQCN>",
+      delegates: [], refs: ["tdd-rgb/references/gears.md"]
+    },
+    tddlegacy: {
+      kind: "스킬", tag: "plan",
+      title: "/tdd-legacy",
+      desc: "테스트 없는 기존 코드에 행위 보존 안전망(Characterization → Approval → Mutation)을 구축한 뒤 개선 스킬로 핸드오프.",
+      invoke: "/tdd-legacy",
+      delegates: [], refs: []
+    },
+    tddplan: {
+      kind: "스킬", tag: "plan",
+      title: "/tdd-plan",
+      desc: "도메인 규칙(0층) + User Story + Gherkin Scenario + unit test 목록 작성. 복잡도가 흐름·상태에 있으면 조건부 Use Case 추가.",
+      invoke: "/tdd-plan <템플릿 문서 경로>",
+      delegates: ["tdd-domain-modeler", "tdd-example-designer", "tdd-test-list", "tdd-plan-critic", "tdd-acceptance-builder(Web App)", "tdd-skeleton-builder(Web App)"],
+      refs: ["tdd-rgb/references/test-design-principles.md"]
+    },
+    agdomain: {
+      kind: "에이전트", tag: "plan",
+      title: "tdd-domain-modeler",
+      desc: "Plan 단계 1 초안 — 도메인 규칙(0층: 계산·절사·상태 규칙 + 검산 전개)과 User Story 초안 작성.",
+      model: "opus", tools: "Read, Write, Edit, Grep, Glob",
+      refs: ["tdd-plan/references/examples.md"]
+    },
+    agexample: {
+      kind: "에이전트", tag: "plan",
+      title: "tdd-example-designer",
+      desc: "Plan 단계 2 초안 — 도메인 규칙·User Story를 Gherkin 핵심 예시로 변환, 경계 조건 5종 스캔.",
+      model: "opus", tools: "Read, Write, Edit, Grep, Glob",
+      refs: ["tdd-plan/references/examples.md"]
+    },
+    agtestlist: {
+      kind: "에이전트", tag: "plan",
+      title: "tdd-test-list",
+      desc: "Plan 단계 3 초안 — Gherkin에 없는 세밀 분기·내부 협력을 unit test 목록으로 정리, Degenerate→General 정렬.",
+      model: "sonnet", tools: "Read, Write, Edit, Grep, Glob",
+      refs: ["tdd-plan/references/examples.md"]
+    },
+    agcritic: {
+      kind: "에이전트", tag: "plan",
+      title: "tdd-plan-critic",
+      desc: "plan 문서를 깨뜨리려 시도하는 적대적 검증자 — 정본 부재·모순·중복·경계 누락을 찾는다. 읽기 전용(수정하지 않음).",
+      model: "opus", tools: "Read, Grep, Glob (쓰기 도구 없음 — 검증 루프 보장)",
+      refs: []
+    },
+    cucumber: {
+      kind: "스킬", tag: "exec",
+      title: "/cucumber-acceptance",
+      desc: "기능의 external behavior를 Cucumber 인수 테스트(주 검증층)로 구축 — Four Layer(Steps→Protocol Driver→SUT), 기존 JUnit 인수 테스트 이관 지원.",
+      invoke: "/cucumber-acceptance",
+      delegates: ["tdd-acceptance-builder"], refs: []
+    },
+    agaccept: {
+      kind: "에이전트", tag: "exec",
+      title: "tdd-acceptance-builder",
+      desc: "승인된 Gherkin을 .feature + Four Layer로 구축하거나 기존 JUnit 인수 테스트를 이관. 완료 후 직접 커밋.",
+      model: "sonnet",
+      tools: "Edit, MultiEdit, Write, Read, Grep, Glob, Bash(gradle/mvn test), Bash(git status/diff/add/commit)",
+      refs: []
+    },
+    agskeleton: {
+      kind: "에이전트", tag: "exec",
+      title: "tdd-skeleton-builder",
+      desc: "Walking Skeleton(실제 HTTP→실제 앱→실제 DB)을 구축. OSIV·트랜잭션 경계·LAZY·DTO 등 영속성 경계를 이 단계에서 확정.",
+      model: "opus",
+      tools: "Edit, MultiEdit, Write, Read, Grep, Glob, Bash(gradle/mvn test), Bash(git status/diff/add/commit)",
+      refs: ["tdd-plan/references/web-app-skeleton.md", "tdd-plan/references/web-app-persistence.md"]
+    },
+    tddrgb: {
+      kind: "스킬", tag: "exec",
+      title: "/tdd-rgb",
+      desc: "TDD RGB 사이클 진행 — Red/Green/Blue agent를 순차 위임하며 매 단계 사용자 피드백을 받는다(step-wise).",
+      invoke: "/tdd-rgb",
+      delegates: ["tdd-red", "tdd-green", "tdd-blue"], refs: []
+    },
+    tddfeature: {
+      kind: "스킬", tag: "exec",
+      title: "/tdd-feature",
+      desc: "간결한 plan 합의 후, feature 하나를 RGB 사이클로 끝까지 자율 구현. Plan(인터랙티브) → 구현(자율, R/G/B 각각 별도 커밋).",
+      invoke: "/tdd-feature",
+      delegates: ["tdd-red", "tdd-green", "tdd-blue"],
+      refs: ["tdd-rgb/references/adversarial-review.md", "tdd-rgb/references/hardening-gate.md"]
+    },
+    agred: {
+      kind: "에이전트", tag: "exec",
+      title: "tdd-red",
+      desc: "TDD Red phase — 실패하는 테스트만 작성. TDD 1법칙 전담. 테스트 실행 도구 보유(실제로 실패하는지 검증).",
+      model: "sonnet",
+      tools: "Edit, MultiEdit, Write, Read, Bash(gradle/mvn test), Bash(git status/diff/add/commit)",
+      refs: []
+    },
+    aggreen: {
+      kind: "에이전트", tag: "exec",
+      title: "tdd-green",
+      desc: "TDD Green phase — 최소 구현으로 테스트 통과. TPP와 make-it-work 전략 적용.",
+      model: "sonnet",
+      tools: "Edit, MultiEdit, Write, Read, Bash(gradle/mvn test), Bash(git status/diff/add/commit)",
+      refs: []
+    },
+    agblue: {
+      kind: "에이전트", tag: "exec",
+      title: "tdd-blue",
+      desc: "TDD Blue phase — Composed Method 지향 Local Tidying Process(Guard Clauses→One Pile→Reorder→...→Trimming). RGB의 Blue 단계 또는 tdd-tidy의 standalone 대상에 적용.",
+      model: "sonnet",
+      tools: "Edit, MultiEdit, Write, Read, Bash(git status/diff/add/commit), Bash(gradle/mvn test)",
+      refs: ["agents/references/tidying-process.md"]
+    },
+    tddtidy: {
+      kind: "스킬", tag: "exec",
+      title: "/tdd-tidy",
+      desc: "git diff 기준 변경 파일을 자동 탐지해 Composed Method 지향 Tidying Process를 독립 실행. 완료 후 8개 리팩토링 기법을 제안(교차 클래스 이동은 system-wide-refactoring에 전담).",
+      invoke: "/tdd-tidy",
+      delegates: ["tdd-blue"], refs: []
+    },
+    refactortoolkit: {
+      kind: "스킬 그룹", tag: "refactor",
+      title: "리팩토링 툴킷 (20개)",
+      desc: "Fowler 카탈로그 기반 개별 리팩토링 기법 스킬. tdd-tidy가 8개(decompose-conditional, replace-temp-with-query, explicit-parameters, naming-process, encapsulate-collection, consolidate-conditional, introduce-assertion, replace-loop-with-pipeline)를 진단 후 제안하고, 나머지 12개(discover-value-object, extract-method-object, first-class-collection, intent-revealing-names, introduce-parameter-object, introduce-special-case, lift-up-conditional, replace-conditional-with-poly, segregate-functional-core, separate-query-modifier, system-wide-refactoring)는 독립적으로 슬래시 커맨드로 호출한다.",
+      invoke: "/<기법명> (예: /extract-method-object)",
+      delegates: [], refs: []
+    },
+    ref_examples: { kind: "정본 references", tag: "ref", title: "tdd-plan/references/examples.md", desc: "Plan 단계 1~3(도메인 규칙·예제·테스트 목록)의 작성 예시. tdd-domain-modeler·tdd-example-designer·tdd-test-list 3개 에이전트가 공통 참조하는 정본." },
+    ref_webskel: { kind: "정본 references", tag: "ref", title: "tdd-plan/references/web-app-skeleton.md", desc: "Web App 타입 Walking Skeleton 구축 절차 정본. tdd-skeleton-builder가 참조." },
+    ref_webpersist: { kind: "정본 references", tag: "ref", title: "tdd-plan/references/web-app-persistence.md", desc: "OSIV·트랜잭션 경계·LAZY·DTO 등 영속성 경계 규칙 정본. tdd-skeleton-builder가 참조." },
+    ref_tidying: { kind: "정본 references", tag: "ref", title: "agents/references/tidying-process.md", desc: "Guard Clauses→One Pile→Reorder→Normalize Symmetries→Chunk→Comment→Extract Variable→Split Loop→Trimming 절차 전문. tdd-blue가 참조(원래 tdd-blue.md 532줄 중 360줄이었던 것을 이관)." },
+    ref_adversarial: { kind: "정본 references", tag: "ref", title: "tdd-rgb/references/adversarial-review.md", desc: "완료 보고 전 적대적 리뷰 절차 — 리뷰어 선택(전역 adversarial-reviewer 우선), 내장 프롬프트, 심각도 처리. tdd-feature·tdd-rgb가 참조." },
+    ref_hardening: { kind: "정본 references", tag: "ref", title: "tdd-rgb/references/hardening-gate.md", desc: "CRAP·DRY·mutation 하드닝을 '제안만'(자동 실행 없음) 모드로 tdd-feature 완료 보고에 편입하는 규칙. 전역 crap4java-analyzer·dry4java-analyzer·mutate4java-runner 에이전트로 위임(1.37.0 신설)." },
+    ref_gears: { kind: "정본 references", tag: "ref", title: "tdd-rgb/references/gears.md", desc: "기어(자율성 수준: low/mid/high) 정의. /tdd가 참조." },
+    ref_testdesign: { kind: "정본 references", tag: "ref", title: "tdd-rgb/references/test-design-principles.md", desc: "Test Desiderata 12가지 속성 전문. tdd-plan이 참조." },
+    toolkit_generic: { kind: "스킬", tag: "refactor", title: "리팩토링 툴킷 스킬", desc: "왼쪽 다이어그램에서 개별 노드를 클릭하면 어떤 기법인지 이름으로 알 수 있습니다 — 각 스킬은 SKILL.md의 description에 1줄 요약과 /슬래시 호출법이 있습니다. 상세 설명은 이 지도의 범위를 넘어서므로 저장소의 skills/<기법명>/SKILL.md를 직접 참조하세요." }
+  };
+
+  function renderPanel(id) {
+    const info = NODE_INFO[id];
+    const panel = document.getElementById("panel");
+    if (!info) {
+      panel.innerHTML = '<div class="empty-state">이 노드의 상세 정보가 아직 등록되지 않았습니다.</div>';
+      return;
+    }
+    const tagColor = {
+      plan: "var(--tag-plan)", exec: "var(--tag-exec)",
+      ref: "var(--tag-ref)", refactor: "var(--tag-refactor)"
+    }[info.tag] || "var(--text-muted)";
+
+    let html = `<span class="kind-tag" style="background:${tagColor}22;color:${tagColor}">${info.kind}</span>`;
+    html += `<h2>${info.title}</h2>`;
+    html += `<div class="field"><div class="field-value">${info.desc}</div></div>`;
+    if (info.invoke) {
+      html += `<div class="field"><div class="field-label">호출</div><div class="field-value"><code>${info.invoke}</code></div></div>`;
+    }
+    if (info.model) {
+      html += `<div class="field"><div class="field-label">Model</div><div class="field-value"><code>${info.model}</code></div></div>`;
+    }
+    if (info.tools) {
+      html += `<div class="field"><div class="field-label">Tools</div><div class="field-value" style="font-size:0.78rem">${info.tools}</div></div>`;
+    }
+    if (info.delegates && info.delegates.length) {
+      html += `<div class="field"><div class="field-label">위임 대상</div><ul>${info.delegates.map(d => `<li>${d}</li>`).join("")}</ul></div>`;
+    }
+    if (info.refs && info.refs.length) {
+      html += `<div class="field"><div class="field-label">정본 참조</div><ul>${info.refs.map(r => `<li><code>${r}</code></li>`).join("")}</ul></div>`;
+    }
+    panel.innerHTML = html;
+  }
+
+  // mermaid click 콜백 — 각 cb_* 함수가 renderPanel을 호출
+  Object.keys(NODE_INFO).forEach(key => {
+    window["cb_" + key] = () => renderPanel(key);
+  });
+  // 정본 references는 ref_ 접두사로 별도 등록(다이어그램 노드 id와 매핑)
+  ["examples","webskel","webpersist","tidying","adversarial","hardening","gears","testdesign"].forEach(k => {
+    window["cb_ref_" + k] = () => renderPanel("ref_" + k);
+  });
+
+  document.querySelectorAll(".tab-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+      document.querySelectorAll(".diagram-view").forEach(v => v.classList.remove("active"));
+      btn.classList.add("active");
+      document.getElementById("view-" + btn.dataset.tab).classList.add("active");
+      renderTab(btn.dataset.tab);
+    });
+  });
+
+  renderTab("lifecycle"); // 초기 활성 탭은 즉시 렌더링
+</script>
+
+</body>
+</html>
