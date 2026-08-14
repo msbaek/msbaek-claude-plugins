@@ -118,18 +118,50 @@
   .panel .empty-state { color: var(--text-muted); font-size: 0.88rem; }
   .mermaid { font-size: 14px; }
   .node-clickable { cursor: pointer; }
+
+  #hoverTip {
+    position: fixed;
+    z-index: 999;
+    max-width: 280px;
+    background: var(--text);
+    color: var(--bg);
+    padding: 8px 11px;
+    border-radius: 8px;
+    font-size: 0.78rem;
+    line-height: 1.4;
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(4px);
+    transition: opacity 0.12s ease, transform 0.12s ease;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+  }
+  #hoverTip.visible { opacity: 1; transform: translateY(0); }
+  #hoverTip .tip-title { font-weight: 700; margin-bottom: 3px; }
+  #hoverTip .tip-kind {
+    display: inline-block; font-size: 0.68rem; opacity: 0.75; margin-bottom: 4px;
+  }
+  #hoverTip::after {
+    content: "";
+    position: absolute;
+    bottom: -6px;
+    left: 16px;
+    border-width: 6px 6px 0 6px;
+    border-style: solid;
+    border-color: var(--text) transparent transparent transparent;
+  }
 </style>
 </head>
 <body>
 
 <header>
   <h1>msbaek-tdd 아키텍처 지도</h1>
-  <p class="subtitle">스킬 27개 · 에이전트 9개 · 정본 references 15개 — 노드를 클릭하면 오른쪽에 상세가 뜹니다.</p>
+  <p class="subtitle">스킬 27개 · 에이전트 9개 · 정본 references 15개 — 마우스를 올리면 요약이, 클릭하면 오른쪽에 상세가 뜹니다.</p>
   <div class="legend">
     <span><i class="swatch" style="background:var(--tag-plan)"></i>Plan 단계</span>
     <span><i class="swatch" style="background:var(--tag-exec)"></i>Execution(RGB/Acceptance)</span>
     <span><i class="swatch" style="background:var(--tag-ref)"></i>정본 references</span>
     <span><i class="swatch" style="background:var(--tag-refactor)"></i>리팩토링 툴킷</span>
+    <span>▭ 스킬(실선) · 🤖⬭ 에이전트(점선 알약)</span>
   </div>
   <div class="tabs">
     <button class="tab-btn active" data-tab="lifecycle">① 라이프사이클 흐름</button>
@@ -153,26 +185,26 @@ flowchart TB
   subgraph PLANPHASE["Plan Phase — /tdd-plan"]
     direction LR
     tddplan["/tdd-plan<br/>도메인규칙·Story·Gherkin·테스트목록"]
-    agdomain["tdd-domain-modeler(opus)<br/>0층 도메인 규칙"]
-    agexample["tdd-example-designer(opus)<br/>Gherkin 핵심 예시"]
-    agtestlist["tdd-test-list(sonnet)<br/>unit test 목록"]
-    agcritic["tdd-plan-critic(opus, 읽기전용)<br/>plan 적대적 검증"]
+    agdomain(["🤖 tdd-domain-modeler(opus)<br/>0층 도메인 규칙"])
+    agexample(["🤖 tdd-example-designer(opus)<br/>Gherkin 핵심 예시"])
+    agtestlist(["🤖 tdd-test-list(sonnet)<br/>unit test 목록"])
+    agcritic(["🤖 tdd-plan-critic(opus, 읽기전용)<br/>plan 적대적 검증"])
   end
 
   subgraph WEBAPP["Web App 추가 단계 (조건부)"]
     direction LR
     cucumber["/cucumber-acceptance<br/>인수 테스트 구축·이관"]
-    agaccept["tdd-acceptance-builder(sonnet)<br/>Four Layer 구축"]
-    agskeleton["tdd-skeleton-builder(opus)<br/>Walking Skeleton"]
+    agaccept(["🤖 tdd-acceptance-builder(sonnet)<br/>Four Layer 구축"])
+    agskeleton(["🤖 tdd-skeleton-builder(opus)<br/>Walking Skeleton"])
   end
 
   subgraph RGBEXEC["RGB 실행 — /tdd-rgb 또는 /tdd-feature"]
     direction LR
     tddrgb["/tdd-rgb<br/>step-wise, 매 단계 피드백"]
     tddfeature["/tdd-feature<br/>feature 단위 자율 실행"]
-    agred["tdd-red(sonnet)"]
-    aggreen["tdd-green(sonnet)"]
-    agblue["tdd-blue(sonnet)"]
+    agred(["🤖 tdd-red(sonnet)"])
+    aggreen(["🤖 tdd-green(sonnet)"])
+    agblue(["🤖 tdd-blue(sonnet)"])
   end
 
   tddtidy["/tdd-tidy<br/>diff 기반 독립 Tidying + 기법 제안"]
@@ -210,6 +242,18 @@ flowchart TB
   click agblue cb_agblue
   click tddtidy cb_tddtidy
   click refactortoolkit cb_refactortoolkit
+
+  classDef planSkill fill:#ede9fe,stroke:#7c3aed,stroke-width:1.5px,color:#3b0764
+  classDef planAgent fill:#ddd6fe,stroke:#7c3aed,stroke-width:2.5px,stroke-dasharray:4 2,color:#3b0764
+  classDef execSkill fill:#d1fae5,stroke:#059669,stroke-width:1.5px,color:#064e3b
+  classDef execAgent fill:#a7f3d0,stroke:#059669,stroke-width:2.5px,stroke-dasharray:4 2,color:#064e3b
+  classDef refactorSkill fill:#fee2e2,stroke:#dc2626,stroke-width:1.5px,color:#7f1d1d
+
+  class tddplaninput,tdd,tddlegacy,tddplan planSkill
+  class agdomain,agexample,agtestlist,agcritic planAgent
+  class cucumber,tddrgb,tddfeature,tddtidy execSkill
+  class agaccept,agskeleton,agred,aggreen,agblue execAgent
+  class refactortoolkit refactorSkill
       </pre>
     </div>
 
@@ -232,18 +276,18 @@ graph LR
   end
 
   subgraph AG_PLAN["에이전트 · Plan"]
-    a_domain["tdd-domain-modeler"]
-    a_example["tdd-example-designer"]
-    a_testlist["tdd-test-list"]
-    a_critic["tdd-plan-critic"]
+    a_domain(["🤖 tdd-domain-modeler"])
+    a_example(["🤖 tdd-example-designer"])
+    a_testlist(["🤖 tdd-test-list"])
+    a_critic(["🤖 tdd-plan-critic"])
   end
 
   subgraph AG_EXEC["에이전트 · Execution"]
-    a_accept["tdd-acceptance-builder"]
-    a_skeleton["tdd-skeleton-builder"]
-    a_red["tdd-red"]
-    a_green["tdd-green"]
-    a_blue["tdd-blue"]
+    a_accept(["🤖 tdd-acceptance-builder"])
+    a_skeleton(["🤖 tdd-skeleton-builder"])
+    a_red(["🤖 tdd-red"])
+    a_green(["🤖 tdd-green"])
+    a_blue(["🤖 tdd-blue"])
   end
 
   subgraph REF["정본 references"]
@@ -365,6 +409,20 @@ graph LR
   click st_segregate cb_toolkit_generic
   click st_separate cb_toolkit_generic
   click st_system cb_toolkit_generic
+
+  classDef planSkill fill:#ede9fe,stroke:#7c3aed,stroke-width:1.5px,color:#3b0764
+  classDef planAgent fill:#ddd6fe,stroke:#7c3aed,stroke-width:2.5px,stroke-dasharray:4 2,color:#3b0764
+  classDef execSkill fill:#d1fae5,stroke:#059669,stroke-width:1.5px,color:#064e3b
+  classDef execAgent fill:#a7f3d0,stroke:#059669,stroke-width:2.5px,stroke-dasharray:4 2,color:#064e3b
+  classDef refNode fill:#fef3c7,stroke:#d97706,stroke-width:1.5px,color:#78350f
+  classDef refactorSkill fill:#fee2e2,stroke:#dc2626,stroke-width:1.5px,color:#7f1d1d
+
+  class s_tddplaninput,s_tdd,s_tddplan,s_tddlegacy planSkill
+  class a_domain,a_example,a_testlist,a_critic planAgent
+  class s_cucumber,s_tddrgb,s_tddfeature,s_tddtidy execSkill
+  class a_accept,a_skeleton,a_red,a_green,a_blue execAgent
+  class r_examples,r_webskel,r_webpersist,r_tidying,r_adversarial,r_hardening,r_gears,r_testdesign refNode
+  class t_decompose,t_replacetemp,t_explicit,t_naming,t_encapsulate,t_consolidate,t_assertion,t_pipeline,st_discover,st_extractmo,st_firstclass,st_intent,st_ipo,st_special,st_lift,st_poly,st_segregate,st_separate,st_system refactorSkill
       </pre>
     </div>
   </div>
@@ -373,6 +431,8 @@ graph LR
     <div class="empty-state">노드를 클릭하면 여기에 상세 정보가 표시됩니다.</div>
   </aside>
 </div>
+
+<div id="hoverTip"></div>
 
 <script>
   mermaid.initialize({
@@ -389,7 +449,55 @@ graph LR
     if (renderedTabs.has(tabName)) return;
     renderedTabs.add(tabName);
     const container = document.getElementById("view-" + tabName);
-    mermaid.run({ nodes: container.querySelectorAll(".mermaid") });
+    const pres = container.querySelectorAll(".mermaid");
+    // "click <id> cb_<key>" 문법에서 id→key 매핑을 렌더 전에 원본 텍스트로 추출
+    // (mermaid.run이 텍스트를 svg로 치환하기 전에 해야 한다)
+    pres.forEach(pre => {
+      const idToKey = {};
+      const re = /click\s+(\S+)\s+cb_(\S+)/g;
+      let m;
+      while ((m = re.exec(pre.textContent))) idToKey[m[1]] = m[2];
+      pre.dataset.idmap = JSON.stringify(idToKey);
+    });
+    mermaid.run({ nodes: pres }).then(() => bindHover(pres));
+  }
+
+  function bindHover(pres) {
+    pres.forEach(pre => {
+      const idToKey = JSON.parse(pre.dataset.idmap || "{}");
+      pre.querySelectorAll("g.node").forEach(node => {
+        const match = (node.id || "").match(/^flowchart-(.+)-\d+$/);
+        const key = match && idToKey[match[1]];
+        if (!key) return;
+        node.addEventListener("mouseenter", () => showTip(key));
+        node.addEventListener("mousemove", positionTip);
+        node.addEventListener("mouseleave", hideTip);
+      });
+    });
+  }
+
+  function showTip(key) {
+    const info = NODE_INFO[key];
+    const tip = document.getElementById("hoverTip");
+    if (!info) { tip.classList.remove("visible"); return; }
+    const short = info.desc.length > 150 ? info.desc.slice(0, 150) + "…" : info.desc;
+    tip.innerHTML = `<div class="tip-kind">${info.kind}</div><div class="tip-title">${info.title}</div><div>${short}</div>`;
+    tip.classList.add("visible");
+  }
+
+  function positionTip(e) {
+    const tip = document.getElementById("hoverTip");
+    let x = e.clientX + 14;
+    let y = e.clientY + 18;
+    const rect = tip.getBoundingClientRect();
+    if (x + rect.width > window.innerWidth - 10) x = e.clientX - rect.width - 14;
+    if (y + rect.height > window.innerHeight - 10) y = e.clientY - rect.height - 18;
+    tip.style.left = x + "px";
+    tip.style.top = y + "px";
+  }
+
+  function hideTip() {
+    document.getElementById("hoverTip").classList.remove("visible");
   }
 
   const NODE_INFO = {
