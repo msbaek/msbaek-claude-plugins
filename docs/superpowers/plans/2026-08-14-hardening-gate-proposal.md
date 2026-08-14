@@ -219,3 +219,26 @@ subject: `chore(msbaek-tdd): 1.37.0 릴리스 — 하드닝 제안 게이트`
 - **Spec coverage**: 합의 3요소(제안만 / CRAP·DRY 우선 + mutation 비용 표기 / 전역 에이전트 재사용) 모두 Task 1 정본에 반영. Maven 제약·Gradle skip은 정본 §1. ✓
 - **Placeholder scan**: 제안 블록·bullet·표 행 모두 실제 텍스트 수록. `{changed-files}` 치환 규칙은 정본에 정의됨(플레이스홀더 아님 — 런타임 치환 변수). ✓
 - **Type consistency**: 정본 파일명 `hardening-gate.md`와 참조 경로 `../tdd-rgb/references/hardening-gate.md`가 Task 1·2·상위 plan 기록에서 일치. 버전 1.37.0 세 곳 일치. ✓
+
+## 크로스세션 실증 검증 (2026-08-14, 최종 리뷰 fix 반영 후)
+
+`tdd-agent-verifiyer` 저장소(CouponUsageLimit 도메인, **Gradle** 프로젝트 — 최종 리뷰 Finding 2를
+정확히 재현하는 케이스)에서 별도 세션(`tdd-agent-verifier`)에 위임해 검증했다. 그 세션은
+`/reload-plugins`로 1.37.0을 실제 로드한 뒤, `/tdd-feature` Phase B를 실제로 진행(G-E5·E6·E8
+커밋, `6e7f1db~137c190`)시켜 진짜 완료 보고를 만들어냈다.
+
+검증 항목과 결과:
+- **Gradle 시 CRAP·mutation 생략 + DRY 유지 (Finding 2 수정)**: 완료 보고에 `hardening-gate.md
+  §1-2` 문구와 정확히 일치하는 `CRAP·mutation 제안 생략 — Maven 전용 (이 프로젝트: Gradle).
+  DRY 제안은 계속 진행`이 그대로 출력됨. 이 저장소에 `pom.xml`이 없음을 직접 확인.
+- **`{changed-files}` 명시적 치환 (Finding 1 수정)**: DRY 제안 줄이 Phase B 시작 커밋~HEAD diff
+  기준 실제 변경 파일 2개(`CouponUsageLimit.java`, `RejectionReason.java`)로 정확히 치환됨.
+- **DRY 제안 명령 실제 실행**: `dry4java-analyzer` 에이전트로 그 명령을 그대로 실행 — Gradle
+  프로젝트인데도 `pom.xml` 요구 없이 두 파일 스캔 성공(중복 0건). Finding 2의 핵심 주장
+  (dry4java는 빌드 도구 무관)이 실동작으로 증명됨.
+- **CRAP `--changed`→명시적 파일 목록 (Finding 1)**: 이 저장소는 Maven이 아니라 직접 재현
+  불가 — `hardening-gate.md §2`의 `{changed-files}` 문구 대조로만 확인(내용 일치).
+
+3건의 수정 중 2건(Gradle skip 정확성, DRY 실동작)은 실제 실행까지, 1건(CRAP 명시적 목록)은
+문서 대조로 검증 완료. 부작용: 검증 과정에서 그 세션의 CouponUsageLimit feature가 일부
+진행됨(별도 프로젝트 — 완료·되돌림 여부는 그 세션에서 판단).
