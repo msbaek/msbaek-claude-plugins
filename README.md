@@ -8,8 +8,12 @@ Kent Beck의 TDD 원칙을 기반으로, 요구사항(도메인 규칙 + User St
 |----------|------|------|
 | **msbaek-tdd** | Java + Spring Boot TDD workflow with RGB cycle, gear-based review density, feature-level autonomous implementation, Cucumber acceptance testing, legacy-code safety net, local tidying, system-wide refactoring, and 18 optional refactoring skills | 1.20.0 |
 
-> **[전체 워크플로우 지도 (시각화) →](https://msbaek.github.io/talk-visuals/msbaek-tdd-workflow/)**
+> **[전체 워크플로우 지도 (발표용 시각화) →](https://msbaek.github.io/talk-visuals/msbaek-tdd-workflow/)**
 > `/tdd` 진입부터 계획·구현 파이프라인, 기어별 스킬 라우팅, 독립 진입점까지 한 장으로.
+
+> **[아키텍처 지도 (인터랙티브 HTML) →](https://htmlpreview.github.io/?https://github.com/msbaek/msbaek-claude-plugins/blob/main/docs/architecture-map.html)**
+> 스킬 27개·에이전트 9개·정본 references 15개를 실제 코드 스캔 기반으로 — 라이프사이클 흐름 탭과
+> 스킬↔에이전트 의존 그래프 탭, 노드 hover/클릭으로 상세 확인.
 
 ## 설치
 
