@@ -271,3 +271,65 @@ subject: `chore(msbaek-tdd): 1.37.0 릴리스 — 하드닝 제안 게이트`
 이로써 하드닝 게이트가 제안하는 CRAP·DRY·mutation **3종 모두** 실제 명령 실행까지 검증
 완료됐다 — 앞서 "게이트가 맞는 조건에서 맞는 명령을 제안하는가"만 확인됐던 것에서,
 "그 명령들이 실전에서 진짜 결함을 잡아내는가"까지 확인됨.
+
+## 3차 검증 — 원 세션 재현 (2026-08-14)
+
+크로스세션 2차 결과가 실제 저장된 출력 파일 없이 요약 보고로만 남아 있어, 같은
+`unit-testing` 프로젝트에서 이 세션이 직접 재실행해 원문 출력을 이 문서에 남긴다.
+코드·커밋 변경 없음(mutate4java가 `--mutate-all` 실행 시 소스 파일 끝에 manifest 주석을
+남기는 부작용을 발견해 `git checkout`으로 즉시 원복 — 정상 동작이지만 이 저장소에는
+지속시키지 않기로 함).
+
+### CRAP (`crap4java-analyzer` 방식, 명시적 파일 목록)
+
+```
+$ java -jar crap4java-0.1.0-SNAPSHOT.jar \
+    src/main/java/victor/testing/design/purity/PriceService.java \
+    src/main/java/victor/testing/design/onion/infra/ExcelExporter.java \
+    src/main/java/victor/testing/design/spy/BigService.java
+
+CRAP Report
+===========
+Method            Class                                CC    Cov%     CRAP
+----------------------------------------------------------------------------
+exportExcel       victor.testing.design.onion.infra.ExcelExporter    4    0.0%     20.0
+resolvePrices     victor.testing.design.purity.PriceService          3    0.0%     12.0
+doComputePrices   victor.testing.design.purity.PriceService          6  100.0%      6.0
+high              victor.testing.design.spy.BigService               2   83.3%      2.0
+createWorkbook    victor.testing.design.onion.infra.ExcelExporter    1    0.0%      2.0
+createHeader      victor.testing.design.onion.infra.ExcelExporter    1    0.0%      2.0
+computePrices     victor.testing.design.purity.PriceService          1    0.0%      2.0
+low               victor.testing.design.spy.BigService               2    N/A      N/A
+```
+
+2차 검증 보고 수치와 완전 일치.
+
+### Mutation (`mutate4java-runner` 방식, PriceService 1개 파일)
+
+```
+$ java -jar mutate4java-0.1.0-SNAPSHOT.jar \
+    src/main/java/victor/testing/design/purity/PriceService.java --mutate-all
+
+Baseline tests passed in 7140 ms.
+Total mutation sites: 9 / Covered: 5 / Uncovered: 4
+
+UNCOVERED :34 replace result.finalPrices() with null
+UNCOVERED :64 replace new HashMap<>() with null
+UNCOVERED :67 replace == with !=
+UNCOVERED :72 replace resolvedPrices with null
+KILLED    :46 replace new HashMap<>() with null (13202 ms)
+KILLED    :53 replace && with || (13083 ms)
+KILLED    :52 replace && with || (13011 ms)
+KILLED    :53 replace ! with removed ! (12775 ms)
+KILLED    :60 replace new PriceCalculationResult(finalPrices, usedCoupons) with null (13121 ms)
+
+Summary: 5 killed, 0 survived, 5 total.
+```
+
+52~53행은 쿠폰 적용 조건문(`coupon.autoApply() && coupon.isApplicableFor(...) &&
+!usedCoupons.contains(coupon)`) — `&&`→`||`나 `!` 제거는 "적용 불가 쿠폰 적용" · "쿠폰
+재사용" 같은 실제 요금 버그이며, 기존 테스트가 커버된 5개 뮤턴트를 전부 죽여 assertion이
+실제로 강함을 확인. UNCOVERED 4건은 CRAP의 `resolvePrices`(12.0) 위험 신호와 같은 지점을
+가리킴 — 두 지표가 서로 다른 각도에서 같은 결론에 수렴.
+
+3차 검증으로 하드닝 게이트 3종 도구의 실제 출력이 이 plan 문서에 원문으로 남았다.
