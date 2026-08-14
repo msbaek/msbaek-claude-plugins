@@ -242,3 +242,32 @@ subject: `chore(msbaek-tdd): 1.37.0 릴리스 — 하드닝 제안 게이트`
 3건의 수정 중 2건(Gradle skip 정확성, DRY 실동작)은 실제 실행까지, 1건(CRAP 명시적 목록)은
 문서 대조로 검증 완료. 부작용: 검증 과정에서 그 세션의 CouponUsageLimit feature가 일부
 진행됨(별도 프로젝트 — 완료·되돌림 여부는 그 세션에서 판단).
+
+## 크로스세션 실증 검증 2차 — CRAP·mutation 실동작 (2026-08-14)
+
+1차 검증은 Gradle 프로젝트라 DRY만 실제 실행했고, CRAP·mutation(둘 다 Maven 전용)은 문서
+대조로만 확인했다. "게이트가 조건을 맞게 판단하는 것"과 "제안된 명령이 실제로 결함을
+잡아내는 것"은 다른 질문이라는 지적을 받아, 같은 `tdd-agent-verifier` 세션에 Maven
+프로젝트(`/Users/msbaek/git/coding-dojo/unit-testing`, Spring Boot 3.1.4, 학습용 저장소라
+코드·커밋 변경 없이 분석만)로 전환해 나머지 2종을 실행시켰다.
+
+검증 항목과 결과:
+- **CRAP 점검**: `hardening-gate.md`가 제안하는 정확한 형태(`{changed-files}` 명시적 목록,
+  `--changed` 아님)로 3개 파일(`PriceService`·`ExcelExporter`·`BigService`)을 실제 실행.
+  유의미한 실제 점수 산출 확인 — `exportExcel` CC 4/coverage 0%/**CRAP 20.0**(임계 8.0 초과,
+  테스트 없음 직접 확인), `doComputePrices` CC 6/coverage 100%/**CRAP 6.0**(양호). 동일 명령
+  재실행으로 수치 완전 일치 확인. N/A는 극소 메서드 1건뿐, 정직하게 표시됨.
+- **mutation 하드닝**: 테스트 없는 파일(`ExcelExporter`, CRAP 최고)로 먼저 시도 → 12개 사이트
+  전부 UNCOVERED(정직한 결과지만 탐지력 증명은 못 함). 테스트 있는 파일(`PriceService`)로
+  재시도 → 커버된 5개 뮤턴트 전부 KILLED(`&&`↔`||`, null 대입, `!contains`↔`contains` 등) —
+  도구가 실제 결함을 잡아낸다는 것을 증명(생존 뮤턴트였다면 커버리지는 있어도 assertion이
+  약하다는 뜻이었을 것).
+- **부수 발견**: `~/git/uncle-bob/mutate4java` 저장소가 존재하지 않는 parent POM을 참조해
+  standalone 빌드가 원래도 안 되는 구조(원본 GitHub도 동일 — crap4java·dry4java와 달리
+  모노레포 전제 설계). 검증 세션이 `<parent>` 블록을 임시로 groupId/version 직접 명시로
+  치환해 빌드 후 `git checkout`으로 원복(현재 clean, origin과 일치) — 이 계획의 범위 밖
+  이슈이며 하드닝 게이트 자체와 무관.
+
+이로써 하드닝 게이트가 제안하는 CRAP·DRY·mutation **3종 모두** 실제 명령 실행까지 검증
+완료됐다 — 앞서 "게이트가 맞는 조건에서 맞는 명령을 제안하는가"만 확인됐던 것에서,
+"그 명령들이 실전에서 진짜 결함을 잡아내는가"까지 확인됨.
