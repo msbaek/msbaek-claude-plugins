@@ -214,6 +214,10 @@ plan 문서의 `## 진행 기록` 섹션에 `Phase B 시작 커밋: {feature: �
 - **완료 보고**: 구현된 test 목록, 커밋 해시 목록(test:/feat:/refactor:), 통과 상태,
   적대적 리뷰 결과를 요약한다. 표본 정독용으로 대표 test 하나(가장 복잡했거나 후퇴가
   있었던 것)를 추천해 함께 제시한다.
+- **하드닝 제안 (실행 아님)**: 완료 보고 마지막에 `../tdd-rgb/references/hardening-gate.md`를
+  `Read`로 읽어 그 규칙대로 제안 블록을 붙인다 — CRAP·DRY(빠름, 변경 파일 한정)와
+  mutation(느림, 파일 1개)을 사용자가 복사해 실행할 수 있는 명령으로. 적용 조건
+  (Java·Maven·src/main 변경 존재) 미충족 시 생략 사실만 한 줄 보고. **자동 실행 금지.**
 - **WIP=1 안내**: plan에 다른 feature가 남아 있으면 — "feature {F} 완료. 남은 feature: {목록}. 이어서 진행하려면 `/tdd-feature {plan경로}`로 다시 호출하거나, 다른 세션에서 진행하세요." (자동으로 다음 feature를 시작하지 않는다.)
 
 ## FAILURE CONDITIONS
@@ -226,6 +230,7 @@ plan 문서의 `## 진행 기록` 섹션에 `Phase B 시작 커밋: {feature: �
 | 자율 구현(Phase B) 중 매 단계 피드백 요청 | `/tdd-rgb`와 혼동 — Phase B는 feature 끝까지 자율 |
 | 폭발 반경 점검 없이 Phase B 진입 | high 기어 안전장치 누락(Hard Rule 2a) — 점검 후 재진입, 해당 영역이면 `/tdd-rgb --gear=low\|mid` 권고 |
 | 시작 커밋 해시 미기록 | 적대적 리뷰의 diff 기준점 없음 — Phase B 진입 시점 커밋을 찾아 진행 기록에 보강 |
+| 하드닝 도구를 자동 실행함 | 제안만 모드 위반 — 실행을 중단하고 제안 블록으로 되돌린다 |
 | 적대적 리뷰 없이 완료 보고 | Definition of Done 미달 — 리뷰 실행 후 결과를 포함해 재보고 |
 | 진행 기록 체크박스와 실제 테스트 불일치 | 드리프트 — 완료 처리의 대조로 바로잡고, 이후 Red 커밋에 문서 갱신을 동봉 |
 | low·mid 검토 밀도를 요구받고도 이 스킬로 진행 | 기어 불일치 — `/tdd-rgb --gear=low\|mid`로 전환 안내 |
