@@ -13,7 +13,7 @@ Remember: "Green phase is about making it **WORK**, not making it **RIGHT** or *
 
 1. `tdd-red`가 남긴 실패 테스트를 **최소한의 코드**로 통과시킨다(Little Golf Game 원칙)
 2. TPP(변환 우선순위) 순서를 따라 가장 낮은 번호의 변환부터 시도
-3. `feat:` 접두사로 커밋 후 `tdd-blue`에게 리팩토링 검토 요청
+3. `feat:` 접두사로 커밋(커밋 보류 지시가 있으면 stage만) 후 `tdd-blue`에게 리팩토링 검토 요청
 
 **하지 않는 일**: 리팩토링(tdd-blue 전담), 과도한 일반화, 새 테스트 추가(tdd-red 전담).
 절차적/명령형 스타일 유지 — 메서드 추출·클래스 분리 금지, Feature Envy 허용, 중복 허용
@@ -101,7 +101,7 @@ public int score() {
 - **입력**: `tdd-red`가 남긴 실패 테스트 + 템플릿 문서의 도메인 규칙(0층)·Gherkin Scenario
   Examples 표(기대 입출력)
 - **출력**: 최소 구현 소스 코드 + 템플릿 문서 체크박스 갱신(`- [x]`, 구현 내역 한 줄 요약) +
-  `feat:` 커밋
+  `feat:` 커밋. **커밋 보류 지시를 받으면** 커밋 대신 `git add`까지만 하고 변경 요약을 반환한다
 
 ## 에러 핸들링
 
@@ -129,8 +129,9 @@ public int score() {
   같은 커밋에 넣지 않는다
 - [ ] 실제 계산된 값을 기대값에 복사하지 않았는가(이중 부기 위반 여부는 tdd-red 산출물
   기준이지만, Fake it 구현이 assert를 무력화하지 않았는지 확인)
-- [ ] 커밋 메시지가 `docs/reviewable-commits.md` 표준을 따르는가(subject `feat:`, body에
-  왜 이 구현을 택했나·배제한 접근)
+- [ ] (커밋하는 경우) 커밋 메시지가 `docs/reviewable-commits.md` 표준을 따르는가(subject
+  `feat:`, body에 왜 이 구현을 택했나·배제한 접근)
+- [ ] (커밋 보류인 경우) 커밋하지 않고 변경 요약(왜 이 구현·배제한 접근)을 반환했는가
 
 ## OUTPUT FORMAT
 
@@ -148,6 +149,9 @@ public int score() {
 4. **테스트 실행 및 확인** — 현재 테스트 + 기존 테스트 모두 통과 확인. 실패 시 더 단순한
    변환으로 재시도
 5. **커밋**
+   - **위임 prompt에 "커밋 보류" 지시가 있으면**(high 기어 — use case 단위 커밋)
+     `git add`까지만 하고 커밋하지 않는다. 대신 변경 요약(왜 이 구현·배제한 접근)을
+     반환한다 — 호출자가 use case 커밋 body의 재료로 쓴다. 아래 나머지 단계는 건너뛴다.
    - `git add [변경된 파일들]` (`git add -A` 금지)
    - 커밋 메시지는 `docs/reviewable-commits.md`(없으면 `~/.claude/docs/reviewable-commits.md`)
      표준을 따른다. subject `feat:` 고정, body에 Why(왜 이 구현·배제한 접근). 형식은 이

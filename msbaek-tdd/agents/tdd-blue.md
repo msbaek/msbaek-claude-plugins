@@ -13,7 +13,7 @@ Remember: "Blue phase is about making code **EASIER TO CHANGE**, not making it p
 
 1. RGB 모드: 직전 Green이 통과시킨 코드에 Local Tidying Process 적용
 2. Standalone 모드(`tdd-tidy`에서 호출): 전달받은 파일 목록에 동일 절차 적용, TDD 문서 참조 없이 종료
-3. 코드 냄새 식별 → 절차대로 순서 적용 → 테스트로 안전성 확인 → `refactor:` 커밋
+3. 코드 냄새 식별 → 절차대로 순서 적용 → 테스트로 안전성 확인 → `refactor:` 커밋(커밋 보류 지시가 있으면 stage만)
 
 **하지 않는 일**: 새 기능 구현(Green 전담), 다른 클래스로의 Extract Method·Domain Logic 이동
 (`system-wide-refactoring` 전담), 대규모 리팩토링(작은 단계로 나눈다).
@@ -54,7 +54,8 @@ Remember: "Blue phase is about making code **EASIER TO CHANGE**, not making it p
 - **입력(RGB 모드)**: 프로젝트 템플릿 문서 경로 — 구현 내역·완료된 테스트 케이스로 리팩토링
   기회를 파악
 - **입력(Standalone 모드)**: 대상 파일 목록 + `standalone` 키워드 — TDD 문서 참조 생략
-- **출력**: 정리된 소스 파일 + (변경이 있으면) `refactor:` 커밋. RGB 모드는 템플릿 문서에
+- **출력**: 정리된 소스 파일 + (변경이 있으면) `refactor:` 커밋. **커밋 보류 지시를 받으면**
+  커밋 대신 `git add`까지만 하고 변경 요약을 반환한다. RGB 모드는 템플릿 문서에
   구조 개선 사항 1줄 기록도 포함
 
 ## 협업
@@ -78,9 +79,11 @@ Remember: "Blue phase is about making code **EASIER TO CHANGE**, not making it p
 - [ ] 모든 기존 테스트가 통과하는가 (동작 변경 없음)
 - [ ] 각 tidying 단계가 별도로 적용되었는가 (한 번에 여러 단계를 섞지 않았는가)
 - [ ] One Pile을 적용했다면 별도 커밋(`refactor: one-pile [대상]`)으로 분리했는가
+  (커밋 보류 모드에서는 분리할 커밋이 없으므로, 변경 요약에 One Pile 적용 사실을 명시한다)
 - [ ] 다른 클래스로의 Extract Method·Domain Logic 이동을 하지 않았는가
-- [ ] 커밋 메시지가 `docs/reviewable-commits.md` 표준을 따르는가 (subject `refactor:`,
-  body에 무엇을·왜 개선했는지)
+- [ ] (커밋하는 경우) 커밋 메시지가 `docs/reviewable-commits.md` 표준을 따르는가 (subject
+  `refactor:`, body에 무엇을·왜 개선했는지)
+- [ ] (커밋 보류인 경우) 커밋하지 않고 변경 요약(tidying이 무엇을 드러냈는지)을 반환했는가
 
 ## OUTPUT FORMAT
 
@@ -97,6 +100,9 @@ Remember: "Blue phase is about making code **EASIER TO CHANGE**, not making it p
    한 번에 하나씩, 매 단계 테스트 실행
 3. **테스트 실행 및 검증** — 실패 시 해당 단계만 되돌리기
 4. **커밋** (변경이 있는 경우만)
+   - **위임 prompt에 "커밋 보류" 지시가 있으면**(high 기어 — use case 단위 커밋)
+     `git add`까지만 하고 커밋하지 않는다. 대신 변경 요약(tidying이 무엇을 드러냈는지)을
+     반환한다 — 호출자가 use case 커밋 body의 재료로 쓴다. 아래 나머지 단계는 건너뛴다.
    - `git status`로 변경 확인, `git add [변경된 파일들]` (`git add -A` 금지)
    - 커밋 메시지는 `docs/reviewable-commits.md`(없으면 `~/.claude/docs/reviewable-commits.md`)
      표준을 따른다. subject는 `refactor:` 접두사, body에 무엇을·왜 정리했는지. 형식은 이

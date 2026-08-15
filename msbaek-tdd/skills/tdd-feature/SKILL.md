@@ -1,6 +1,6 @@
 ---
 name: tdd-feature
-description: 간결한 plan을 사용자와 합의한 뒤, feature(use case) 하나를 RGB(Red→Green→Blue) 사이클로 끝까지 자율 구현하는 오케스트레이터. 문제 정의·기능 분해·완료조건(programmer test) 합의까지는 사용자와 피드백을 주고받고(인터랙티브), 합의 후 구현은 그 feature의 모든 test에 대해 R/G/B를 각각 별도 커밋(reviewable-commits Why-body 포함)으로 분리하여 피드백 없이 끝까지 진행한다(자율). superpowers의 장황한 spec/plan 대신 개발에 맞는 간결 포맷을 쓴다. "기능을 TDD로 끝까지 구현", "plan 합의하고 자율 구현", "feature 단위 RGB", "use case TDD로 짜줘", "/tdd-feature" 요청 시 반드시 사용. 후속 "이어서", "다음 feature", "재개", "다시 진행"도 처리. 단, 단일 test의 step-wise(매 단계 피드백) RGB는 /tdd-rgb, plan 문서만 작성하고 끝낼 때는 /tdd-plan이 적합.
+description: 간결한 plan을 사용자와 합의한 뒤, feature(use case) 하나를 RGB(Red→Green→Blue) 사이클로 끝까지 자율 구현하는 오케스트레이터. 문제 정의·기능 분해·완료조건(programmer test) 합의까지는 사용자와 피드백을 주고받고(인터랙티브), 합의 후 구현은 그 feature의 모든 test에 대해 R→G→B를 피드백 없이 끝까지 진행하고, feature(use case) 전체를 하나의 커밋(reviewable-commits Why-body 포함)으로 남긴다(자율). superpowers의 장황한 spec/plan 대신 개발에 맞는 간결 포맷을 쓴다. "기능을 TDD로 끝까지 구현", "plan 합의하고 자율 구현", "feature 단위 RGB", "use case TDD로 짜줘", "/tdd-feature" 요청 시 반드시 사용. 후속 "이어서", "다음 feature", "재개", "다시 진행"도 처리. 단, 단일 test의 step-wise(매 단계 피드백) RGB는 /tdd-rgb, plan 문서만 작성하고 끝낼 때는 /tdd-plan이 적합.
 argument-hint: "[feature/use case 설명 또는 plan-doc-path]"
 ---
 
@@ -10,10 +10,10 @@ argument-hint: "[feature/use case 설명 또는 plan-doc-path]"
 
 ## GOAL
 
-- **성공 = 하나의 feature가 ① 간결 plan 합의 ② 모든 programmer test가 RGB로 구현·통과 ③ R/G/B 각 단계가 reviewable-commits 표준(Why-body)으로 분리 커밋됨**
+- **성공 = 하나의 feature가 ① 간결 plan 합의 ② 모든 programmer test가 RGB로 구현·통과 ③ feature(use case) 전체가 reviewable-commits 표준(Why-body)을 갖춘 커밋 하나로 남음**
 - **Phase A (인터랙티브)**: 문제·기능 분해·완료조건을 사용자와 합의
 - **Phase B (자율)**: 합의된 **단일 feature**를 피드백 없이 끝까지 구현
-- 향후 리뷰어가 커밋 메시지만으로 각 변경의 의도(Why)·맥락을 재구성할 수 있음
+- 향후 리뷰어가 커밋 메시지만으로 그 feature에서 내린 결정의 의도(Why)·맥락을 재구성할 수 있음
 
 ## CONSTRAINTS
 
@@ -49,15 +49,17 @@ high 기어**이기 때문이다. 따라서 tdd-rgb의 high 기어 안전장치�
 **low·mid 기어가 필요하면 이 스킬이 아니라 `/tdd-rgb --gear=low|mid`를 쓴다** — 낯선
 도메인, 학습 목적, 설계 확신 부족은 자율 구현의 전제(작동하는 이론 보유)를 만족하지 않는다.
 
-#### 3. RGB 분리 커밋
+#### 3. use case 단위 커밋 (high 기어의 커밋 단위)
 
-- 각 test마다 `test:`(Red) / `feat:`(Green) / `refactor:`(Blue)를 **각각 별도 커밋**으로 분리한다. (Blue는 변경이 있을 때만.)
-- squash로 합치지 않는다 — 한 커밋 = 하나의 결정 + 그 검증. 합치면 Why가 뭉개진다.
+- **feature(use case) 하나 = 커밋 하나.** 그 feature의 모든 test에 대한 R/G/B 변경을 한 커밋에 담는다.
+- 따라서 **R/G/B 에이전트는 커밋하지 않는다** — `git add`까지만 수행하고(커밋 보류), 마지막 test가 Blue까지 끝난 뒤 이 오케스트레이터가 한 번 커밋한다.
+- **use case 경계를 넘겨 합치지 않는다** — 두 feature를 한 커밋에 담으면 "동작하는 기능 하나"라는 원자성이 깨진다. Hard Rule 1(WIP=1)이 이 경계를 자동으로 보장한다.
+- **잃는 것을 알고 쓴다**: test 단위 revert가 불가능해지고 되돌림 단위가 feature로 커진다. high 기어는 확신이 높을 때 쓰는 기어이므로 이를 감수한다. 확신이 부족하면 `/tdd-rgb --gear=low|mid`로 간다 (정본: `../tdd-rgb/SKILL.md`의 "진행 표기 규칙").
 
 #### 4. Reviewable 커밋 (mental model을 박제하라)
 
 - 모든 커밋은 **`docs/reviewable-commits.md`(없으면 `~/.claude/docs/reviewable-commits.md`) 표준**을 단일 출처로 따른다. subject·body 형식의 유일한 정의처가 이 표준이며, 이 스킬·에이전트는 형식을 **재기술하지 않고 경로로 참조만** 한다 — 규칙이 바뀌면 이 표준 파일 1곳만 고치면 모든 소비자에 반영된다(드리프트 방지). (배포 시 표준 전문은 README의 "커밋 표준" 섹션 참조.)
-- RGB 고유사항만 여기 명시: subject의 type 접두사는 단계별로 `test:`/`feat:`/`refactor:`로 고정한다.
+- 이 스킬 고유사항만 여기 명시: 커밋이 하나이므로 subject의 type 접두사는 `feat:`(순수 리팩터링 feature면 `refactor:`)이고, 무엇을 했는지가 아니라 **어떤 use case가 동작하게 됐는지**를 적는다.
 - ADR성 결정(되돌리기 어려운 설계 선택)도 **커밋 본문에 내장**한다 (별도 ADR 문서를 만들지 않는다).
 
 #### 5. TDD 핵심 규칙 (tdd-rgb 계승)
@@ -70,7 +72,8 @@ high 기어**이기 때문이다. 따라서 tdd-rgb의 high 기어 안전장치�
 #### 6. 기존 에이전트 재사용
 
 - `tdd-red`/`tdd-green`/`tdd-blue` 에이전트(모델 `sonnet`)를 Agent 도구로 위임한다. **새 에이전트를 만들지 않는다.**
-- 커밋 표준은 에이전트도 위임 prompt도 **소유하지 않는다** — 양쪽 모두 `reviewable-commits.md`를 경로로 참조(cite)할 뿐이다. 에이전트 정의의 commit 단계가 이미 이 표준을 가리키므로, 위임 prompt는 형식을 다시 적지 않고 단계(R/G/B)와 자율 지시만 전달한다(아래 OUTPUT FORMAT 참조).
+- 커밋 표준은 에이전트도 위임 prompt도 **소유하지 않는다** — 양쪽 모두 `reviewable-commits.md`를 경로로 참조(cite)할 뿐이다. 위임 prompt는 형식을 다시 적지 않고 단계(R/G/B)·자율 지시·**커밋 보류 지시**만 전달한다(아래 OUTPUT FORMAT 참조).
+- 커밋은 에이전트가 아니라 이 오케스트레이터가 수행하므로, 각 에이전트가 반환한 변경 요약을 모아 두었다가 use case 커밋의 body 재료로 쓴다.
 
 ### Principles
 
@@ -162,11 +165,14 @@ plan 문서의 `## 진행 기록` 섹션에 `Phase B 시작 커밋: {feature: �
 
 #### 각 test의 RGB
 
-1. **Red** — `tdd-red` 에이전트에 위임. 실패하는 테스트만 작성, `test:` 커밋.
-2. **Green** — `tdd-green` 에이전트에 위임. 최소 구현으로 통과, `feat:` 커밋.
-3. **Blue** — `tdd-blue` 에이전트에 위임. Local Tidying Process, 변경 있으면 `refactor:` 커밋.
+1. **Red** — `tdd-red` 에이전트에 위임. 실패하는 테스트만 작성, **커밋 보류**(`git add`까지).
+2. **Green** — `tdd-green` 에이전트에 위임. 최소 구현으로 통과, **커밋 보류**.
+3. **Blue** — `tdd-blue` 에이전트에 위임. Local Tidying Process, **커밋 보류**.
 4. test 체크박스 `- [ ]` → `- [x]`, 작업 내역을 plan 문서에 1~3줄 기록(코드 제외).
-5. **다음 test로 이동** (피드백 요청 없이).
+5. 각 에이전트가 반환한 변경 요약(무엇을 왜 그렇게 했는가)을 보관한다 — use case 커밋 body의 재료.
+6. **다음 test로 이동** (피드백 요청 없이, 커밋 없이).
+
+**커밋은 feature의 마지막 test가 끝난 뒤 한 번**이다 — 아래 "Feature 완료 처리" 참조.
 
 > **Getting Stuck 후퇴 수신**: Green 단계에서 tdd-green이 "Getting Stuck 복구 경로"
 > 1단계(simpler test로 후퇴)를 보고하면, 오케스트레이터가 원 테스트를 `@Disabled`
@@ -175,43 +181,54 @@ plan 문서의 `## 진행 기록` 섹션에 `Phase B 시작 커밋: {feature: �
 
 #### 에이전트 위임 prompt 템플릿
 
-각 에이전트 호출 시 Agent 도구의 `subagent_type`에 `tdd-red`/`tdd-green`/`tdd-blue`를 지정하고, prompt에 **대상 test + 자율 지시**만 전달한다. 커밋 형식은 에이전트 정의의 commit 단계가 `reviewable-commits.md`를 참조해 처리하므로, prompt에 형식을 다시 적지 않는다(단일 출처 유지):
+각 에이전트 호출 시 Agent 도구의 `subagent_type`에 `tdd-red`/`tdd-green`/`tdd-blue`를 지정하고, prompt에 **대상 test + 자율 지시 + 커밋 보류 지시**만 전달한다:
 
 ```
-[자율 모드 / feature: {F이름} / test: "{test 설명}"]
+[자율 모드 / 커밋 보류 / feature: {F이름} / test: "{test 설명}"]
 
 {Red|Green|Blue} 단계를 수행하세요.
 
-- 커밋은 에이전트 정의의 commit 단계 규칙(= `reviewable-commits.md` 표준, type 접두사 {test:|feat:|refactor:})을 그대로 따르세요.
-- 이 단계는 자율 실행입니다. 작업 후 커밋까지 완료하고, 사용자 피드백을 기다리지 마세요.
+- **커밋 보류**: `git add`까지만 하고 커밋하지 마세요. 이 feature는 use case 단위로
+  한 번 커밋되며, 커밋은 오케스트레이터가 수행합니다.
+- 대신 변경 요약을 반환하세요 — 무엇을 바꿨는지, **왜 그렇게 했는지(버린 대안 포함)**.
+  이 요약이 use case 커밋 body의 재료가 됩니다.
+- 이 단계는 자율 실행입니다. 작업 후 사용자 피드백을 기다리지 마세요.
 ```
 
-#### RGB별 Why의 초점 (커밋 body에 담을 것)
+#### use case 커밋 body에 담을 Why (RGB별 초점)
 
-| 단계 | 커밋 | Why의 초점 |
-|------|------|-----------|
-| Red | `test:` | 이 동작(인수조건)이 왜 중요한가 |
-| Green | `feat:` | 왜 이 구현을 택했나 (다른 접근을 배제한 이유) |
-| Blue | `refactor:` | 무엇을·왜 개선했나 (이 구조가 의도를 더 잘 드러내는 이유) |
+커밋이 하나이므로 Why도 한 body에 모인다. **테스트별로 나열하지 말고 결정별로** 적되,
+각 단계가 드러낸 것을 빠뜨리지 않는다:
 
-**진행 기록 표기**: 커밋할 때마다 **그 커밋에 관련된 모든 항목을 함께 표기**해 같은
-커밋에 담는다(`tdd-rgb`의 "진행 표기 규칙"). 자율 진행은 중간 검토가 없어, 표기를
-나중으로 미루면 어긋난 상태가 여러 커밋에 걸쳐 누적된다.
+| 단계가 드러낸 것 | body에 담을 Why |
+|------|-----------|
+| Red | 이 동작(인수조건)들이 왜 중요한가, 왜 이 순서로 골랐나 |
+| Green | 왜 이 구현을 택했나 (다른 접근을 배제한 이유) |
+| Blue | tidying이 무엇을 드러냈나 (이 구조가 의도를 더 잘 드러내는 이유) |
+
+**진행 기록 표기**: use case 커밋에 **그 feature의 모든 체크박스·작업 내역을 함께 담는다**
+(`tdd-rgb`의 "진행 표기 규칙"). 표기 자체는 각 test가 끝날 때마다 문서에 반영하되,
+커밋 시점이 하나이므로 결과적으로 한 커밋에 모인다.
 
 #### Feature 완료 처리
 
 - feature의 모든 test가 `- [x]`이고 전체 테스트가 통과하면 구현 완료.
-  **체크박스만으로 판정하지 않는다** — 표기는 커밋과 동기화되므로(`tdd-rgb`의
-  "진행 표기 규칙"), 커밋 단위가 작으면 아직 green이 아닌 test도 표기될 수 있다.
-  전체 스위트 green과 마지막 test의 Blue 커밋 존재를 함께 확인한다.
+  **체크박스만으로 판정하지 않는다** — 전체 스위트 green을 함께 확인한다.
 - **진행 기록 대조**: 체크된 항목과 실제 테스트 코드를 맞춰 본다. 체크 안 된 항목을
   덮는 테스트가 이미 있거나, 체크됐는데 대응 테스트가 없으면 그 자리에서 바로잡는다
   (자율 진행은 중간 검토가 없어 드리프트가 누적된다).
+- **use case 커밋 (여기서 처음이자 유일하게 커밋한다)**:
+  1. 전체 스위트 green 확인 — 실패가 있으면 커밋하지 않고 원인부터 해결한다
+  2. `git status`로 stage 누락분 확인 후 `git add`
+  3. 한 번 커밋. subject `feat(<범위>): <use case 이름>`(순수 리팩터링이면 `refactor:`),
+     body는 `reviewable-commits.md` 표준 + 위 "RGB별 초점"으로 모은 결정들
+  4. 한글 메시지는 임시 파일 + `git commit -F` (`-m "한글"` 금지 — 깨짐)
 - **적대적 리뷰 (필수)**: 완료 보고 **전에** 실행한다 — 시작 커밋 해시부터 HEAD까지의
   diff를 대상으로, `../tdd-rgb/references/adversarial-review.md`(리뷰어 선택·내장
   프롬프트·심각도 처리)를 `Read`로 읽어 그대로 따른다. green 스위트 + 적대적 리뷰
-  통과가 Definition of Done.
-- **완료 보고**: 구현된 test 목록, 커밋 해시 목록(test:/feat:/refactor:), 통과 상태,
+  통과가 Definition of Done. 리뷰에서 수정이 발생하면 use case 커밋에 `--amend`로
+  합친다 — feature 하나가 커밋 하나라는 경계를 유지하기 위해서다.
+- **완료 보고**: 구현된 test 목록, use case 커밋 해시, 통과 상태,
   적대적 리뷰 결과를 요약한다. 표본 정독용으로 대표 test 하나(가장 복잡했거나 후퇴가
   있었던 것)를 추천해 함께 제시한다.
 - **하드닝 제안 (실행 아님)**: 완료 보고 마지막에 `../tdd-rgb/references/hardening-gate.md`를
@@ -233,7 +250,9 @@ plan 문서의 `## 진행 기록` 섹션에 `Phase B 시작 커밋: {feature: �
 | 시작 커밋 해시 미기록 | 적대적 리뷰의 diff 기준점 없음 — Phase B 진입 시점 커밋을 찾아 진행 기록에 보강 |
 | 하드닝 도구를 자동 실행함 | 제안만 모드 위반 — 실행을 중단하고 제안 블록으로 되돌린다 |
 | 적대적 리뷰 없이 완료 보고 | Definition of Done 미달 — 리뷰 실행 후 결과를 포함해 재보고 |
-| 진행 기록 체크박스와 실제 테스트 불일치 | 드리프트 — 완료 처리의 대조로 바로잡고, 이후 Red 커밋에 문서 갱신을 동봉 |
+| 진행 기록 체크박스와 실제 테스트 불일치 | 드리프트 — 완료 처리의 대조로 바로잡고, use case 커밋에 문서 갱신을 함께 담는다 |
+| 에이전트가 R/G/B마다 커밋해버림 | 커밋 보류 지시 누락(Hard Rule 3) — `git reset --soft`로 use case 시작점까지 되돌려 한 커밋으로 다시 만든다 |
+| feature 2개가 한 커밋에 담김 | use case 경계 위반 — WIP=1을 지키지 않은 결과. 커밋을 분리한다 |
 | low·mid 검토 밀도를 요구받고도 이 스킬로 진행 | 기어 불일치 — `/tdd-rgb --gear=low\|mid`로 전환 안내 |
 | 추가 시점에 실패하지 않는 test | TDD 위반 — 모델 코드 수정이 필요한 failing test만 추가 |
 | 요구사항 이해 불확실 | 추측 말고 "제가 이해한 것이 맞는지 확인해주세요"로 질문 (Phase A 한정) |
