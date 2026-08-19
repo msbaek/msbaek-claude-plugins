@@ -168,9 +168,9 @@ Blue (Composed Method 지향 Local Tidying)
 |------|-----------|-----------|-----------|
 | `low` (기본) | Red 후 · Green 후 · Blue 후 | R/G/B 각각 별도 커밋 | 확신 없음, 낯선 도메인, 학습 목적 |
 | `mid` | 테스트 1개의 R→G→B 완료 후 1회 | 테스트 1개의 RGB가 한 커밋 | 유사 문제 경험, 이론을 빠르게 확보할 것으로 기대 |
-| `high` | 전체 목록 완료 + 적대적 리뷰 통과 후 1회 | **use case(User Story) 1개가 한 커밋** | 이론이 상용구(boilerplate) 수준 |
+| `high` | 전체 목록 완료 + 적대적 리뷰 통과 후 1회 | **use case를 3-phase로 나눠 커밋: 전체 Red→`test:`, 전체 Green→`feat:`, 전체 Blue→`refactor:`** | 이론이 상용구(boilerplate) 수준 |
 
-- `high`에서는 R/G/B 에이전트가 커밋하지 않고 `git add`까지만 수행하며, use case가 green이 된 뒤 오케스트레이터가 한 번 커밋합니다. 되돌림 단위가 use case로 커지는 대신 커밋 하나가 "동작하는 기능 하나"가 됩니다
+- `high`에서는 R/G/B 에이전트가 커밋하지 않고 `git add`까지만 수행합니다. 테스트 단위가 아니라 phase 단위로 use case 전체를 관통합니다 — 모든 test의 Red를 다 마친 뒤 커밋(`test:`), 모든 test의 Green을 채운 뒤 커밋(`feat:`), 마지막에 Blue를 한 번 적용한 뒤 커밋(`refactor:`, tidying 불필요 시 생략). 테스트 단위 되돌림은 여전히 불가능하지만 phase 단위(구현만, 또는 tidying만) 되돌림은 가능해졌습니다
 
 - 사이클 사이에 신호(설계 안정·지루함 ↔ revert·불투명)를 점검해 기어 전환을 **제안**합니다 — 결정은 항상 사용자
 - 인증·결제 등 폭발 반경(blast radius)이 큰 영역에서는 한 단 낮은 기어를 권장합니다
@@ -196,7 +196,7 @@ Blue (Composed Method 지향 Local Tidying)
 ```
 
 - **Phase A (인터랙티브)**: 문제 정의 → 기능 분해 → 완료 조건(programmer test) 합의
-- **Phase B (자율)**: 합의 후 그 feature의 모든 test에 대해 R→G→B를 피드백 없이 끝까지 진행하고, feature(use case) 전체를 reviewable-commits 표준(Why-body)을 갖춘 **커밋 하나**로 남김
+- **Phase B (자율)**: 합의 후 그 feature의 모든 test에 대해 전체 Red→전체 Green→전체 Blue 3-phase로 피드백 없이 끝까지 진행하고, feature(use case) 전체를 reviewable-commits 표준(Why-body)을 갖춘 **phase별 커밋(최대 3개: `test:`/`feat:`/`refactor:`)**으로 남김
 - **WIP = 1**: 한 번에 하나의 feature만. 남은 feature는 이어서 호출하거나 다른 세션에서.
 
 > `/tdd-rgb`는 기어가 정한 검토 지점에서 피드백을 받지만, `/tdd-feature`는 plan 합의 후 feature를 끝까지 자율 진행합니다.
