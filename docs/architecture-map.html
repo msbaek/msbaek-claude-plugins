@@ -155,13 +155,13 @@
 
 <header>
   <h1>msbaek-tdd 아키텍처 지도</h1>
-  <p class="subtitle">스킬 27개 · 에이전트 9개 · 정본 references 15개 — 마우스를 올리면 요약이, 클릭하면 오른쪽에 상세가 뜹니다.</p>
+  <p class="subtitle">스킬 27개(오케스트레이터 4개: ⚙️ /tdd·/tdd-plan·/tdd-rgb·/tdd-feature) · 에이전트 9개 · 정본 references 15개 — 마우스를 올리면 요약이, 클릭하면 오른쪽에 상세가 뜹니다.</p>
   <div class="legend">
     <span><i class="swatch" style="background:var(--tag-plan)"></i>Plan 단계</span>
     <span><i class="swatch" style="background:var(--tag-exec)"></i>Execution(RGB/Acceptance)</span>
     <span><i class="swatch" style="background:var(--tag-ref)"></i>정본 references</span>
     <span><i class="swatch" style="background:var(--tag-refactor)"></i>리팩토링 툴킷</span>
-    <span>▭ 스킬(실선) · 🤖⬭ 에이전트(점선 알약)</span>
+    <span>▭ 스킬(실선) · 🤖⬭ 에이전트(점선 알약) · ⚙️ 오케스트레이터(여러 agent 순차 위임)</span>
   </div>
   <div class="tabs">
     <button class="tab-btn active" data-tab="lifecycle">① 라이프사이클 흐름</button>
@@ -178,13 +178,13 @@ flowchart TB
   subgraph ENTRY["진입점"]
     direction LR
     tddplaninput["/tdd-plan-input<br/>요구사항 원천 문서 작성<br/>(선택)"]
-    tdd["/tdd &lt;type&gt; &lt;FQCN&gt;<br/>프로젝트/템플릿 생성"]
+    tdd["⚙️ /tdd &lt;type&gt; &lt;FQCN&gt;<br/>프로젝트/템플릿 생성"]
     tddlegacy["/tdd-legacy<br/>레거시 안전망 구축<br/>(별도 진입점)"]
   end
 
   subgraph PLANPHASE["Plan Phase — /tdd-plan"]
     direction LR
-    tddplan["/tdd-plan<br/>도메인규칙·Story·Gherkin·테스트목록"]
+    tddplan["⚙️ /tdd-plan<br/>도메인규칙·Story·Gherkin·테스트목록"]
     agdomain(["🤖 tdd-domain-modeler(opus)<br/>0층 도메인 규칙"])
     agexample(["🤖 tdd-example-designer(opus)<br/>Gherkin 핵심 예시"])
     agtestlist(["🤖 tdd-test-list(sonnet)<br/>unit test 목록"])
@@ -200,8 +200,8 @@ flowchart TB
 
   subgraph RGBEXEC["RGB 실행 — /tdd-rgb 또는 /tdd-feature"]
     direction LR
-    tddrgb["/tdd-rgb<br/>step-wise, 매 단계 피드백"]
-    tddfeature["/tdd-feature<br/>feature 단위 자율 실행"]
+    tddrgb["⚙️ /tdd-rgb<br/>step-wise, 매 단계 피드백"]
+    tddfeature["⚙️ /tdd-feature<br/>feature 단위 자율 실행"]
     agred(["🤖 tdd-red(sonnet)"])
     aggreen(["🤖 tdd-green(sonnet)"])
     agblue(["🤖 tdd-blue(sonnet)"])
@@ -213,9 +213,9 @@ flowchart TB
   tddplaninput -.참조로 전달.-> tddplan
   tdd --> tddplan
   tddplan --> agdomain --> agexample --> agtestlist --> agcritic
-  tddplan -- "Web App 유형" --> cucumber
+  tddplan -- "E-1(web-app 유형)" --> cucumber
   cucumber --> agaccept
-  tddplan -- "Web App E-2" --> agskeleton
+  tddplan -- "E-2(web-app 유형)" --> agskeleton
   tddplan --> tddrgb
   tddplan --> tddfeature
   tddrgb --> agred --> aggreen --> agblue
@@ -511,7 +511,7 @@ graph LR
     tdd: {
       kind: "스킬", tag: "plan",
       title: "/tdd",
-      desc: "TDD 오케스트레이터 — 프로젝트/템플릿 문서 생성 및 워크플로우 안내.",
+      desc: "⚙️ 오케스트레이터(명칭에 명시) — 프로젝트/템플릿 문서 생성 및 워크플로우 안내.",
       invoke: "/tdd <java|web-app> <FQCN>",
       delegates: [], refs: ["tdd-rgb/references/gears.md"]
     },
@@ -525,7 +525,7 @@ graph LR
     tddplan: {
       kind: "스킬", tag: "plan",
       title: "/tdd-plan",
-      desc: "도메인 규칙(0층) + User Story + Gherkin Scenario + unit test 목록 작성. 복잡도가 흐름·상태에 있으면 조건부 Use Case 추가.",
+      desc: "⚙️ 오케스트레이터(명칭엔 없으나 기능상) — 도메인 규칙(0층) + User Story + Gherkin Scenario + unit test 목록 작성. 복잡도가 흐름·상태에 있으면 조건부 Use Case 추가. tdd-domain-modeler→tdd-example-designer→tdd-test-list→tdd-plan-critic을 승인 게이트와 함께 순차 위임한다.",
       invoke: "/tdd-plan <템플릿 문서 경로>",
       delegates: ["tdd-domain-modeler", "tdd-example-designer", "tdd-test-list", "tdd-plan-critic", "tdd-acceptance-builder(Web App)", "tdd-skeleton-builder(Web App)"],
       refs: ["tdd-rgb/references/test-design-principles.md"]
@@ -584,14 +584,14 @@ graph LR
     tddrgb: {
       kind: "스킬", tag: "exec",
       title: "/tdd-rgb",
-      desc: "TDD RGB 사이클 진행 — Red/Green/Blue agent를 순차 위임하며 매 단계 사용자 피드백을 받는다(step-wise).",
+      desc: "⚙️ 오케스트레이터(명칭엔 없으나 기능상) — TDD RGB 사이클 진행. Red/Green/Blue agent를 순차 위임하며 매 단계 사용자 피드백을 받는다(step-wise).",
       invoke: "/tdd-rgb",
       delegates: ["tdd-red", "tdd-green", "tdd-blue"], refs: []
     },
     tddfeature: {
       kind: "스킬", tag: "exec",
       title: "/tdd-feature",
-      desc: "간결한 plan 합의 후, feature 하나를 RGB 사이클로 끝까지 자율 구현. Plan(인터랙티브) → 구현(자율, R/G/B 각각 별도 커밋).",
+      desc: "⚙️ 오케스트레이터(명칭에 명시) — 간결한 plan 합의 후, feature 하나를 RGB 사이클로 끝까지 자율 구현. Plan(인터랙티브) → 구현(자율, R/G/B 각각 별도 커밋).",
       invoke: "/tdd-feature",
       delegates: ["tdd-red", "tdd-green", "tdd-blue"],
       refs: ["tdd-rgb/references/adversarial-review.md", "tdd-rgb/references/hardening-gate.md"]
