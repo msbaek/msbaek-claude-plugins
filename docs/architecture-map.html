@@ -168,7 +168,7 @@
     <span><i class="swatch" style="background:var(--tag-exec)"></i>Execution(RGB/Acceptance)</span>
     <span><i class="swatch" style="background:var(--tag-ref)"></i>정본 references</span>
     <span><i class="swatch" style="background:var(--tag-refactor)"></i>리팩토링 툴킷</span>
-    <span>▭ 스킬(실선) · 🤖⬭ 에이전트(점선 알약) · ⚙️ 오케스트레이터(여러 agent 순차 위임)</span>
+    <span>▭ 스킬(실선) · 🤖⬭ 에이전트(점선 알약) · ⚙️ 오케스트레이터(여러 agent 순차 위임) · ▨ 점선 테두리(제안만 — 자동 실행 없음)</span>
   </div>
   <div class="tabs">
     <button class="tab-btn active" data-tab="lifecycle">① 라이프사이클 흐름</button>
@@ -214,6 +214,10 @@ flowchart TB
     agblue(["🤖 tdd-blue(sonnet)"])
   end
 
+  hard1["하드닝 ① 정리할 곳 찾기 (제안만)<br/>🤖 crap4java-analyzer · dry4java-analyzer<br/>CRAP 점수 · 중복 쌍"]
+  hard2["하드닝 ② 구조 정리<br/>/system-wide-refactoring<br/>①이 지목한 대상을 기법별 커밋으로"]
+  hard3["하드닝 ③ 테스트 강화<br/>🤖 mutate4java-runner<br/>생존 뮤턴트 제거 (②를 마친 뒤)"]
+
   tddtidy["/tdd-tidy<br/>diff 기반 독립 Tidying + 기법 제안"]
   refactortoolkit["리팩토링 툴킷 (20개 스킬)<br/>Extract Method Object, Encapsulate Collection,<br/>Replace Conditional with Poly 등"]
 
@@ -228,6 +232,10 @@ flowchart TB
   tddrgb --> agred --> aggreen --> agblue
   tddfeature --> agred
   agblue -. "배치 정리(선택)" .-> tddtidy
+  tddrgb -. "전체 완료 시 제안(기어 무관)" .-> hard1
+  tddfeature -. "feature 완료 시 제안" .-> hard1
+  hard1 --> hard2 --> hard3
+  hard2 -.-> refactortoolkit
   tddtidy -. "기법 제안(8종)" .-> refactortoolkit
   tddlegacy -. "안전망 구축 후 핸드오프" .-> refactortoolkit
 
@@ -249,18 +257,23 @@ flowchart TB
   click agblue cb_agblue
   click tddtidy cb_tddtidy
   click refactortoolkit cb_refactortoolkit
+  click hard1 cb_ref_hardening
+  click hard2 cb_ref_hardening
+  click hard3 cb_ref_hardening
 
   classDef planSkill fill:#ede9fe,stroke:#7c3aed,stroke-width:1.5px,color:#3b0764
   classDef planAgent fill:#ddd6fe,stroke:#7c3aed,stroke-width:2.5px,stroke-dasharray:4 2,color:#3b0764
   classDef execSkill fill:#d1fae5,stroke:#059669,stroke-width:1.5px,color:#064e3b
   classDef execAgent fill:#a7f3d0,stroke:#059669,stroke-width:2.5px,stroke-dasharray:4 2,color:#064e3b
   classDef refactorSkill fill:#fee2e2,stroke:#dc2626,stroke-width:1.5px,color:#7f1d1d
+  classDef hardenNode fill:#fef3c7,stroke:#d97706,stroke-width:1.5px,stroke-dasharray:5 3,color:#78350f
 
   class tddplaninput,tdd,tddlegacy,tddplan planSkill
   class agdomain,agexample,agtestlist,agcritic planAgent
   class cucumber,tddrgb,tddfeature,tddtidy execSkill
   class agaccept,agskeleton,agred,aggreen,agblue execAgent
   class refactortoolkit refactorSkill
+  class hard1,hard2,hard3 hardenNode
       </pre>
     </div>
 
