@@ -4,6 +4,13 @@
   갱신 규칙: 스킬/에이전트/references 추가·삭제 시 이 파일의 mermaid 정의와
   NODE_INFO를 함께 갱신한다. 엣지는 실제 파일 grep 스캔 결과만 반영한다(추정 금지) —
   갱신 시에도 동일 원칙: `grep -rn "<name>" skills/*/SKILL.md agents/*.md`로 재확인 후 반영.
+
+  탭 ② 노드 수 상한: dagre 레이아웃은 노드가 40개를 넘으면 급격히 느려진다(44개일 때
+  탭 전환이 45초 넘게 멈췄고, 29개로 줄이니 330ms). 엣지 없는 리프 노드(리팩토링 기법
+  스킬 등)는 개별 노드로 두지 말고 이름을 나열한 요약 노드로 접는다. 엣지를 갖는
+  노드만 개별로 세운다.
+  `flowchart TB`나 서브그래프 `direction` 지정은 쓰지 않는다 — 서브그래프 경계를 넘는
+  엣지가 많아 dagre가 멈춘다(2026-08-20 확인). 탭 ②는 `graph LR`을 유지한다.
 -->
 <html lang="ko">
 <head>
@@ -301,29 +308,11 @@ graph LR
     r_testdesign["tdd-rgb/references/test-design-principles.md"]
   end
 
-  subgraph TOOLKIT["리팩토링 툴킷 (tdd-tidy가 제안하는 8개)"]
-    t_decompose["decompose-conditional"]
-    t_replacetemp["replace-temp-with-query"]
-    t_explicit["explicit-parameters"]
-    t_naming["naming-process"]
-    t_encapsulate["encapsulate-collection"]
-    t_consolidate["consolidate-conditional"]
-    t_assertion["introduce-assertion"]
-    t_pipeline["replace-loop-with-pipeline"]
-  end
-
-  subgraph STANDALONE["독립 호출 가능 (tdd-tidy 제안 목록 밖, 12개)"]
-    st_discover["discover-value-object"]
-    st_extractmo["extract-method-object"]
-    st_firstclass["first-class-collection"]
-    st_intent["intent-revealing-names"]
-    st_ipo["introduce-parameter-object"]
-    st_special["introduce-special-case"]
-    st_lift["lift-up-conditional"]
-    st_poly["replace-conditional-with-poly"]
-    st_segregate["segregate-functional-core"]
-    st_separate["separate-query-modifier"]
+  subgraph REFACTOR["리팩토링 툴킷 (20개) — 엣지를 갖는 2개만 개별 표시"]
+    t_toolkit["tdd-tidy 제안 8종<br/><small>decompose-conditional · replace-temp-with-query ·<br/>explicit-parameters · naming-process · encapsulate-collection ·<br/>consolidate-conditional · introduce-assertion · replace-loop-with-pipeline</small>"]
     st_system["system-wide-refactoring"]
+    st_intent["intent-revealing-names"]
+    st_others["독립 호출 9종<br/><small>discover-value-object · extract-method-object · first-class-collection ·<br/>introduce-parameter-object · introduce-special-case · lift-up-conditional ·<br/>replace-conditional-with-poly · segregate-functional-core · separate-query-modifier</small>"]
   end
 
   s_tddplaninput -. "참조 전달" .-> s_tddplan
@@ -355,14 +344,7 @@ graph LR
   s_tddplan -.참조.-> r_testdesign
   s_tdd -.참조.-> r_gears
 
-  s_tddtidy -. "제안" .-> t_decompose
-  s_tddtidy -. "제안" .-> t_replacetemp
-  s_tddtidy -. "제안" .-> t_explicit
-  s_tddtidy -. "제안" .-> t_naming
-  s_tddtidy -. "제안" .-> t_encapsulate
-  s_tddtidy -. "제안" .-> t_consolidate
-  s_tddtidy -. "제안" .-> t_assertion
-  s_tddtidy -. "제안" .-> t_pipeline
+  s_tddtidy -. "제안(8종)" .-> t_toolkit
   s_tddtidy -. "전담 위임(교차 클래스)" .-> st_system
   st_intent -. "정의 인용" .-> s_tddtidy
 
@@ -391,25 +373,11 @@ graph LR
   click r_hardening cb_ref_hardening
   click r_gears cb_ref_gears
   click r_testdesign cb_ref_testdesign
-  click t_decompose cb_toolkit_generic
-  click t_replacetemp cb_toolkit_generic
-  click t_explicit cb_toolkit_generic
-  click t_naming cb_toolkit_generic
-  click t_encapsulate cb_toolkit_generic
-  click t_consolidate cb_toolkit_generic
-  click t_assertion cb_toolkit_generic
-  click t_pipeline cb_toolkit_generic
-  click st_discover cb_toolkit_generic
-  click st_extractmo cb_toolkit_generic
-  click st_firstclass cb_toolkit_generic
   click st_intent cb_toolkit_generic
-  click st_ipo cb_toolkit_generic
-  click st_special cb_toolkit_generic
-  click st_lift cb_toolkit_generic
-  click st_poly cb_toolkit_generic
-  click st_segregate cb_toolkit_generic
-  click st_separate cb_toolkit_generic
+  click t_toolkit cb_toolkit_generic
   click st_system cb_toolkit_generic
+  click st_intent cb_toolkit_generic
+  click st_others cb_toolkit_generic
 
   classDef planSkill fill:#ede9fe,stroke:#7c3aed,stroke-width:1.5px,color:#3b0764
   classDef planAgent fill:#ddd6fe,stroke:#7c3aed,stroke-width:2.5px,stroke-dasharray:4 2,color:#3b0764
@@ -423,7 +391,7 @@ graph LR
   class s_cucumber,s_tddrgb,s_tddfeature,s_tddtidy execSkill
   class a_accept,a_skeleton,a_red,a_green,a_blue execAgent
   class r_examples,r_webskel,r_webpersist,r_tidying,r_adversarial,r_hardening,r_gears,r_testdesign refNode
-  class t_decompose,t_replacetemp,t_explicit,t_naming,t_encapsulate,t_consolidate,t_assertion,t_pipeline,st_discover,st_extractmo,st_firstclass,st_intent,st_ipo,st_special,st_lift,st_poly,st_segregate,st_separate,st_system refactorSkill
+  class t_toolkit,st_system,st_intent,st_others refactorSkill
       </pre>
     </div>
   </div>
@@ -644,7 +612,7 @@ graph LR
     ref_hardening: { kind: "정본 references", tag: "ref", title: "tdd-rgb/references/hardening-gate.md", desc: "CRAP·DRY·mutation 하드닝을 '제안만'(자동 실행 없음) 모드로 완료 보고에 편입하는 규칙. 전역 crap4java-analyzer·dry4java-analyzer·mutate4java-runner 에이전트로 위임. tdd-feature 완료 보고(1.37.0 신설)와 tdd-rgb 완료 처리(1.40.0 연결 — 그전까지 tdd-rgb 경로에서는 제안이 나오지 않는 누락이 있었다)가 참조. 블록 안 순서는 비용순이 아니라 파이프라인순 — ①CRAP·DRY(정리할 곳 찾기) → ②/system-wide-refactoring(정리) → ③mutation(정리 후. ②가 뮤턴트 지점을 바꾸므로). Uncle Bob의 Coder→Cleaner→Hardener와 같은 순서(1.40.1)." },
     ref_gears: { kind: "정본 references", tag: "ref", title: "tdd-rgb/references/gears.md", desc: "기어(자율성 수준: low/mid/high) 정의. /tdd가 참조." },
     ref_testdesign: { kind: "정본 references", tag: "ref", title: "tdd-rgb/references/test-design-principles.md", desc: "Test Desiderata 12가지 속성 전문. tdd-plan이 참조." },
-    toolkit_generic: { kind: "스킬", tag: "refactor", title: "리팩토링 툴킷 스킬", desc: "왼쪽 다이어그램에서 개별 노드를 클릭하면 어떤 기법인지 이름으로 알 수 있습니다 — 각 스킬은 SKILL.md의 description에 1줄 요약과 /슬래시 호출법이 있습니다. 상세 설명은 이 지도의 범위를 넘어서므로 저장소의 skills/<기법명>/SKILL.md를 직접 참조하세요." }
+    toolkit_generic: { kind: "스킬", tag: "refactor", title: "리팩토링 툴킷 스킬 (20개)", desc: "20개 기법 스킬 중 의존 엣지를 갖는 2개(system-wide-refactoring — tdd-tidy가 교차 클래스 작업을 전담 위임, intent-revealing-names — tdd-tidy가 정의를 인용)만 개별 노드로 두고, 나머지 18개는 요약 노드 2개(tdd-tidy 제안 8종 / 독립 호출 9종)로 접었습니다 — 전부 펼치면 dagre 레이아웃이 수십 초 걸려 탭이 멈췄기 때문입니다. 각 스킬 이름은 요약 노드 안에 그대로 나열돼 있고, 1줄 요약과 /슬래시 호출법은 그 스킬 SKILL.md의 description에, 상세 절차는 skills/<기법명>/SKILL.md에 있습니다." }
   };
 
   function renderPanel(id) {
