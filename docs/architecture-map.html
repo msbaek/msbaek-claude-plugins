@@ -351,6 +351,7 @@ graph LR
   a_blue -.참조.-> r_tidying
   s_tddfeature -.참조.-> r_adversarial
   s_tddfeature -.참조.-> r_hardening
+  s_tddrgb -.참조.-> r_hardening
   s_tddplan -.참조.-> r_testdesign
   s_tdd -.참조.-> r_gears
 
@@ -586,7 +587,8 @@ graph LR
       title: "/tdd-rgb",
       desc: "⚙️ 오케스트레이터(명칭엔 없으나 기능상) — TDD RGB 사이클 진행. Red/Green/Blue agent를 순차 위임하며 매 단계 사용자 피드백을 받는다(step-wise).",
       invoke: "/tdd-rgb",
-      delegates: ["tdd-red", "tdd-green", "tdd-blue"], refs: []
+      delegates: ["tdd-red", "tdd-green", "tdd-blue"],
+      refs: ["tdd-rgb/references/hardening-gate.md"]
     },
     tddfeature: {
       kind: "스킬", tag: "exec",
@@ -639,7 +641,7 @@ graph LR
     ref_webpersist: { kind: "정본 references", tag: "ref", title: "tdd-plan/references/web-app-persistence.md", desc: "OSIV·트랜잭션 경계·LAZY·DTO 등 영속성 경계 규칙 정본. tdd-skeleton-builder가 참조." },
     ref_tidying: { kind: "정본 references", tag: "ref", title: "agents/references/tidying-process.md", desc: "Guard Clauses→One Pile→Reorder→Normalize Symmetries→Chunk→Comment→Extract Variable→Split Loop→Trimming 절차 전문. tdd-blue가 참조(원래 tdd-blue.md 532줄 중 360줄이었던 것을 이관)." },
     ref_adversarial: { kind: "정본 references", tag: "ref", title: "tdd-rgb/references/adversarial-review.md", desc: "완료 보고 전 적대적 리뷰 절차 — 리뷰어 선택(전역 adversarial-reviewer 우선), 내장 프롬프트, 심각도 처리. tdd-feature·tdd-rgb가 참조." },
-    ref_hardening: { kind: "정본 references", tag: "ref", title: "tdd-rgb/references/hardening-gate.md", desc: "CRAP·DRY·mutation 하드닝을 '제안만'(자동 실행 없음) 모드로 tdd-feature 완료 보고에 편입하는 규칙. 전역 crap4java-analyzer·dry4java-analyzer·mutate4java-runner 에이전트로 위임(1.37.0 신설)." },
+    ref_hardening: { kind: "정본 references", tag: "ref", title: "tdd-rgb/references/hardening-gate.md", desc: "CRAP·DRY·mutation 하드닝을 '제안만'(자동 실행 없음) 모드로 완료 보고에 편입하는 규칙. 전역 crap4java-analyzer·dry4java-analyzer·mutate4java-runner 에이전트로 위임. tdd-feature 완료 보고(1.37.0 신설)와 tdd-rgb 완료 처리(1.40.0 연결 — 그전까지 tdd-rgb 경로에서는 제안이 나오지 않는 누락이 있었다)가 참조. CRAP·DRY 결과가 /system-wide-refactoring의 입력이므로 그 이전 시점." },
     ref_gears: { kind: "정본 references", tag: "ref", title: "tdd-rgb/references/gears.md", desc: "기어(자율성 수준: low/mid/high) 정의. /tdd가 참조." },
     ref_testdesign: { kind: "정본 references", tag: "ref", title: "tdd-rgb/references/test-design-principles.md", desc: "Test Desiderata 12가지 속성 전문. tdd-plan이 참조." },
     toolkit_generic: { kind: "스킬", tag: "refactor", title: "리팩토링 툴킷 스킬", desc: "왼쪽 다이어그램에서 개별 노드를 클릭하면 어떤 기법인지 이름으로 알 수 있습니다 — 각 스킬은 SKILL.md의 description에 1줄 요약과 /슬래시 호출법이 있습니다. 상세 설명은 이 지도의 범위를 넘어서므로 저장소의 skills/<기법명>/SKILL.md를 직접 참조하세요." }
