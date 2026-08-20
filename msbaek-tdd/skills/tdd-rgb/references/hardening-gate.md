@@ -1,9 +1,12 @@
 # 하드닝 제안 규칙 (Hardening Gate — 제안만)
 
-> 정본. `tdd-feature`의 완료 보고가 이 규칙으로 제안 블록을 생성한다.
+> 정본. `tdd-feature`의 완료 보고와 `tdd-rgb`의 전체 완료 처리(Step 3 최종 검토 보고)가
+> 이 규칙으로 제안 블록을 생성한다.
 > **자동 실행하지 않는다** — 제안만 하고 실행 여부는 사용자가 결정한다.
 > 배경: SwarmForge six-pack의 cleaner/hardener 역할(CRAP·DRY 리뷰, mutation 하드닝)을
 > 라이프사이클 완료 지점의 선택적 게이트로 편입. 실행은 전역 에이전트에 위임한다.
+> 시점: CRAP·DRY 결과는 `/system-wide-refactoring`의 입력이 되므로 그 **이전**
+> (구현 완료 보고)에 제안한다 — 리팩토링 후에는 검증용 재실행을 쓴다.
 
 ## 1. 적용 조건 판정
 
@@ -14,12 +17,14 @@
    없으면(Gradle 등) 이 둘은 생략하고 한 줄만 남긴다:
    `CRAP·mutation 제안 생략 — Maven 전용 (이 프로젝트: Gradle). DRY 제안은 계속 진행`
    (dry4java는 Maven·Gradle 무관하게 임의 Java 소스에 동작하므로 생략하지 않는다)
-3. **변경 파일이 있는가** — Phase B 시작 커밋 해시부터 HEAD까지의 diff에
-   `src/main/java` 변경이 없으면(테스트만 변경 등) 제안을 생략한다.
+3. **변경 파일이 있는가** — 시작 커밋부터 HEAD까지의 diff에 `src/main/java` 변경이
+   없으면(테스트만 변경 등) 제안을 생략한다. 시작 커밋은 호출한 스킬의 기준을 따른다 —
+   `tdd-feature`: Phase B 시작 커밋 해시, `tdd-rgb`: 진행 기록의 적대적 리뷰 diff
+   기준점(없으면 이 작업 첫 커밋의 부모).
 
 ## 2. 제안 블록 형식
 
-완료 보고 마지막에 아래 블록을 붙인다. `{changed-files}`는 Phase B diff의
+완료 보고 마지막에 아래 블록을 붙인다. `{changed-files}`는 위 §1-3 기준 diff의
 `src/main/java/**/*.java` 목록으로 치환한다.
 
 ```markdown

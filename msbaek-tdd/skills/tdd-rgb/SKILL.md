@@ -328,6 +328,12 @@ phase부터 3-phase 커밋으로 모은다.
   마친 뒤에 실행한다(리뷰 diff가 전체 구현을 포함해야 하기 때문). green 스위트 +
   적대적 리뷰 통과가 이 경우의 Definition of Done. high 기어라면 최종 검토 보고에
   표본 정독 대상으로 대표 슬라이스 하나(가장 복잡했거나 후퇴가 있었던 것)를 추천해 함께 제시
+- **하드닝 제안 (실행 아님, 모든 기어)**: 최종 검토 보고 마지막에
+  `references/hardening-gate.md`를 `Read`로 읽어 그 규칙대로 제안 블록을 붙인다 —
+  CRAP·DRY(빠름, 변경 파일 한정)와 mutation(느림, 파일 1개)을 사용자가 복사해 실행할
+  수 있는 명령으로. CRAP·DRY 결과는 이후 `/system-wide-refactoring`의 입력이 되므로
+  그 **이전**인 여기서 제안한다. 적용 조건(Java·src/main 변경 존재, CRAP·mutation은
+  추가로 Maven 필요) 미충족 시 생략 사실만 한 줄 보고. **자동 실행 금지.**
 - 다음 테스트 안내 또는 전체 완료
 
 ---
@@ -345,12 +351,13 @@ phase부터 3-phase 커밋으로 모은다.
 
 ### 조건부 절차 — references
 
-두 절차는 조건이 맞을 때만 실행되므로 본문에 두지 않는다. 해당 시점에 `Read`로 읽는다.
+아래 절차는 조건이 맞을 때만 실행되므로 본문에 두지 않는다. 해당 시점에 `Read`로 읽는다.
 
 | 절차 | 언제 | 정본 |
 |---|---|---|
 | **적대적 리뷰** | high 기어 **또는** 폭발 반경 high-stakes. 전체 green 후, 최종 사용자 검토 **전** | `references/adversarial-review.md` |
 | **Web App 추가 단계** | Web App이고 모든 테스트 완료 후 (인수 테스트 확인·JPA Repository 완성·DSL 개선) | `references/web-app-finish.md` |
+| **하드닝 제안 (실행 아님)** | 전체 완료 처리(Step 3) 시, 최종 검토 보고 마지막 (모든 기어) | `references/hardening-gate.md` |
 
 둘 다 해당하면 **Web App 추가 단계를 먼저** 마친 뒤 적대적 리뷰를 실행한다 — 리뷰
 diff가 전체 구현을 포함해야 하기 때문이다.
@@ -390,3 +397,5 @@ diff가 전체 구현을 포함해야 하기 때문이다.
 - [ ] (high 기어 **또는** 폭발 반경 high-stakes) 시작 커밋 해시가 진행 기록에 있는가?
 - [ ] (high 기어) 커밋이 test:/feat:/refactor: 3-phase(tidying 불필요 시 2-phase)로 남았고,
   `git status`에 미커밋 변경이 없는가?
+- [ ] (모든 기어) 하드닝 제안 블록을 최종 검토 보고에 붙였는가(적용 조건 미충족 시
+  생략 사유 한 줄)? 하드닝 도구를 **자동 실행하지 않았는가**?
