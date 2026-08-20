@@ -331,8 +331,9 @@ phase부터 3-phase 커밋으로 모은다.
 - **하드닝 제안 (실행 아님, 모든 기어)**: 최종 검토 보고 마지막에
   `references/hardening-gate.md`를 `Read`로 읽어 그 규칙대로 제안 블록을 붙인다 —
   CRAP·DRY(빠름, 변경 파일 한정)와 mutation(느림, 파일 1개)을 사용자가 복사해 실행할
-  수 있는 명령으로. CRAP·DRY 결과는 이후 `/system-wide-refactoring`의 입력이 되므로
-  그 **이전**인 여기서 제안한다. 적용 조건(Java·src/main 변경 존재, CRAP·mutation은
+  수 있는 명령으로. 블록 안의 순서는 비용순이 아니라 **파이프라인순**이다 —
+  ①CRAP·DRY(정리할 곳 찾기) → ②`/system-wide-refactoring`(정리) → ③mutation(정리된
+  코드에). ②가 뮤턴트 지점을 바꾸므로 ③이 마지막이다. 적용 조건(Java·src/main 변경 존재, CRAP·mutation은
   추가로 Maven 필요) 미충족 시 생략 사실만 한 줄 보고. **자동 실행 금지.**
 - 다음 테스트 안내 또는 전체 완료
 

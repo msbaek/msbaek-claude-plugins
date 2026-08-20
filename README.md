@@ -177,7 +177,7 @@ Blue (Composed Method 지향 Local Tidying)
 - `high` 기어는 완료 후 적대적 리뷰(adversarial review)가 의무 — green 스위트 + 리뷰 통과가 Definition of Done
 - **폭발 반경이 큰 영역**(인증·인가, 결제·금액 계산, 데이터 삭제·변경, 외부 API, 동시성)은 **기어와 무관하게** 완료 시 적대적 리뷰를 1회 실행합니다 — 기어는 검토 밀도를, 폭발 반경은 틀렸을 때의 비용을 정하는 별개 축입니다
 - 기어 상태는 템플릿 문서 진행 기록에 남아 세션 재개 시 복원됩니다 (`--gear` 생략 시 복원, 명시하면 우선)
-- 전체 완료 시 **기어와 무관하게** 하드닝 제안(선택)이 최종 검토 보고에 함께 제시됩니다 — CRAP·DRY(빠름)·mutation(느림)을 전역 에이전트로 실행하는 명령을 제안만 하고, 실행 여부는 사용자가 결정합니다. CRAP·DRY 결과가 `/system-wide-refactoring`의 입력이 되므로 그 이전 시점입니다 (v1.40.0부터 — 이전에는 `/tdd-feature`에만 연결돼 있었습니다)
+- 전체 완료 시 **기어와 무관하게** 하드닝 제안(선택)이 최종 검토 보고에 함께 제시됩니다 — 전역 에이전트로 실행하는 명령을 제안만 하고, 실행 여부는 사용자가 결정합니다. 블록 안의 순서는 비용순이 아니라 **파이프라인순**입니다: ① CRAP·DRY로 정리할 곳 찾기 → ② `/system-wide-refactoring`으로 정리 → ③ 정리된 코드에 mutation. ②의 메서드 추출이 뮤테이션 지점을 바꾸므로 ③이 마지막입니다 (Uncle Bob의 Coder→Cleaner→Hardener 파이프라인과 같은 순서). (v1.40.0부터 — 이전에는 `/tdd-feature`에만 연결돼 있었습니다)
 
 **기어별 호출 — 어떤 스킬을 쓰나**
 
@@ -204,9 +204,11 @@ Blue (Composed Method 지향 Local Tidying)
 
 **기어 위치**: `/tdd-feature`는 `--gear`를 받지 않습니다 — Phase B 자율 진행이 곧 **feature 범위의 high 기어**이기 때문입니다. 따라서 high의 안전장치를 동일하게 적용합니다: 시작 전 폭발 반경 점검, 시작 커밋 해시 기록, 완료 보고 전 적대적 리뷰. low·mid 검토 밀도가 필요하면 `/tdd-feature` 대신 `/tdd-rgb --gear=low|mid`를 사용하세요.
 
-완료 보고 시 하드닝 제안(선택)을 함께 제시한다 — CRAP·DRY(빠름)·mutation(느림)을
-전역 에이전트(crap4java-analyzer·dry4java-analyzer·mutate4java-runner)로 실행하는
-명령을 제안만 하고, 실행 여부는 사용자가 결정한다 (CRAP·mutation은 Maven 프로젝트 한정, DRY는 무관).
+완료 보고 시 하드닝 제안(선택)을 함께 제시한다 — 전역 에이전트
+(crap4java-analyzer·dry4java-analyzer·mutate4java-runner)로 실행하는 명령을 제안만 하고,
+실행 여부는 사용자가 결정한다. 순서는 ① CRAP·DRY → ② `/system-wide-refactoring` →
+③ mutation (`/tdd-rgb`와 동일한 정본을 참조하므로 위 설명이 그대로 적용된다.
+CRAP·mutation은 Maven 프로젝트 한정, DRY는 무관).
 
 #### `/tdd-legacy` — 레거시 코드 안전망 구축
 

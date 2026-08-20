@@ -272,7 +272,10 @@ phase마다 커밋 하나이므로 그 phase가 feature 전체에 걸쳐 무엇�
   대표 test 하나(가장 복잡했거나 후퇴가 있었던 것)를 추천해 함께 제시한다.
 - **하드닝 제안 (실행 아님)**: 완료 보고 마지막에 `../tdd-rgb/references/hardening-gate.md`를
   `Read`로 읽어 그 규칙대로 제안 블록을 붙인다 — CRAP·DRY(빠름, 변경 파일 한정)와
-  mutation(느림, 파일 1개)을 사용자가 복사해 실행할 수 있는 명령으로. 적용 조건
+  mutation(느림, 파일 1개)을 사용자가 복사해 실행할 수 있는 명령으로. 블록 안의 순서는
+  비용순이 아니라 **파이프라인순**이다 — ①CRAP·DRY(정리할 곳 찾기) →
+  ②`/system-wide-refactoring`(정리) → ③mutation(정리된 코드에). ②가 뮤턴트 지점을
+  바꾸므로 ③이 마지막이다. 적용 조건
   (Java·src/main 변경 존재, CRAP·mutation은 추가로 Maven 필요) 미충족 시 생략 사실만
   한 줄 보고. **자동 실행 금지.**
 - **WIP=1 안내**: plan에 다른 feature가 남아 있으면 — "feature {F} 완료. 남은 feature: {목록}. 이어서 진행하려면 `/tdd-feature {plan경로}`로 다시 호출하거나, 다른 세션에서 진행하세요." (자동으로 다음 feature를 시작하지 않는다.)
