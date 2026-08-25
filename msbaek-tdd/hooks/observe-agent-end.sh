@@ -7,9 +7,9 @@
 #
 # 담는 필드 — 신뢰성 있게 얻을 수 있는 것만: agent(subagent_type) · description ·
 # duration_s(초 단위, PreToolUse 대응 hook 과의 wall-clock 차) · success(best-effort).
-# 책이 제시하는 input_tokens/output_tokens/context_size_tokens 는 담지 않는다 —
-# PostToolUse hook 입력에 없고, 서브에이전트는 별도 격리 컨텍스트라 메인 세션
-# transcript_path 로도 신뢰성 있게 얻을 수 없다(확인 후 제외한 결정).
+# 토큰(input/output/cache)은 여기서 담지 않는다 — PostToolUse hook 입력에 없다.
+# 토큰·단계별 분해는 사후 분석 스크립트 bin/tdd-profile.py 가 세션 transcript 와
+# <session>/subagents/agent-*.jsonl(+ .meta.json)을 읽어 계산한다.
 #
 # 이 로그로 답할 수 있는 질문: 어떤 에이전트가 자주 호출되는가 · 어떤 에이전트가
 # 오래 걸리는가(추세) · 실패가 어디서 반복되는가. 답할 수 없는 질문(토큰 비용 등)은
