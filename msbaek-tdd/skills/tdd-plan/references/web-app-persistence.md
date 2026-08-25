@@ -115,8 +115,7 @@ class InMemoryBasketRepositoryTest extends BasketRepositoryContractTest { ... } 
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = NONE)   // 없으면 임베디드 DB로 조용히 대체됨 — MySQL 검증 무력화
-@Testcontainers
-class JpaBasketRepositoryTest extends BasketRepositoryContractTest { ... }       // docker MySQL
+class JpaBasketRepositoryTest extends BasketRepositoryContractTest { ... }       // docker MySQL — compose.yaml이 제공 (web-app-skeleton.md)
 ```
 
 **계약 테스트만 트랜잭션 밖에서 실행한다 — Walking Skeleton 테스트의 `@Transactional`과

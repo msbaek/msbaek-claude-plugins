@@ -24,7 +24,7 @@ GOOS(Growing Object-Oriented Software)의 정의: "자동으로 빌드·배포·
 
 ## Repository와 Profile 규칙
 
-Walking Skeleton은 **진짜 JPA Repository 최소 구현 + docker MySQL(Testcontainers)**로
+Walking Skeleton은 **진짜 JPA Repository 최소 구현 + docker MySQL(Spring Boot Docker Compose)**로
 관통한다. In-Memory 구현은 skeleton용이 아니라 **이후 RGB 사이클의 빠른 루프용**이다.
 이 단계에서 profile 구조를 함께 셋업한다:
 
@@ -164,18 +164,47 @@ void walking_skeleton_shopping_basket() throws Exception {
 ## 테스트 클래스 설정 — 진짜 DB로
 
 skeleton 테스트에 Fake Repository를 주입하지 않는다(real 위반). docker MySQL을
-Testcontainers로 띄우고 진짜 JPA 경로로 관통한다:
+**Spring Boot Docker Compose**로 띄우고 진짜 JPA 경로로 관통한다 — `compose.yaml`
+하나를 `bootRun`과 테스트가 공유하고, 연결 정보(url·user·password)는 Spring Boot가
+compose 파일에서 읽어 자동 주입하므로 `application.yml`에 datasource 설정을 쓰지 않는다:
+
+```kotlin
+// build.gradle.kts — developmentOnly는 test classpath에 빠지므로 쓰지 않는다
+implementation("org.springframework.boot:spring-boot-docker-compose")
+```
+
+```yaml
+# compose.yaml (프로젝트 루트)
+services:
+  mysql:
+    image: 'mysql:8'
+    environment:
+      - 'MYSQL_DATABASE=mydatabase'
+      - 'MYSQL_USER=myuser'
+      - 'MYSQL_PASSWORD=secret'
+      - 'MYSQL_ROOT_PASSWORD=verysecret'
+    ports:
+      - '3306:3306'
+```
+
+```yaml
+# application.yml
+spring:
+  docker:
+    compose:
+      lifecycle-management: start_only   # 종료 시 컨테이너를 내리지 않음 — 재실행이 빠르다
+      skip:
+        in-tests: false                  # 기본 true — 이게 없으면 테스트에서 compose를 건너뛴다
+```
 
 ```java
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("local")     // 진짜 JPA + docker MySQL — Fake/TestConfiguration 주입 금지
-@Transactional               // 테스트 격리: 각 테스트 후 롤백 (컨테이너는 클래스 단위 공유)
+@Transactional               // 테스트 격리: 각 테스트 후 롤백
                              // ※ Repository 계약 테스트는 반대다 — 트랜잭션 밖에서 실행 (7단계 참조)
-@Testcontainers
 public class CreateShoppingBasketTest {
-    @Container @ServiceConnection
-    static MySQLContainer<?> mysql = new MySQLContainer<>("mysql:8");
+    // @Testcontainers/@Container/@ServiceConnection 없음 — compose.yaml이 DB를 제공한다
 
     @Autowired
     private MockMvc mockMvc;
@@ -193,8 +222,8 @@ public class CreateShoppingBasketTest {
 
 | 방법 | 장점 | 주의 |
 |---|---|---|
-| **Testcontainers** (기본) | 테스트가 컨테이너 수명을 소유, CI에서 표준 | 일부 Docker 환경(OrbStack 등)에서 docker-java의 API 버전 협상이 실패하면 `1.32`로 폴백해 "minimum supported API version is 1.40" 오류. 라이브러리 문제이며 `systemProperty("api.version", "1.41")`로 우회 가능 |
-| **Spring Boot Docker Compose** | `compose.yaml` 하나를 `bootRun`과 테스트가 공유, `@Container`/`@ServiceConnection` 보일러플레이트 없음 | `spring.docker.compose.lifecycle-management=start-only` + `spring.docker.compose.skip.in-tests=false`(기본 true라 테스트에서 건너뜀), 의존성은 `testAndDevelopmentOnly` |
+| **Spring Boot Docker Compose** (기본) | `compose.yaml` 하나를 `bootRun`과 테스트가 공유, datasource 설정·`@Container`/`@ServiceConnection` 보일러플레이트 없음 | `skip.in-tests=false`를 빠뜨리면 테스트에서 조용히 건너뛰어 임베디드 DB로 대체됨(아래 "관통 확인"으로 잡는다). CI에는 Docker Compose가 있어야 한다 |
+| **Testcontainers** (대안) | 테스트가 컨테이너 수명을 소유, CI에서 표준 (`@Testcontainers` + `@Container @ServiceConnection static MySQLContainer<?>`) | 일부 Docker 환경(OrbStack 등)에서 docker-java의 API 버전 협상이 실패하면 `1.32`로 폴백해 "minimum supported API version is 1.40" 오류. 라이브러리 문제이며 `systemProperty("api.version", "1.41")`로 우회 가능 |
 
 ## 관통 확인 — 실행 SQL 로깅
 

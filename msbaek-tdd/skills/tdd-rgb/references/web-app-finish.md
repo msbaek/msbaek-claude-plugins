@@ -26,7 +26,7 @@ Walking Skeleton에서 최소 JPA로 시작해 RGB 사이클 동안 `inMemory` p
 
 - 구현 전환은 **profile로** 한다 — `@TestConfiguration` 주석 토글 금지
   (`inMemory` = Map 기반, 그 외 모든 profile = JPA)
-- 인수 테스트·계약 테스트(JPA)는 H2가 아니라 실제 MySQL로 실행 — Testcontainers 사용.
+- 인수 테스트·계약 테스트(JPA)는 H2가 아니라 실제 MySQL로 실행 — Spring Boot Docker Compose(`compose.yaml`, `skip.in-tests=false`) 사용.
   `@DataJpaTest`에는 `@AutoConfigureTestDatabase(replace = NONE)`가 없으면 임베디드 DB로
   조용히 대체된다
 

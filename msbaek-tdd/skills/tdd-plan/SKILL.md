@@ -470,7 +470,7 @@ real(실행 경로가 진짜인가)과 thinnest(기능이 얇은가)는 다른 �
   JSON 직렬화가 트랜잭션 **밖**에서 일어난다. 이 실패는 테스트에 안 보인다(클래스 레벨
   `@Transactional` 안에서 직렬화가 끝나므로 테스트는 초록색, 실서버만 500)
 
-세부(profile 구조, Testcontainers 설정, SQL 로깅과 p6spy 도입 시점, 영속성 경계의
+세부(profile 구조, Docker Compose 설정, SQL 로깅과 p6spy 도입 시점, 영속성 경계의
 근거·명시적 `save()` 가드와 적용 순서·계약 테스트)는 에이전트가
 `references/web-app-skeleton.md`·`references/web-app-persistence.md`를 정본으로 참조한다.
 완료 후 에이전트가 확정한 영속성 경계 결정을 보고받아 이후 RGB 사이클에 전달한다.

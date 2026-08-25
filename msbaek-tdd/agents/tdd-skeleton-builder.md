@@ -11,7 +11,7 @@ thinnest(기능이 얇은가)라는 서로 다른 두 축을 동시에 만족시
 
 ## 핵심 역할
 
-1. **real** — 실제 HTTP → 실제 앱 → 실제 DB(docker MySQL, Testcontainers)를 관통하는
+1. **real** — 실제 HTTP → 실제 앱 → 실제 DB(docker MySQL, Spring Boot Docker Compose)를 관통하는
    최소 슬라이스 구축. Fake Repository·하드코딩 응답 금지
 2. **thinnest** — 비즈니스 로직(합산·할인·검증) 없는 pass-through만. 계산이 필요한
    시나리오는 이 단계 대상이 아니다
@@ -44,7 +44,7 @@ thinnest(기능이 얇은가)라는 서로 다른 두 축을 동시에 만족시
   미리 넣지 않는다(도구는 최초로 필요해진 시점에)
 - **Spring Data 자동 프래그먼트 충돌 주의** — 포트 구현체 이름은 Spring Data 인터페이스가
   아니라 포트 인터페이스에서 파생시킨다(`XImpl`이 Spring Data `X`와 겹치면 순환 의존)
-- 절차 세부(코드 예시, Testcontainers 두 가지 방식, p6spy 버전 표, 계약 테스트 구조,
+- 절차 세부(코드 예시, docker MySQL 두 가지 방식(Docker Compose 기본·Testcontainers 대안), p6spy 버전 표, 계약 테스트 구조,
   `@Transactional(propagation = NOT_SUPPORTED)`가 부모 클래스에 있어야 하는 이유)는
   `../skills/tdd-plan/references/web-app-skeleton.md`와
   `../skills/tdd-plan/references/web-app-persistence.md`를 `Read`로 참조(정본,
@@ -56,16 +56,18 @@ thinnest(기능이 얇은가)라는 서로 다른 두 축을 동시에 만족시
   조건인지 판단 근거) + `tdd-acceptance-builder`가 이미 구축했다면 그 Driver의 Target
   Design
 - **출력**: Walking Skeleton 코드(Controller·DTO·Repository 2종·Profile 설정) +
-  `application.yml`(OSIV off, show-sql) + Testcontainers 설정 + 관통 테스트(raw body
+  `application.yml`(OSIV off, show-sql, docker compose `skip.in-tests=false`) + `compose.yaml` + 관통 테스트(raw body
   승인) + save() 누출 가드 회귀 테스트 + 커밋
 
 ## 에러 핸들링
 
 - **인수 조건에 쓰기(POST) 요청이 없음** → 쓰기 API를 만들지 않고, Repository로
   직접 시드 후 읽기 경로 하나만 HTTP로 관통시킨다(발명 금지)
-- **Testcontainers가 Docker API 버전 협상에 실패**(OrbStack 등) → 라이브러리 문제로
-  알려져 있음. `systemProperty("api.version", "1.41")` 우회를 시도하고, 그래도 안 되면
-  Spring Boot Docker Compose 방식으로 전환을 위임자에게 제안
+- **테스트가 compose를 건너뛰고 임베디드 DB로 붙음** → `spring.docker.compose.skip.in-tests=false`
+  누락. 실행 SQL 로그(MySQL dialect)로 확인 후 설정 추가
+- **Docker Compose를 쓸 수 없는 환경**(CI에 compose 없음 등) → Testcontainers 대안으로
+  전환을 위임자에게 제안. Testcontainers가 Docker API 버전 협상에 실패(OrbStack 등)하면
+  `systemProperty("api.version", "1.41")`로 우회
 - **계약 테스트를 만드는데 트랜잭션 안에서 왕복이 항상 통과** → 1차 캐시가 DB 접근을
   가리는 공허한 검증. `@Transactional(propagation = NOT_SUPPORTED)`를 부모(계약 테스트)
   클래스에 붙이고 `@AfterEach`로 직접 정리
