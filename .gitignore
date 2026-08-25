@@ -2,3 +2,4 @@
 .claude/plans/
 .playwright-mcp
 cc-logs
+.claude/tdd-observability/
