@@ -11,7 +11,7 @@ argument-hint: "[feature 설명 또는 요구사항 문서/.feature 경로]"
 - **성공 = 요구사항의 Gherkin 시나리오가 `.feature` 파일로 실행되어, 기대 수치가 코드와 어긋나면 빌드가 깨지는 상태**
 - 기능의 external behavior(고객이 사용하는 것과 기능)를 Cucumber가 **주 검증층**으로 담당 — programmer test 역할까지 겸한다
 - 더 세밀한 검증(분기 커버리지·내부 협력)은 JUnit·Mockito가 **보조**
-- 문서와 코드의 기대값 드리프트가 구조적으로 불가능해짐 — 파생 뷰가 어긋나면 조용히 남지 못하고 빌드가 깨진다
+- 문서와 코드의 기대값 드리프트가 구조적으로 불가능해짐 — `.feature`의 Examples 표(검산 전개의 복사본)가 코드와 어긋나면 조용히 남지 못하고 빌드가 깨진다
 
 ## CONSTRAINTS
 
