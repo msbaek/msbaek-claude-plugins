@@ -162,7 +162,7 @@
 
 <header>
   <h1>msbaek-tdd 아키텍처 지도</h1>
-  <p class="subtitle">스킬 27개(오케스트레이터 4개: ⚙️ /tdd·/tdd-plan·/tdd-rgb·/tdd-feature) · 에이전트 9개 · 정본 references 15개 — 마우스를 올리면 요약이, 클릭하면 오른쪽에 상세가 뜹니다.</p>
+  <p class="subtitle">스킬 28개(오케스트레이터 4개: ⚙️ /tdd·/tdd-plan·/tdd-rgb·/tdd-feature) · 에이전트 9개 · 정본 references 15개 — 마우스를 올리면 요약이, 클릭하면 오른쪽에 상세가 뜹니다.</p>
   <div class="legend">
     <span><i class="swatch" style="background:var(--tag-plan)"></i>Plan 단계</span>
     <span><i class="swatch" style="background:var(--tag-exec)"></i>Execution(RGB/Acceptance)</span>
@@ -219,6 +219,7 @@ flowchart TB
   hard3["하드닝 ③ 테스트 강화<br/>🤖 mutate4java-runner<br/>생존 뮤턴트 제거 (②를 마친 뒤)"]
 
   tddtidy["/tdd-tidy<br/>diff 기반 독립 Tidying + 기법 제안"]
+  tddprofile["/tdd-profile<br/>세션 사후 분석 — 단계·에이전트별 시간·토큰, model/effort 제안"]
   refactortoolkit["리팩토링 툴킷 (20개 스킬)<br/>Extract Method Object, Encapsulate Collection,<br/>Replace Conditional with Poly 등"]
 
   tddplaninput -.참조로 전달.-> tddplan
@@ -233,6 +234,8 @@ flowchart TB
   tddfeature --> agred
   agblue -. "배치 정리(선택)" .-> tddtidy
   tddrgb -. "전체 완료 시 제안(기어 무관)" .-> hard1
+  tddrgb -. "완료 보고에서 안내" .-> tddprofile
+  tddfeature -. "완료 보고에서 안내" .-> tddprofile
   tddfeature -. "feature 완료 시 제안" .-> hard1
   hard1 --> hard2 --> hard3
   hard2 -.-> refactortoolkit
@@ -256,6 +259,7 @@ flowchart TB
   click aggreen cb_aggreen
   click agblue cb_agblue
   click tddtidy cb_tddtidy
+  click tddprofile cb_tddprofile
   click refactortoolkit cb_refactortoolkit
   click hard1 cb_ref_hardening
   click hard2 cb_ref_hardening
@@ -293,6 +297,7 @@ graph LR
     s_tddfeature["tdd-feature"]
     s_tddtidy["tdd-tidy"]
     s_tddlegacy["tdd-legacy"]
+    s_tddprofile["tdd-profile"]
   end
 
   subgraph AG_PLAN["에이전트 · Plan"]
@@ -360,6 +365,8 @@ graph LR
   s_tddtidy -. "제안(8종)" .-> t_toolkit
   s_tddtidy -. "전담 위임(교차 클래스)" .-> st_system
   st_intent -. "정의 인용" .-> s_tddtidy
+  s_tddrgb -. "완료 보고에서 안내" .-> s_tddprofile
+  s_tddfeature -. "완료 보고에서 안내" .-> s_tddprofile
 
   click s_tddplaninput cb_tddplaninput
   click s_tdd cb_tdd
@@ -369,6 +376,7 @@ graph LR
   click s_tddfeature cb_tddfeature
   click s_tddtidy cb_tddtidy
   click s_tddlegacy cb_tddlegacy
+  click s_tddprofile cb_tddprofile
   click a_domain cb_agdomain
   click a_example cb_agexample
   click a_testlist cb_agtestlist
@@ -609,6 +617,13 @@ graph LR
       desc: "git diff 기준 변경 파일을 자동 탐지해 Composed Method 지향 Tidying Process를 독립 실행. 완료 후 8개 리팩토링 기법을 제안(교차 클래스 이동은 system-wide-refactoring에 전담).",
       invoke: "/tdd-tidy",
       delegates: ["tdd-blue"], refs: []
+    },
+    tddprofile: {
+      kind: "스킬", tag: "exec",
+      title: "/tdd-profile",
+      desc: "TDD 세션이 끝난 뒤 세션 transcript(+subagents/)를 bin/tdd-profile.py로 집계해 단계(Skill 호출 경계)·에이전트별 시간·토큰을 보고. 병목 3개 이내 + model/effort 조정안. 코드를 바꾸지 않는 사후 분석. tdd-rgb·tdd-feature 완료 보고가 안내.",
+      invoke: "/tdd-profile [session.jsonl | transcript-dir]",
+      delegates: [], refs: ["bin/tdd-profile.py"]
     },
     refactortoolkit: {
       kind: "스킬 그룹", tag: "refactor",

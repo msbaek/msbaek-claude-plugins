@@ -12,7 +12,7 @@ Kent Beck의 TDD 원칙을 기반으로, 요구사항(도메인 규칙 + User St
 > `/tdd` 진입부터 계획·구현 파이프라인, 기어별 스킬 라우팅, 독립 진입점까지 한 장으로.
 
 > **[아키텍처 지도 (인터랙티브 HTML) →](https://htmlpreview.github.io/?https://github.com/msbaek/msbaek-claude-plugins/blob/main/docs/architecture-map.html)**
-> 스킬 27개·에이전트 9개·정본 references 15개를 실제 코드 스캔 기반으로 — 라이프사이클 흐름 탭과
+> 스킬 28개·에이전트 9개·정본 references 15개를 실제 코드 스캔 기반으로 — 라이프사이클 흐름 탭과
 > 스킬↔에이전트 의존 그래프 탭, 노드 hover/클릭으로 상세 확인.
 
 ## 설치
@@ -241,6 +241,18 @@ Guard Clauses → One Pile → Reorder → Normalize Symmetries
 
 > One Pile 적용 시 항상 별도 커밋(`refactor: one-pile [대상]`)으로 분리합니다.
 
+#### `/tdd-profile` — 세션 병목 분석
+
+TDD 세션이 끝난 뒤 "어느 단계·에이전트에서 시간과 토큰이 많이 들었나"를 세션 transcript로
+집계하고, 병목 3개 이내와 model/effort 조정안을 보고합니다. 코드를 바꾸지 않습니다.
+
+```
+/tdd-profile                       # 현재 프로젝트의 최근 TDD 세션
+/tdd-profile ~/.claude/projects/<slug>/<session>.jsonl
+```
+
+내부는 [`bin/tdd-profile.py`](#병목-프로파일--bintdd-profilepy)이며, 단계 경계는 Skill 호출입니다.
+
 #### `/system-wide-refactoring` — System-wide 리팩토링
 
 코드를 분석하여 리팩토링 후보를 제시하고, 사용자 확인 후 별도 브랜치에서 기법별 커밋을 수행한 뒤 PR을 생성합니다.
@@ -346,6 +358,7 @@ msbaek-claude-plugins/
 │   │   ├── cucumber-acceptance/      # /cucumber-acceptance 인수 테스트 구축
 │   │   ├── tdd-legacy/               # /tdd-legacy 레거시 안전망 구축
 │   │   ├── tdd-tidy/                 # /tdd-tidy 독립 tidying
+│   │   ├── tdd-profile/              # /tdd-profile 세션 병목 분석 (bin/tdd-profile.py)
 │   │   ├── system-wide-refactoring/  # /system-wide-refactoring
 │   │   ├── decompose-conditional/    # Tidy 계열 (9개)
 │   │   ├── consolidate-conditional/
@@ -383,7 +396,7 @@ msbaek-claude-plugins/
 
 ### 아키텍처 지도 (인터랙티브)
 
-전체 스킬 27개·에이전트 9개·정본 references 15개를 한눈에 보려면
+전체 스킬 28개·에이전트 9개·정본 references 15개를 한눈에 보려면
 [`docs/architecture-map.html`](https://htmlpreview.github.io/?https://github.com/msbaek/msbaek-claude-plugins/blob/main/docs/architecture-map.html)을 열어보세요
 (GitHub 클론 없이 바로 렌더링됩니다). 로컬에서는 `open docs/architecture-map.html`.
 
@@ -437,6 +450,10 @@ Web App 단계 E-2: Walking Skeleton
  ├── tdd-blue agent  → Local Tidying Process 독립 실행
  └── 완료 후 선택 리팩토링 기법 제안
 
+/tdd-profile (세션 사후 분석 — tdd-rgb·tdd-feature 완료 보고가 안내)
+ ├── bin/tdd-profile.py → transcript + subagents/ 집계 (Skill 호출 = 단계 경계)
+ └── 병목 3개 이내 + model/effort 조정안
+
 /system-wide-refactoring (구조적 리팩토링)
  ├── 코드 분석 → 리팩토링 후보 제시
  ├── 별도 브랜치에서 기법별 커밋
@@ -479,10 +496,9 @@ append-only로 남긴다.
 {"ts":"2026-08-13T12:28:04Z","session_id":"...","agent":"msbaek-tdd:tdd-domain-modeler","description":"...","duration_s":8,"success":true}
 ```
 
-담는 필드는 신뢰성 있게 얻을 수 있는 것만이다 — 에이전트 이름·설명·소요 시간(초)·성공
-여부. 토큰 수(input/output/context)는 PostToolUse hook 입력에 없고, 서브에이전트가 별도
-격리 컨텍스트라 메인 세션 transcript로도 신뢰성 있게 얻을 수 없어 **의도적으로 비워둔다**
-(없는 데이터를 지어내지 않는다).
+담는 필드는 hook 입력에서 신뢰성 있게 얻을 수 있는 것만이다 — 에이전트 이름·설명·소요
+시간(초)·성공 여부. 토큰 수는 PostToolUse hook 입력에 없으므로 여기서는 비워두고, 아래
+`tdd-profile.py`가 사후에 transcript에서 계산한다.
 
 이 로그로 답할 수 있는 질문:
 
@@ -499,6 +515,32 @@ jq -r '[.ts, .agent, .duration_s] | @tsv' .claude/tdd-observability/agent-log.js
 
 대상 프로젝트의 `.gitignore`에 `.claude/tdd-observability/`를 추가해 운영 텔레메트리를
 커밋 대상에서 제외할 것을 권장한다.
+
+#### 병목 프로파일 — `bin/tdd-profile.py`
+
+"어느 단계에서 시간·토큰이 많이 드는가"는 hook 로그가 아니라 세션 transcript로 답한다.
+Claude Code는 메인 컨텍스트의 API 턴마다 `usage`(input/output/cache)를, 서브에이전트는
+`<session>/subagents/agent-*.jsonl`(+ `.meta.json`: agentType·model)을 남긴다.
+스크립트는 이 둘을 읽어 **Skill 호출을 단계 경계로** 삼아 단계별로 집계한다 (의존성 없음, 읽기 전용).
+
+```bash
+# 세션 하나
+python3 ~/.claude/plugins/cache/msbaek-claude-plugins/msbaek-tdd/<ver>/bin/tdd-profile.py \
+  ~/.claude/projects/<cwd-slug>/<session-id>.jsonl
+
+# 프로젝트 디렉터리를 주면 msbaek-tdd 활동이 가장 많은 세션을 고른다
+python3 .../tdd-profile.py ~/.claude/projects/-Users-me-git-my-app
+
+# 옵션: --json (기계 판독), --idle 600 (이 초 이상 공백은 사용자 대기로 보고 wall-clock에서 제외)
+```
+
+출력 절: 단계별 wall/turns/토큰/도구/에이전트 표 → 에이전트별(모델·시간·토큰) → 컨텍스트가
+가장 많이 커진 턴 10개(`cache+`) → 단계별 실제 사용 model/effort → **model·effort 제안**(휴리스틱:
+`out/turn`이 작고 Edit·Bash 비율이 높으면 sonnet/medium, 출력이 길거나 설계·이력 작업이면 opus/high)
+→ 단계별 도구 호출.
+
+읽는 법: `in(total)`은 턴마다 API에 실린 컨텍스트의 합(과금 기준)이라 턴 수 × 컨텍스트 크기로
+커진다 — 이 값이 큰 단계는 "턴이 많다"이지 "많이 읽었다"가 아니다. 새로 읽은 양은 `cache+`.
 
 ## 핵심 원칙
 

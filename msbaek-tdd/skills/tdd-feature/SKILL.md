@@ -278,6 +278,8 @@ phase마다 커밋 하나이므로 그 phase가 feature 전체에 걸쳐 무엇�
   바꾸므로 ③이 마지막이다. 적용 조건
   (Java·src/main 변경 존재, CRAP·mutation은 추가로 Maven 필요) 미충족 시 생략 사실만
   한 줄 보고. **자동 실행 금지.**
+- **세션 프로파일 안내**: 하드닝 제안 다음 줄에 "`/tdd-profile` — 이 세션의 단계·
+  에이전트별 시간·토큰과 model/effort 조정안" 한 줄을 붙인다. 실행은 사용자가 한다.
 - **WIP=1 안내**: plan에 다른 feature가 남아 있으면 — "feature {F} 완료. 남은 feature: {목록}. 이어서 진행하려면 `/tdd-feature {plan경로}`로 다시 호출하거나, 다른 세션에서 진행하세요." (자동으로 다음 feature를 시작하지 않는다.)
 
 ## FAILURE CONDITIONS
