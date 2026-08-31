@@ -325,6 +325,37 @@ TDD 세션이 끝난 뒤 "어느 단계·에이전트에서 시간과 토큰이 
 /tdd-rgb
 ```
 
+전체 절차를 하드닝 게이트까지 포함해 그리면 다음과 같습니다:
+
+```mermaid
+flowchart TD
+    A["0. 원천 자료 준비<br>/tdd-plan-input (선택)"] --> B["/tdd-plan"]
+    subgraph PLAN["/tdd-plan — 인터랙티브 (단계마다 사용자 승인)"]
+        B --> C["단계 1. 도메인 규칙(0층) + User Story"]
+        C --> D["단계 2. Gherkin Scenario"]
+        D --> E["단계 3. Unit Test 목록"]
+        E --> F["tdd-plan-critic 적대적 검증"]
+        F --> G["단계 E-1. 인수 테스트 셋업<br>/cucumber-acceptance → .feature + Runner"]
+        G --> H["단계 E-2. Walking Skeleton<br>tdd-skeleton-builder"]
+    end
+    H --> I{"구현 방식"}
+    I -->|"feature 단위 자율<br>(간결 plan 직접 합의)"| J["/tdd-feature<br>Red→Green→Blue 전체, 3커밋"]
+    I -->|"단계별 검토<br>(plan 문서 기반)"| K["/tdd-rgb --gear=low|mid|high"]
+    J --> R["완료 보고 + 적대적 리뷰"]
+    K --> R
+    subgraph HG["하드닝 게이트 (제안만 — 실행은 사용자 결정)"]
+        R --> S["① 정리할 곳 찾기<br>crap4java-analyzer (복잡도×커버리지)<br>dry4java-analyzer (구조적 중복)"]
+        S --> T["② 구조 정리<br>/system-wide-refactoring"]
+        T --> U["③ 테스트 강화<br>mutate4java-runner (대표 파일 1개)"]
+    end
+    U --> L{"다음 feature?"}
+    L -->|있음| I
+    L -->|없음| M["마무리: web-app-finish<br>인수 테스트 전체 green · JPA 완성 · DSL 개선"]
+```
+
+- 하드닝 게이트의 순서는 비용순이 아니라 **파이프라인순**입니다 — ②의 구조 정리가 뮤테이션 지점을 바꾸므로 ③이 마지막입니다. 적용 조건·제안 블록 형식의 정본은 `skills/tdd-rgb/references/hardening-gate.md`입니다.
+- CRAP·mutation은 Maven 전용이므로 Gradle 프로젝트에서는 ①의 DRY 점검과 ②만 제안됩니다.
+
 ### 기존 코드 리팩토링 (TDD 없이)
 
 ```bash
