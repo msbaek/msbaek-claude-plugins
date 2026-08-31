@@ -35,3 +35,40 @@ Walking Skeleton에서 최소 JPA로 시작해 RGB 사이클 동안 `inMemory` p
 - Protocol Driver 개선 (Cucumber Steps는 파싱·위임만 유지)
 - Test Data Builder 패턴 적용
 - 가독성과 재사용성 향상
+
+**Protocol Driver** — 테스트는 도메인 언어("회원 1을 조회한다")로 말하고, 경로·MockMvc·
+상태 코드는 Driver 한 곳에만 둔다. 인수 테스트(Cucumber Steps)와 skeleton 테스트가
+같은 Driver를 공유한다. 코드는 `tdd-plan/references/web-app-skeleton.md`의 `MemberApi`
+(정본: https://github.com/msbaek/tmpl/blob/main/src/test/java/pe/msbaek/tmpl/member/MemberApi.java).
+
+**Test Data Builder** — 테스트는 관심 있는 속성만 명시하고 나머지는 기본값. 도메인
+객체에 속성이 늘어도 기존 테스트는 컴파일이 깨지지 않는다
+(정본: https://github.com/msbaek/tmpl/blob/main/src/test/java/pe/msbaek/tmpl/member/MemberBuilder.java):
+
+```java
+class MemberBuilder {
+
+    private Long id = 1L;
+    private String name = "백명석";
+
+    static MemberBuilder aMember() {
+        return new MemberBuilder();
+    }
+
+    MemberBuilder withId(Long id) {
+        this.id = id;
+        return this;
+    }
+
+    MemberBuilder withName(String name) {
+        this.name = name;
+        return this;
+    }
+
+    Member build() {
+        return new Member(id, name);
+    }
+}
+
+// 사용: repository.save(aMember().withName("명석백").build());
+```

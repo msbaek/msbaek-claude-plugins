@@ -129,33 +129,75 @@ API로 노출하지 말고 테스트의 `@BeforeEach`에서 Repository로 직접
 하나만 HTTP로 검증**한다 — 인프라 관통 증명에는 그것으로 충분하다.
 
 ```java
-@DisplayName("엔드-투-엔드 관통: HTTP → 앱 → 진짜 DB에서 읽어 응답한다")
-@Test
-void walking_skeleton_shopping_basket() throws Exception {
-    // given — 쓰기 API가 인수 조건에 없으므로 Repository로 직접 시드
-    Long basketId = basketRepository.save(aBasketWith("충전 케이블", 8000, 1)).getId();
+// 정본: https://github.com/msbaek/tmpl/blob/main/src/test/java/pe/msbaek/tmpl/member/MemberApiTest.java
+/// Walking skeleton: real HTTP -> real app -> real docker MySQL.
+/// The approval locks the raw wire body (serialization, number format, field presence)
+/// instead of picking fields with jsonPath, so an unasserted field cannot drift silently.
+/// Ids here are seeded by @Sql, so no Scrubber is needed; add a RegExScrubber once ids
+/// become generated.
+@SpringBootTest
+@AutoConfigureMockMvc
+@Sql("/sql/members.sql")           // 쓰기 API가 인수 조건에 없으므로 SQL로 직접 시드
+class MemberApiTest {
 
-    // when — 시나리오가 실제로 요구하는 읽기 경로만 HTTP로
-    MvcResult result = mockMvc.perform(get("/api/baskets/" + basketId))
-            .andExpect(status().isOk())
-            .andReturn();
+    @Autowired
+    MockMvc mockMvc;
 
-    BasketDetailsResponse basketDetails = objectMapper.readValue(
-            result.getResponse().getContentAsString(),
-            BasketDetailsResponse.class);
+    private MemberApi memberApi() {
+        return new MemberApi(mockMvc);   // Protocol Driver — HTTP 상호작용은 이 클래스에만
+    }
 
-    // then — 로직 없는 pass-through 확인 (금액 계산은 RGB 사이클에서)
-    Approvals.verify(printBasketDetails(basketDetails));
+    @Test
+    @DisplayName("@Sql seed로 넣은 회원을 조회하면 응답 본문 전체가 승인된 와이어 포맷과 같다")
+    void returnsMemberSeededBySqlScript() throws Exception {
+        Approvals.verify(memberApi().getMember(1L));
+    }
+
+    @Test
+    @DisplayName("없는 id를 조회하면 404와 에러 본문을 돌려준다")
+    void returnsNotFoundForUnknownId() throws Exception {
+        Approvals.verify(memberApi().getMemberExpectingNotFound(999L));
+    }
 }
 ```
 
-> **skeleton의 승인 대상은 raw body다.** 위 예시는 응답을 DTO로 읽어 다시 찍는
-> 형태인데, 이 단계의 목적이 관통 증명이므로 **역직렬화하지 않고 응답 본문 그대로**
-> 승인하는 편이 낫다 — 재직렬화하면 수치 표기·필드 유무 같은 와이어 포맷 결함이
-> 보이지 않는다(`{"amount":4.6E+3}`). 비결정 값(id)은 Scrubber로 치환한다.
-> 읽기 좋은 출력이 함께 필요하면 raw를 **교체하지 말고** 한 승인 파일에 raw 구획 +
-> printer 구획 두 개로 담는다(skeleton은 페이로드가 짧아 이 형태가 잘 맞는다).
+```java
+// 정본: https://github.com/msbaek/tmpl/blob/main/src/test/java/pe/msbaek/tmpl/member/MemberApi.java
+/// Protocol Driver (Dave Farley's Four Layer): the only place tests touch HTTP.
+/// Tests say what they do in domain terms ("get member 1"); how it is done over the wire
+/// (paths, MockMvc, status codes) lives here. Cucumber Steps, when added, delegate here too.
+class MemberApi {
+
+    private final MockMvc mockMvc;
+
+    MemberApi(MockMvc mockMvc) {
+        this.mockMvc = mockMvc;
+    }
+
+    String getMember(Long id) throws Exception {
+        return getMember(id, HttpStatus.OK);
+    }
+
+    String getMemberExpectingNotFound(Long id) throws Exception {
+        return getMember(id, HttpStatus.NOT_FOUND);
+    }
+
+    private String getMember(Long id, HttpStatus expected) throws Exception {
+        return mockMvc.perform(get("/members/{id}", id))
+                .andExpect(status().is(expected.value()))
+                .andReturn().getResponse().getContentAsString();
+    }
+}
+```
+
+> **skeleton의 승인 대상은 raw body다.** 응답을 DTO로 역직렬화해 다시 찍지 않는다 —
+> 재직렬화하면 수치 표기·필드 유무 같은 와이어 포맷 결함이 보이지 않는다
+> (`{"amount":4.6E+3}`). 비결정 값(id)은 Scrubber로 치환한다(위 예시는 `@Sql` 고정
+> id라 불필요). 읽기 좋은 출력이 함께 필요하면 raw를 **교체하지 말고** 한 승인 파일에
+> raw 구획 + printer 구획 두 개로 담는다. 404 본문도 같은 방식으로 승인한다 —
+> 예외는 처음부터 `@RestControllerAdvice` 한 곳(`web-app-persistence.md` 4번).
 > 판단 기준과 두 종류 승인의 구분은 `tdd-red` 에이전트의 "Approved Text Rule"이
+> 정본이다.
 > 정본이다.
 
 > 생성이 실제 인수 조건인 경우(예: "고객이 장바구니를 만든다" 시나리오가 있음)에만
@@ -169,8 +211,9 @@ skeleton 테스트에 Fake Repository를 주입하지 않는다(real 위반). do
 compose 파일에서 읽어 자동 주입하므로 `application.yml`에 datasource 설정을 쓰지 않는다:
 
 ```kotlin
-// build.gradle.kts — developmentOnly는 test classpath에 빠지므로 쓰지 않는다
-implementation("org.springframework.boot:spring-boot-docker-compose")
+// build.gradle.kts — testAndDevelopmentOnly (developmentOnly는 test classpath에서
+// 빠져 테스트 DataSource가 구성되지 않고, implementation은 운영 아티팩트에 섞인다)
+testAndDevelopmentOnly("org.springframework.boot:spring-boot-docker-compose")
 ```
 
 ```yaml
@@ -217,6 +260,7 @@ public class CreateShoppingBasketTest {
 }
 ```
 
+
 **docker MySQL을 띄우는 방법은 두 가지** — 어느 쪽이든 real 원칙(진짜 DB)은 동일하게
 지켜지므로 환경에 맞춰 고른다:
 
@@ -245,7 +289,48 @@ spring:
 
 ```kotlin
 // build.gradle.kts — 버전은 반드시 Spring Boot 버전에 맞춰 고른다 (아래 주의 참조)
-implementation("com.github.gavlyukovskiy:p6spy-spring-boot-starter:2.0.1")
+implementation("com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.12.1")
+```
+
+기본 한 줄 로그는 긴 쿼리를 읽기 어렵다. `spy.properties`로 포매터를 갈아 끼워 정렬된
+박스 형태로 본다(정본: https://github.com/msbaek/tmpl/blob/main/src/main/java/pe/msbaek/tmpl/config/PrettySqlFormatter.java):
+
+```properties
+# src/main/resources/spy.properties
+appender=com.p6spy.engine.spy.appender.Slf4JLogger
+logMessageFormat=pe.msbaek.tmpl.config.PrettySqlFormatter
+excludecategories=info,debug,result,resultset,batch
+```
+
+```java
+/**
+ * Renders every statement p6spy intercepts as an indented, boxed SQL block
+ * so that a single query is readable at a glance in the console.
+ */
+public class PrettySqlFormatter implements MessageFormattingStrategy {
+
+    private static final String LINE = "─".repeat(100);
+
+    @Override
+    public String formatMessage(int connectionId, String now, long elapsed, String category,
+                                String prepared, String sql, String url) {
+        if (sql == null || sql.isBlank()) {
+            return "";
+        }
+        String trimmed = sql.trim();
+        String formatted = isDdl(trimmed)
+                ? FormatStyle.DDL.getFormatter().format(trimmed)     // org.hibernate.engine.jdbc.internal
+                : FormatStyle.BASIC.getFormatter().format(trimmed);
+        return "\n┌%s\n│ %s | %d ms | conn %d\n│%s\n└%s".formatted(
+                LINE, category, elapsed, connectionId, formatted.replace("\n", "\n│"), LINE);
+    }
+
+    private boolean isDdl(String sql) {
+        String head = sql.substring(0, Math.min(6, sql.length())).toLowerCase();
+        return head.startsWith("create") || head.startsWith("alter")
+                || head.startsWith("drop") || head.startsWith("commen");
+    }
+}
 ```
 
 ```yaml
@@ -262,7 +347,7 @@ decorator:
 
 | Spring Boot | p6spy-spring-boot-starter |
 |---|---|
-| 4.x | `2.0.x` (2.0.0이 "Prepare for Spring Boot 4") |
+| 4.x | 쓰지 않음 — `2.0.x`도 실측 무동작(문서 끝 "Boot 4로 올릴 때 함정" 참조) |
 | 3.x | `1.12.1` |
 
 위 표는 이 문서를 쓴 시점의 값이다. 좌표를 복사하기 전에
@@ -270,8 +355,9 @@ decorator:
 호환 표에서 현재 프로젝트에 맞는 최신 값을 확인한다.
 
 **Spring Boot 버전 선택**: 새 프로젝트를 만든다면 [start.spring.io](https://start.spring.io/)에서
-제공하는 **GA 최신 버전**을 쓴다 — 목록에 `(SNAPSHOT)`이 붙은 항목은 제외한다.
-이 문서 작성 시점의 GA 최신은 4.1.0이었다(4.1.1·4.0.8은 SNAPSHOT). 특정 버전을
+제공하는 **3.x 계열의 최신 GA 버전**을 쓴다 — 목록에 `(SNAPSHOT)`이 붙은 항목은
+제외하고, 4.x는 테스트 어노테이션 패키지 이동·p6spy 스타터 무동작 등 함정이 있어
+아직 기본으로 쓰지 않는다(문서 끝 "Boot 4로 올릴 때 함정"). 특정 버전을
 관성으로 복사하지 말고 매번 확인한다.
 
 **프로퍼티 이름 주의**: prefix는 `decorator.datasource.p6spy`이고 활성화 키는
@@ -285,3 +371,44 @@ SQL은 보인다.** "로그가 나온다"는 사실은 설정이 맞다는 증�
 (Principles의 "도구는 최초로 필요해진 시점에 추가한다"). `show-sql`만으로 관통 확인이
 되는 동안에는 그것으로 충분하다.
 
+## Boot 4로 올릴 때 함정 (기본은 3.x 최신 GA — 아래는 4.x 전환 시에만)
+
+**Boot 4 어노테이션 패키지 이동** — import를 Boot 3 기억으로 쓰면 컴파일 에러다:
+
+| 어노테이션 | Boot 4 패키지 |
+|---|---|
+| `@AutoConfigureMockMvc` | `org.springframework.boot.webmvc.test.autoconfigure` |
+| `@DataJpaTest` | `org.springframework.boot.data.jpa.test.autoconfigure` |
+| `@AutoConfigureTestDatabase` | `org.springframework.boot.jdbc.test.autoconfigure` |
+
+**Boot 4에서는 스타터를 쓰지 않는다** — `p6spy-spring-boot-starter`(gavlyukovskiy)는
+Boot 4에서 `DataSourceAutoConfiguration` 패키지 이동 때문에 **조용히 무동작**한다
+(에러 없음, 로그도 그대로 `?`). 순정 p6spy를 넣고 `BeanPostProcessor`로 DataSource를
+직접 감싼다(실측: [tmpl](https://github.com/msbaek/tmpl) Boot 4 시도 당시):
+
+```kotlin
+// build.gradle.kts — Boot 4: 순정 p6spy
+implementation("p6spy:p6spy:3.9.1")
+```
+
+```java
+// P6SpyConfig.java — DataSource 빈을 P6DataSource로 감싼다
+@Configuration
+class P6SpyConfig {
+    @Bean
+    static BeanPostProcessor p6spyWrapper() {
+        return new BeanPostProcessor() {
+            @Override
+            public Object postProcessAfterInitialization(Object bean, String name) {
+                if (bean instanceof DataSource ds && !(bean instanceof P6DataSource)) {
+                    return new P6DataSource(ds);
+                }
+                return bean;
+            }
+        };
+    }
+}
+```
+
+로그 형식은 `src/main/resources/spy.properties`(`appender=com.p6spy.engine.spy.appender.Slf4JLogger`,
+`logMessageFormat=...`)로 정한다. 아래 스타터 방식은 **Boot 3.x까지**만 유효하다.

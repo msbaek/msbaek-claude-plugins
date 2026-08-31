@@ -96,26 +96,114 @@ LAZY 연관 접근이 전부 `LazyInitializationException`이다(detached 엔티
   어긋나는 드리프트 방지):
 
 ```java
+// 정본: https://github.com/msbaek/tmpl/blob/main/src/test/java/pe/msbaek/tmpl/member/MemberRepositoryContractTest.java
 import static org.springframework.transaction.annotation.Propagation.NOT_SUPPORTED;
 
+/**
+ * The contract both MemberRepository implementations must satisfy.
+ * Runs outside a transaction on purpose: inside one, the persistence context
+ * would answer findById from its first-level cache and the round trip to the
+ * database would never happen, making the JPA run vacuous.
+ */
 // 트랜잭션 속성은 "테스트 메서드가 선언된 클래스"에서 찾는다 — 계약 테스트 메서드는
 // 전부 이 부모에 선언돼 있으므로, 어노테이션도 여기 붙여야 적용된다 (아래 주의 참조)
 @Transactional(propagation = NOT_SUPPORTED)
-abstract class BasketRepositoryContractTest {
-    abstract BasketRepository repository(); // 구현별로 제공
+abstract class MemberRepositoryContractTest {
+
+    abstract MemberRepository repository();   // 구현별로 제공
+
+    abstract void cleanUp();                  // 롤백이 없으므로 구현이 스스로 치운다
+
+    /** Guard: round-trip assertions pass inside and outside a transaction alike. */
+    @Test
+    @DisplayName("계약 테스트는 트랜잭션 밖에서 실행된다")
+    void runsOutsideTransaction() {
+        assertThat(TestTransaction.isActive()).isFalse();
+    }
 
     @Test
-    void 저장_후_조회하면_동일_상태의_바구니를_돌려준다() { ... }
+    @DisplayName("없는 id를 조회하면 빈 결과를 돌려준다")
+    void returnsEmptyForUnknownId() {
+        assertThat(repository().findById(999L)).isEmpty();
+    }
+
+    @Test
+    @DisplayName("저장한 회원을 id로 다시 찾는다")
+    void findsSavedMemberById() {
+        repository().save(new Member(1L, "백명석"));
+
+        Member found = repository().findById(1L).orElseThrow();
+
+        assertThat(found.getId()).isEqualTo(1L);
+        assertThat(found.getName()).isEqualTo("백명석");
+    }
+
+    @Test
+    @DisplayName("같은 id로 다시 저장하면 덮어쓴다")
+    void overwritesMemberSavedWithSameId() {
+        repository().save(new Member(1L, "백명석"));
+
+        repository().save(new Member(1L, "명석백"));
+
+        assertThat(repository().findById(1L).orElseThrow().getName()).isEqualTo("명석백");
+    }
+
+    /**
+     * Without this, an in-memory Map may alias its stored value into the caller's
+     * hands while JPA returns a detached copy - a divergence the fast loop would
+     * never notice.
+     */
+    @Test
+    @DisplayName("조회 결과는 저장소가 들고 있는 객체가 아니라 스냅샷이다")
+    void returnsSnapshotRatherThanStoredInstance() {
+        Member saved = new Member(1L, "백명석");
+        repository().save(saved);
+
+        Member found = repository().findById(1L).orElseThrow();
+
+        assertThat(found).isNotSameAs(saved);
+        assertThat(repository().findById(1L).orElseThrow()).isNotSameAs(found);
+    }
 
     @AfterEach
-    void 정리() { ... }   // 롤백이 없으므로 테스트가 스스로 치운다 (@Sql 도 가능)
+    void tearDown() {
+        cleanUp();
+    }
 }
 
-class InMemoryBasketRepositoryTest extends BasketRepositoryContractTest { ... }  // 매 빌드
+class InMemoryMemberRepositoryTest extends MemberRepositoryContractTest { ... }  // Spring 없음, 매 빌드
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = NONE)   // 없으면 임베디드 DB로 조용히 대체됨 — MySQL 검증 무력화
-class JpaBasketRepositoryTest extends BasketRepositoryContractTest { ... }       // docker MySQL — compose.yaml이 제공 (web-app-skeleton.md)
+class MemberRepositoryImplTest extends MemberRepositoryContractTest { ... }      // docker MySQL — compose.yaml이 제공 (web-app-skeleton.md)
+```
+
+스냅샷 조항을 만족하려면 in-memory 어댑터도 **저장·조회 양쪽에서 복사**해야 한다
+(정본: https://github.com/msbaek/tmpl/blob/main/src/main/java/pe/msbaek/tmpl/member/InMemoryMemberRepository.java):
+
+```java
+@Repository
+@Profile("inMemory")
+public class InMemoryMemberRepository implements MemberRepository {
+
+    private final Map<Long, Member> members = new ConcurrentHashMap<>();
+
+    @Override
+    public Member save(Member member) {
+        Member stored = snapshotOf(member);
+        members.put(stored.getId(), stored);
+        return snapshotOf(stored);
+    }
+
+    @Override
+    public Optional<Member> findById(Long id) {
+        return Optional.ofNullable(members.get(id)).map(this::snapshotOf);
+    }
+
+    private Member snapshotOf(Member member) {
+        return new Member(member.getId(), member.getName());
+    }
+}
 ```
 
 **계약 테스트만 트랜잭션 밖에서 실행한다 — Walking Skeleton 테스트의 `@Transactional`과
@@ -134,12 +222,28 @@ class JpaBasketRepositoryTest extends BasketRepositoryContractTest { ... }      
 **어노테이션을 붙이는 위치가 곧 동작을 가른다 — 하위 클래스에 붙이면 무시된다.**
 Spring은 트랜잭션 속성을 "가장 구체적인 메서드 → **그 메서드의 선언 클래스**" 순으로
 찾는다. 계약 테스트 메서드는 하위 클래스가 오버라이드하지 않은 상속 메서드이므로,
-선언 클래스는 언제나 부모 계약 클래스다. `JpaBasketRepositoryTest`에 붙인
+선언 클래스는 언제나 부모 계약 클래스다. `MemberRepositoryImplTest`(자식)에 붙인
 `@Transactional`은 그 탐색 경로에 없어 **조용히 무시된다** — `@DataJpaTest`의 기본
 트랜잭션이 그대로 남아 검증이 공허해지는데 테스트는 초록색이다(Principles의
 "조용한 실패"). 같은 이유로
 `@DataJpaTest`가 주는 트랜잭션도 상속 메서드에는 적용 여부가 갈리므로, **의도를
 부모에 명시**해 두 경우 모두 확정한다.
+
+**실측(Boot 3.5·4.1 양쪽 동일, 정본 예제 프로젝트 [tmpl](https://github.com/msbaek/tmpl) `member/Member.md`)** — 예측과 다른 점이 하나 있다.
+`@DataJpaTest`는 하위 클래스에 붙으므로 그 트랜잭션은 부모 선언 메서드에 **애초에
+닿지 않는다**. 따라서 부모의 `NOT_SUPPORTED`를 제거해도 계약 테스트는 이미 트랜잭션
+밖이라 아무것도 red가 되지 않는다 — "제거하면 공허해진다"는 예측은 틀렸고, 그
+선언은 오늘 시점엔 **방어적 명시**다(부모에 순수 `@Transactional`을 넣으면 적용되므로
+위치 규칙 자체는 맞다). 여기서 얻는 교훈 두 가지:
+
+- **왕복 단언은 트랜잭션 안/밖 모두 통과한다** — 행위 단언만으로는 이 불변조건을
+  잠글 수 없다. `TestTransaction.isActive() == false`를 직접 단언하는 **guard test**를
+  계약에 둔다(위 예시 `runsOutsideTransaction`). 부모에 `@Transactional`을 주입하면
+  guard만 red가 되는 것으로 민감함을 확인했다.
+- 같은 계약이 in-memory 어댑터의 숨은 버그(Map 참조를 그대로 반환 → 호출자 mutate 시
+  저장소 오염)도 잡았다 — 단, identity/snapshot을 **명시적으로 단언한 뒤에야**.
+  계약이 잡아야 할 차이(트랜잭션 경계·identity·null 처리)는 나열하고 항목마다 실패
+  주입으로 red를 확인한다.
 
 트랜잭션을 켠 채로 왕복을 검증하려 하면 우회가 겹겹이 쌓인다 — `flush()` + `clear()`로
 1차 캐시 수동 비우기, 위 탐색 규칙 때문에 트랜잭션이 실제로 걸렸는지 확인하는 가드
