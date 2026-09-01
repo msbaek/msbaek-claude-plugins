@@ -72,7 +72,7 @@ TDD가 익숙하지 않다면 슬래시 커맨드로 **명시적으로 호출**�
 
 ```bash
 /tdd general com.example.bowling.BowlingGame   # 1. 프로젝트 생성
-/tdd-plan                                       # 2. 요구사항 → Gherkin → test 목록
+/tdd-plan                                       # 2. 앵커 작성(규칙+예제+미확정) → 리뷰
 /tdd-rgb --gear=low                             # 3. 매 단계(R/G/B)마다 검토
 ```
 
@@ -110,23 +110,40 @@ TDD 프로젝트의 진입점입니다. 템플릿 문서와 테스트 클래스�
 | 유형 | 설명 | 단계 |
 |------|------|------|
 | `general` | 일반 TDD | 요구사항 → Gherkin Scenario → Unit Test 목록 → RGB 사이클 (4단계) |
-| `web-app` | Web App TDD | 요구사항 → Gherkin Scenario → 인수 테스트 셋업(.feature) → Unit Test 목록 → Walking Skeleton → RGB 사이클 → JPA 완성 → DSL → 적대적 리뷰 → 하드닝 게이트 (10단계) |
+| `web-app` | Web App TDD | 앵커 작성 → 인수 셋업(.feature) → Walking Skeleton → RGB 사이클 → JPA 완성 → DSL → 적대적 리뷰 → 하드닝 게이트 (8단계) |
 
-#### `/tdd-plan` — TDD 계획 수립
+#### `/tdd-plan` — TDD 계획 수립 (Spec Anchored)
 
-요구사항, Gherkin Scenario, unit test 목록을 순서대로 작성합니다.
+얇은 앵커 문서(규칙 + 예제 검산표 + 미확정)를 작성합니다. 시나리오의 실행되는
+정본은 `.feature`이고(`/cucumber-acceptance`), 구현 중 배움은 앵커에 먼저
+반영됩니다(`msbaek-tdd/references/anchor-update.md`).
+
+**Spec Anchored 원칙**: 앵커는 한 번 쓰고 끝나는 문서가 아니라 구현 내내 살아
+있는 문서입니다. 구현 중 규칙·예제와 어긋나는 배움을 발견하면 코드부터 고치지
+않고 앵커를 먼저 갱신한 뒤, 앵커 갱신과 코드 변경을 같은 커밋에 담습니다 —
+규칙이 바뀌는 배움만 사용자에게 질문하고 나머지는 배움 로그에 자율 기록합니다.
+정본은 `msbaek-tdd/references/anchor-update.md`.
 
 ```
 /tdd-plan
 ```
 
-**진행 단계:**
-1. **요구사항 작성** — 도메인 규칙(0층) + User Story
-2. **Gherkin Scenario 작성** — Happy path, 경계 조건, 예외 상황을 예제로 (Cucumber 병행 시 실행 가능한 명세가 됨)
-3. **Unit Test 목록** — Degenerate → Simple → General 순서로 정렬 (Gherkin 병행 시 세밀 분기만)
-4. (조건부) **Use Case 추가** — 복잡도가 흐름·상태에 있을 때만
-5. (web-app) **인수 테스트 셋업** — Gherkin을 `.feature` + Runner로 (미구현은 `@pending`)
-6. (web-app) **Walking Skeleton** — 진짜 DB(docker MySQL)까지 관통하는 최소 골격 구현
+**기본 플로우 (경량):**
+1. **`tdd-anchor-drafter` 에이전트 1회 호출** — 규칙·예제 검산표·미확정을 채우고
+   `.feature`용 Gherkin 초안을 반환
+2. **사용자 리뷰 1회** — 앵커 내용 + Gherkin 초안 + 미확정 질문을 한 번에 제시
+3. (web-app) **E-1 인수 테스트 셋업** — `/cucumber-acceptance` 호출, 승인된
+   Gherkin이 `.feature`가 됨 (미구현 시나리오 `@pending`)
+4. (web-app) **E-2 Walking Skeleton** — `tdd-skeleton-builder` 위임, 진짜 DB(docker
+   MySQL)까지 관통하는 최소 골격 구현
+
+**`--full` 플로우 (high-stakes·대형·다팀, 사용자 명시 선택 시):**
+`tdd-domain-modeler` → `tdd-example-designer` → `tdd-test-list` → `tdd-plan-critic`
+을 단계별 승인으로 진행합니다. 정본은 `skills/tdd-plan/references/full-plan.md`.
+
+```
+/tdd-plan --full
+```
 
 #### `/cucumber-acceptance` — Cucumber 인수 테스트 (주 검증층)
 
@@ -302,7 +319,7 @@ TDD 세션이 끝난 뒤 "어느 단계·에이전트에서 시간과 토큰이 
 # 1. 프로젝트 생성
 /tdd general com.example.bowling.BowlingGame
 
-# 2. 요구사항, Gherkin Scenario, unit test 목록 작성
+# 2. 앵커 작성(규칙+예제 검산표+미확정) → 사용자 리뷰
 /tdd-plan
 
 # 3. RGB 사이클로 구현
@@ -318,7 +335,7 @@ TDD 세션이 끝난 뒤 "어느 단계·에이전트에서 시간과 토큰이 
 # 1. 프로젝트 생성
 /tdd web-app com.example.basket.CreateShoppingBasket
 
-# 2. 요구사항, Gherkin Scenario, 인수 테스트 셋업, unit test 목록, Walking Skeleton 작성
+# 2. 앵커 작성 → 리뷰 → 인수 테스트 셋업(E-1) → Walking Skeleton(E-2)
 /tdd-plan
 
 # 3. RGB 사이클로 구현 (각 Green이 @pending 해제) + JPA 완성 + DSL 개선
@@ -330,12 +347,16 @@ TDD 세션이 끝난 뒤 "어느 단계·에이전트에서 시간과 토큰이 
 ```mermaid
 flowchart TD
     A["0. 원천 자료 준비<br>/tdd-plan-input (선택)"] --> B["/tdd-plan"]
-    subgraph PLAN["/tdd-plan — 인터랙티브 (단계마다 사용자 승인)"]
-        B --> C["단계 1. 도메인 규칙(0층) + User Story"]
-        C --> D["단계 2. Gherkin Scenario"]
-        D --> E["단계 3. Unit Test 목록"]
-        E --> F["tdd-plan-critic 적대적 검증"]
-        F --> G["단계 E-1. 인수 테스트 셋업<br>/cucumber-acceptance → .feature + Runner"]
+    subgraph PLAN["/tdd-plan — 기본은 앵커 1회 + 리뷰 1회, --full은 단계별 승인"]
+        B --> C["tdd-anchor-drafter 에이전트 1회<br>규칙 + 예제 검산표 + 미확정 + Gherkin 초안"]
+        C --> D["사용자 리뷰 1회<br>앵커 + Gherkin 초안 + 미확정 질문"]
+        D --> FULL{"--full 선택?"}
+        FULL -->|"아니오 (기본)"| G["단계 E-1. 인수 테스트 셋업<br>/cucumber-acceptance → .feature + Runner"]
+        FULL -->|"예 (high-stakes)"| C1["tdd-domain-modeler"]
+        C1 --> C2["tdd-example-designer"]
+        C2 --> C3["tdd-test-list"]
+        C3 --> C4["tdd-plan-critic 적대적 검증"]
+        C4 --> G
         G --> H["단계 E-2. Walking Skeleton<br>tdd-skeleton-builder"]
     end
     H --> I{"구현 방식"}
@@ -415,10 +436,11 @@ msbaek-claude-plugins/
 │       ├── tdd-red.md                # Red phase 전문 에이전트
 │       ├── tdd-green.md              # Green phase 전문 에이전트
 │       ├── tdd-blue.md               # Blue phase 전문 에이전트
-│       ├── tdd-domain-modeler.md     # Plan 단계 1 — 도메인 규칙(0층) + User Story 초안
-│       ├── tdd-example-designer.md   # Plan 단계 2 — Gherkin 핵심 예시 + 경계 조건 5종 스캔
-│       ├── tdd-test-list.md          # Plan 단계 3 — Unit Test 목록, Degenerate→General
-│       ├── tdd-plan-critic.md        # Plan 교차검증 — 정본 부재·모순·중복 탐지 (읽기 전용)
+│       ├── tdd-anchor-drafter.md     # Plan 기본 플로우 — 앵커(규칙+예제+미확정) + Gherkin 초안
+│       ├── tdd-domain-modeler.md     # Plan --full 단계 1 — 도메인 규칙(0층) + User Story 초안
+│       ├── tdd-example-designer.md   # Plan --full 단계 2 — Gherkin 핵심 예시 + 경계 조건 5종 스캔
+│       ├── tdd-test-list.md          # Plan --full 단계 3 — Unit Test 목록, Degenerate→General
+│       ├── tdd-plan-critic.md        # Plan --full 교차검증 — 정본 부재·모순·중복 탐지 (읽기 전용)
 │       ├── tdd-acceptance-builder.md # Web App E-1 — .feature + Four Layer 구축/이관
 │       ├── tdd-skeleton-builder.md   # Web App E-2 — Walking Skeleton + 영속성 경계 확정
 │       └── references/
@@ -449,12 +471,13 @@ msbaek-claude-plugins/
  ├── /tdd-plan 안내
  └── /tdd-rgb 안내
 
-/tdd-plan (계획 수립 — 각 단계 초안은 에이전트, 승인은 메인)
- ├── tdd-domain-modeler agent  → 요구사항 초안 — 도메인 규칙(0층) + User Story
- ├── tdd-example-designer agent → Gherkin Scenario 초안 (경계 조건 5종 스캔 포함)
- ├── tdd-test-list agent       → Unit Test 목록 초안 (Degenerate→General)
- ├── tdd-plan-critic agent     → §1~§3 교차검증 (정본 부재·모순·중복, 읽기 전용)
- └── (조건부) Use Case 추가 — 메인이 직접 작성
+/tdd-plan (기본: 앵커 초안은 에이전트 1회, 승인은 메인 리뷰 1회)
+ ├── tdd-anchor-drafter agent  → 앵커 초안 — 규칙 + 예제 검산표 + 미확정 + Gherkin 초안
+ └── --full (high-stakes 선택 시, 단계별 승인)
+     ├── tdd-domain-modeler agent  → 요구사항 초안 — 도메인 규칙(0층) + User Story
+     ├── tdd-example-designer agent → Gherkin Scenario 초안 (경계 조건 5종 스캔 포함)
+     ├── tdd-test-list agent       → Unit Test 목록 초안 (Degenerate→General)
+     └── tdd-plan-critic agent     → §1~§3 교차검증 (정본 부재·모순·중복, 읽기 전용)
 
 /cucumber-acceptance (인수 테스트 구축 — 대상 파악은 메인, 구축은 에이전트 위임)
  └── tdd-acceptance-builder agent → .feature + Four Layer(Steps→Driver→SUT),
@@ -511,10 +534,11 @@ Web App 단계 E-2: Walking Skeleton
 | **tdd-red** | 실패하는 테스트 작성 | TDD 1법칙: "Write NO production code except to pass a failing test" |
 | **tdd-green** | 최소 구현으로 테스트 통과 | TPP (Transformation Priority Premise), Make-it-Work 전략 (Obvious / Fake it / Triangulation) |
 | **tdd-blue** | Composed Method 지향 리팩토링 | Tidying Process: Guard Clauses → One Pile → Reorder → Normalize Symmetries → Chunk → Comment → Extract Variable → Split Loop → Trimming |
-| **tdd-domain-modeler** | Plan 단계 1 초안 — 도메인 규칙(0층) + User Story | 검산 전개 = 숫자의 정본, So that이 비면 작업 지시 |
-| **tdd-example-designer** | Plan 단계 2 초안 — Gherkin 핵심 예시 | 경계 조건 5종 스캔(특히 집계 경계), Specification by Example |
-| **tdd-test-list** | Plan 단계 3 초안 — Unit Test 목록 | Gherkin과 두 계층 중복 금지, Degenerate→General 도출 절차 |
-| **tdd-plan-critic** | Plan 문서 교차검증 (읽기 전용) | §1~§3 동시 대조, 정본 부재·모순·집계 경계 누락 탐지, 재현 시나리오 기반 보고 |
+| **tdd-anchor-drafter** | Plan 기본 플로우 — 앵커(규칙+예제 검산표+미확정) + Gherkin 초안 1회 작성 | 앵커 100줄 이하, 산문 계층·Gherkin 사본 금지, 배움 반영은 `references/anchor-update.md` |
+| **tdd-domain-modeler** (--full 전용) | Plan 단계 1 초안 — 도메인 규칙(0층) + User Story | 검산 전개 = 숫자의 정본, So that이 비면 작업 지시 |
+| **tdd-example-designer** (--full 전용) | Plan 단계 2 초안 — Gherkin 핵심 예시 | 경계 조건 5종 스캔(특히 집계 경계), Specification by Example |
+| **tdd-test-list** (--full 전용) | Plan 단계 3 초안 — Unit Test 목록 | Gherkin과 두 계층 중복 금지, Degenerate→General 도출 절차 |
+| **tdd-plan-critic** (--full 전용, 읽기 전용) | Plan 문서 교차검증 | §1~§3 동시 대조, 정본 부재·모순·집계 경계 누락 탐지, 재현 시나리오 기반 보고 |
 | **tdd-acceptance-builder** | Web App E-1 — 인수 테스트 구축/이관 | Four Layer(Protocol Driver 분리), 인수 조건에 없는 쓰기 API 미발명, 완료 후 직접 커밋 |
 | **tdd-skeleton-builder** | Web App E-2 — Walking Skeleton | real≠thinnest 두 축, OSIV 항상 off, 가드가 경계보다 먼저, 실패 주입으로 가드 비공허성 확인 |
 
