@@ -52,8 +52,8 @@ thinnest(기능이 얇은가)라는 서로 다른 두 축을 동시에 만족시
 
 ## 입력/출력 프로토콜
 
-- **입력**: 승인된 템플릿 문서 "## 2. Gherkin Scenario 작성" 절(어떤 HTTP 요청이 인수
-  조건인지 판단 근거) + `tdd-acceptance-builder`가 이미 구축했다면 그 Driver의 Target
+- **입력**: 앵커 문서 경로(규칙·예제) + E-1이 생성한 `.feature`(어떤 HTTP 요청이 인수
+  조건인지의 정본) + `tdd-acceptance-builder`가 이미 구축했다면 그 Driver의 Target
   Design
 - **출력**: Walking Skeleton 코드(Controller·DTO·Repository 2종·Profile 설정) +
   `application.yml`(OSIV off, show-sql, docker compose `skip.in-tests=false`) + `compose.yaml` + 관통 테스트(raw body

@@ -30,8 +30,12 @@ allowed-tools: Write, Edit, Read, Bash(git add:*), Bash(git commit:*), Bash(git 
    수정 요청이면 에이전트 재호출 또는 메인이 직접 반영
 3. **커밋** — `git add [변경 파일]` (git add -A 금지) →
    `git commit -m "docs: 앵커 작성 - [기능명]"` → 체크박스 갱신
-4. **(web-app) E-1: 인수 테스트 셋업** — `/cucumber-acceptance` 호출. 승인된 Gherkin
-   초안이 `.feature`가 된다 (미구현 시나리오 `@pending`)
+4. **(web-app) E-1: 인수 테스트 셋업** — 리뷰에서 승인된 Gherkin 초안 전문을
+   `/cucumber-acceptance` 위임 prompt에 포함해 전달한다(앵커 문서에 사본을 두지
+   않으므로 대화에만 있는 전문을 그대로 넘긴다). `.feature` 생성 후 앵커 문서
+   `## 미확정` 위나 문서 상단에 `.feature 경로: <경로>` 한 줄을 추가한다(사본이
+   아니라 포인터). 리뷰 승인과 E-1 사이에 세션이 끊기면 Gherkin이 대화에만
+   남으므로, 승인 직후 지체 없이 E-1을 실행한다
 5. **(web-app) E-2: Walking Skeleton** — `tdd-skeleton-builder` 위임 (아래 참조)
 6. **다음 단계 안내** — 기어에 맞는 `/tdd-rgb` 또는 `/tdd-feature` 호출 안내.
    구현 중 배움 반영 규약은 `../../references/anchor-update.md`가 정본
@@ -117,7 +121,7 @@ tdd-test-list → tdd-plan-critic, 단계별 승인.
 
 #### 단계 E-1: 인수 테스트 셋업 (.feature + Runner) — `/cucumber-acceptance` 위임
 
-단계 2의 Gherkin을 `.feature` + Runner로 실행 가능하게 만든다. 이 계층이 external
+리뷰에서 승인된 Gherkin 초안을 `.feature` + Runner로 실행 가능하게 만든다. 이 계층이 external
 behavior의 주 검증층이므로 별도 High Level Test(JUnit)를 두지 않는다 — 같은 검증이 두
 계층에 중복되면 안 된다. 미구현 시나리오는 `@pending`으로 실행에서 제외하고, 각 Green이
 자기 시나리오의 태그를 **같은 커밋에서** 해제한다(일괄 활성화 단계는 없다).
@@ -141,7 +145,7 @@ real(실행 경로가 진짜인가)과 thinnest(기능이 얇은가)는 다른 �
 쌓인 뒤에 되돌려야 한다):
 
 - `spring.jpa.open-in-view: false`를 **명시**한다. 항목이 아예 없으면 Spring Boot 기본값
-  `true`가 적용된다 — **부재는 off가 아니라 on이다**(Principles의 "조용한 실패").
+  `true`가 적용된다 — **부재는 off가 아니라 on이다**(위 "조용한 실패" 참조).
   OSIV는 도입 시점을 판단할 항목이 아니라 JPA를 쓰는 순간부터 off다
 - 트랜잭션 경계는 Controller에 둔다(이 단계 한정, 조회는 `@Transactional(readOnly = true)`).
   경계만을 위해 서비스 계층을 새로 만들지 않는다

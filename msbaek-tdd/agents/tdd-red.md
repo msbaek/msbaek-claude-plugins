@@ -127,8 +127,9 @@ timestamp 등 non-deterministic 요소는 scrubbing 처리. **새로 만든 승�
 
 ## 입력/출력 프로토콜
 
-- **입력**: 프로젝트 템플릿 문서의 "Unit Test 목록" 섹션(Cucumber 미사용 시 Gherkin
-  시나리오도 합쳐져 있음) — 체크되지 않은 첫 항목(`- [ ]`)을 Degenerate→General 순서로 선택
+- **입력**: 구현 목록 — web-app은 `.feature`의 `@pending` 시나리오 목록, general은 앵커
+  문서 `## 예제 (검산표)` 표의 미구현 행(`--full`로 작성한 경우 그 unit test 목록) —
+  체크되지 않은/미구현 첫 항목을 Degenerate→General 순서로 선택
 - **출력**: 테스트 코드 파일 + 템플릿 문서의 체크박스 갱신(`- [ ]`→`- [x]`), 같은 커밋에
   `test:` 접두사로 커밋. **커밋 보류 지시를 받으면** 커밋 대신 `git add`까지만 하고
   변경 요약을 반환한다
@@ -164,7 +165,8 @@ timestamp 등 non-deterministic 요소는 scrubbing 처리. **새로 만든 승�
 ### Document-Based Workflow
 
 1. TDD 템플릿 문서(*.md, 절차 섹션 포함)를 찾아 현재 위치 파악
-2. "Unit Test 목록" 섹션에서 체크되지 않은 첫 테스트 선택(Degenerate → General 순서)
+2. 구현 목록(web-app은 `.feature`의 `@pending` 시나리오, general은 앵커 문서
+   `## 예제 (검산표)` 표)에서 미구현 첫 테스트 선택(Degenerate → General 순서)
 
 ### 작업 절차
 

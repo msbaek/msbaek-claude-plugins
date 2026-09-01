@@ -193,7 +193,11 @@ UserRepository를 대체하고, UserRepositoryImpl은 실제 DB로 테스트한�
 
 #### Step 1: 현재 상태 확인
 
-1. 템플릿 문서(*.md)에서 unit test 목록 확인 (Cucumber 미사용 시 Gherkin 시나리오도 포함되어 programmer test와 섞임)
+1. 구현 목록 확인 — web-app은 `.feature`의 `@pending` 시나리오 목록(각 Green이 자기
+   시나리오 태그를 해제하는 이중 루프), general은 앵커 문서 `## 예제 (검산표)` 표의
+   미구현 행(Degenerate→General로 이미 정렬됨)이 원천이다. 구현 중 발견되는 세밀 분기는
+   앵커 `## 규칙`에 먼저 추가한 뒤(배움 반영 게이트) 테스트로 옮긴다
+   (`--full`로 작성한 경우 `references/full-plan.md`의 unit test 목록이 그 원천)
 2. 첫 미완성 테스트(`- [ ]`) 식별
 3. 현재 테스트 실행 상태 확인
 4. **기어 결정**: `--gear` 파라미터 > 템플릿 문서의 기어 기록 > 기본 low 순으로 결정.

@@ -179,7 +179,10 @@ Phase B 시작 커밋: {F1: abc1234}   ← Phase B 진입 시 feature마다 HEAD
 plan 문서의 `## 진행 기록` 섹션에 `Phase B 시작 커밋: {feature: 해시}` 형식으로 기록한다
 (위 plan 포맷 참조 — 적대적 리뷰가 이 값을 diff 기준점으로 읽는다).
 
-선택된 feature의 programmer test 목록을 위에서 아래로 순회한다(Cucumber 미사용 시 Gherkin 시나리오도 포함되어 unit test와 섞임 — `tdd-plan`에서 Cucumber 없이 구현하기로 선택했다면 단계 3의 Unit Test 목록으로 돌아가 Gherkin 시나리오를 합쳐 넣는 절차가 이미 끝나 있어야 한다). **테스트 단위로 R→G→B를 반복하지 않는다** — feature 전체를 phase 단위로 관통한다: 모든 test에 대해 Red를 다 마친 뒤, 모든 test에 대해 Green을 채우고, 마지막에 Blue를 feature 범위로 한 번 적용한다. **단계·test 사이에 사용자 피드백을 요청하지 않는다.**
+선택된 feature의 구현 목록(web-app은 `.feature`의 `@pending` 시나리오 목록, general은
+앵커 문서 `## 예제 (검산표)` 표의 미구현 행 — Cucumber 없이 구현하기로 선택했다면 앵커
+예제 검산표를 구현 목록으로 사용한다. `--full`로 작성한 경우 그 unit test 목록)를 위에서
+아래로 순회한다. **테스트 단위로 R→G→B를 반복하지 않는다** — feature 전체를 phase 단위로 관통한다: 모든 test에 대해 Red를 다 마친 뒤, 모든 test에 대해 Green을 채우고, 마지막에 Blue를 feature 범위로 한 번 적용한다. **단계·test 사이에 사용자 피드백을 요청하지 않는다.**
 
 협력 객체가 얽힌 feature에서는 phase 도중 "이 test 하나만 지금 확인하고 싶다"는 충동이
 들 수 있다 — 참고 phase를 끝까지 마친 뒤 한 번에 실행·확인한다. 그래야 phase 경계가

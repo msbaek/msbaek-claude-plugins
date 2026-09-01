@@ -4,7 +4,7 @@
 
 ## 규칙
 
-Web App은 `/cucumber-acceptance`가 **필수**다. 단계 2에서 쓴 Gherkin이 그대로
+Web App은 `/cucumber-acceptance`가 **필수**다. 리뷰에서 승인된 Gherkin 초안이 그대로
 `.feature`로 실행되어 인수 계층을 담당하므로, **별도 High Level Test(JUnit)를 만들지
 않는다** — 같은 검증이 두 계층에 중복되면 안 된다(`cucumber-acceptance`의 Hard Rule).
 

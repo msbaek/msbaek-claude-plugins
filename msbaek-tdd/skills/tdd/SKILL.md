@@ -178,8 +178,8 @@ high다(상세는 tdd-rgb의 "기어(Gears)" 섹션).
 ## 배움 로그
 ```
 
-> Web App은 `/cucumber-acceptance`가 **필수**다 — 단계 2의 Gherkin이 `.feature`로
-> 실행되어 인수 계층을 담당한다. 별도 High Level Test(JUnit)를 두지 않는다(같은 검증이
+> Web App은 `/cucumber-acceptance`가 **필수**다 — 1단계 앵커 작성에서 승인된 Gherkin이
+> 2단계에서 `.feature`로 실행되어 인수 계층을 담당한다. 별도 High Level Test(JUnit)를 두지 않는다(같은 검증이
 > 두 계층에 중복되면 안 됨). 프로젝트 제약으로 Cucumber를 도입할 수 없는 경우에만
 > 대표 시나리오 1개를 JUnit 인수 테스트로 작성해 대체한다.
 

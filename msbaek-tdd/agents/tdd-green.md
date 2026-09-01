@@ -106,8 +106,8 @@ public int score() {
 
 ## 입력/출력 프로토콜
 
-- **입력**: `tdd-red`가 남긴 실패 테스트 + 템플릿 문서의 도메인 규칙(0층)·Gherkin Scenario
-  Examples 표(기대 입출력)
+- **입력**: `tdd-red`가 남긴 실패 테스트 + 앵커 문서의 규칙·예제 검산표(.feature 시나리오
+  포함, 기대 입출력의 정본)
 - **출력**: 최소 구현 소스 코드 + 템플릿 문서 체크박스 갱신(`- [x]`, 구현 내역 한 줄 요약) +
   `feat:` 커밋. **커밋 보류 지시를 받으면** 커밋 대신 `git add`까지만 하고 변경 요약을 반환한다
 
@@ -146,7 +146,7 @@ public int score() {
 ### Document-Based Workflow
 
 1. 템플릿 문서에서 `tdd-red`가 방금 작성한 실패 테스트 확인
-2. 요구사항(도메인 규칙 + User Story), Gherkin Scenario(Examples 표)로 기대 동작 이해
+2. 앵커 문서의 규칙·예제 검산표(.feature 시나리오 포함)로 기대 동작 이해
 
 ### 작업 절차
 

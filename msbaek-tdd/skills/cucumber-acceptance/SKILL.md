@@ -36,7 +36,7 @@ argument-hint: "[feature 설명 또는 요구사항 문서/.feature 경로]"
 
 | 시점 | 방식 | 적합 |
 |---|---|---|
-| **acceptance-first** (기본) | `tdd-plan` 단계 2의 Gherkin을 plan 합의 직후 `.feature` + Runner로 셋업. 미구현 시나리오는 `@pending`으로 두고, RGB가 진행되며 하나씩 태그 해제·green — 태그 해제는 그 시나리오를 통과시킨 Green 단계가 같은 커밋에서 수행한다 | `tdd-plan` 절차를 거친 모든 신규 기능 — 외부 인수 루프 + 내부 TDD 루프의 이중 루프(Dave Farley) |
+| **acceptance-first** (기본) | 위임 prompt로 전달받은 승인된 Gherkin 전문(`tdd-plan` 리뷰 승인 직후), 또는 기존 `.feature`를 `.feature` + Runner로 셋업. 미구현 시나리오는 `@pending`으로 두고, RGB가 진행되며 하나씩 태그 해제·green — 태그 해제는 그 시나리오를 통과시킨 Green 단계가 같은 커밋에서 수행한다 | `tdd-plan` 절차를 거친 모든 신규 기능 — 외부 인수 루프 + 내부 TDD 루프의 이중 루프(Dave Farley) |
 | **구현 후 이관** (기존 프로젝트) | 기존 JUnit 인수 테스트를 `.feature`로 이관 — 아래 "기존 JUnit 인수 테스트 이관" 절차 | 이미 구현·테스트가 있는 프로젝트에 `tdd-plan` 없이 기능을 추가하는 경우 |
 
 ### 구조 — Four Layer 축소형
@@ -205,7 +205,7 @@ Claude가 아래 절차를 대신 수행하고, 사람은 결과(green + 의도�
 ### ✅ 적용 대상
 - 고객·이해관계자가 보는 기능의 external behavior
 - 요구사항 문서에 Gherkin/기대값 표가 이미 있고, 코드와의 드리프트가 걱정되는 경우
-- `tdd-plan` 단계 2에서 Gherkin으로 작성한 예제 — 재작성 없이 그대로 `.feature`가 된다 (위 "도입 시점"의 acceptance-first)
+- `tdd-plan` 리뷰에서 승인된 Gherkin 전문 — 재작성 없이 그대로 `.feature`가 된다 (위 "도입 시점"의 acceptance-first)
 - 비개발자(PO·QA·도메인 전문가) 또는 AI가 명세를 리뷰·승인하는 워크플로우
 
 ### ❌ 적용 제외
@@ -246,9 +246,9 @@ class RunCucumberTest {
 
 ### 실행 절차 — 대상 파악은 메인, 구축은 에이전트 위임
 
-1. **대상 파악** (메인 컨텍스트) — 요구사항 문서의 Gherkin(또는 인수 조건)과 기존 테스트
-   현황을 확인해 모드를 정한다: **신규 셋업**(acceptance-first, 승인된 Gherkin이 있음) 또는
-   **기존 JUnit 이관**(구현 후 이관)
+1. **대상 파악** (메인 컨텍스트) — 위임 prompt로 전달받은 승인된 Gherkin 전문(또는 기존
+   `.feature`)과 기존 테스트 현황을 확인해 모드를 정한다: **신규 셋업**(acceptance-first,
+   승인된 Gherkin 전문이 있음) 또는 **기존 JUnit 이관**(구현 후 이관)
 2. **`tdd-acceptance-builder` 에이전트에 위임** — 대상 문서 경로 + 판정한 모드를 전달.
    `.feature` 작성/이관, Runner+Driver+Steps(Four Layer), 전체 green 확인, 기존 JUnit 정리,
    문서 정본 선언 갱신, 커밋까지 에이전트가 수행한다(아래 "에이전트가 수행하는 세부 단계"를

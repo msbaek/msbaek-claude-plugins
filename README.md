@@ -2,7 +2,7 @@
 
 Java/Spring Boot 프로젝트를 위한 TDD 워크플로우 Claude Code 플러그인입니다.
 
-Kent Beck의 TDD 원칙을 기반으로, 요구사항(도메인 규칙 + User Story) 작성부터 Gherkin Scenario, Red-Green-Blue 사이클, Cucumber 인수 테스트, Composed Method 지향 리팩토링까지 체계적인 테스트 주도 개발을 지원합니다.
+Kent Beck의 TDD 원칙을 기반으로, 앵커 작성(규칙 + 예제 검산표 + Gherkin)부터 Red-Green-Blue 사이클, Cucumber 인수 테스트, Composed Method 지향 리팩토링까지 체계적인 테스트 주도 개발을 지원합니다.
 
 | 플러그인 | 설명 | 버전 |
 |----------|------|------|
@@ -109,13 +109,14 @@ TDD 프로젝트의 진입점입니다. 템플릿 문서와 테스트 클래스�
 
 | 유형 | 설명 | 단계 |
 |------|------|------|
-| `general` | 일반 TDD | 요구사항 → Gherkin Scenario → Unit Test 목록 → RGB 사이클 (4단계) |
+| `general` | 일반 TDD | 앵커 작성 → RGB 사이클 (2단계) |
 | `web-app` | Web App TDD | 앵커 작성 → 인수 셋업(.feature) → Walking Skeleton → RGB 사이클 → JPA 완성 → DSL → 적대적 리뷰 → 하드닝 게이트 (8단계) |
 
 #### `/tdd-plan` — TDD 계획 수립 (Spec Anchored)
 
-얇은 앵커 문서(규칙 + 예제 검산표 + 미확정)를 작성합니다. 시나리오의 실행되는
-정본은 `.feature`이고(`/cucumber-acceptance`), 구현 중 배움은 앵커에 먼저
+얇은 앵커 문서(규칙 + 예제 검산표 + 미확정)를 작성합니다 — CancelOrder급 도메인
+기준 100줄 이하가 목표입니다. 시나리오의 실행되는 정본은 `.feature`이고
+(`/cucumber-acceptance`), 구현 중 배움은 앵커에 먼저
 반영됩니다(`msbaek-tdd/references/anchor-update.md`).
 
 **Spec Anchored 원칙**: 앵커는 한 번 쓰고 끝나는 문서가 아니라 구현 내내 살아
@@ -157,7 +158,7 @@ TDD 프로젝트의 진입점입니다. 템플릿 문서와 테스트 클래스�
 - **타입 경계**: 도메인 타입 ≠ DTO 타입
 - **태그 기반 가역 제외** — 미구현 시나리오를 태그로 제외했다가 구현 후 복원
 - 기존 JUnit 인수 테스트의 이관도 지원
-- 도입 시점: 프로젝트 시작 시 또는 나중에 (tdd-plan의 Gherkin Scenario를 실행 가능한 명세로 승격)
+- 도입 시점: 프로젝트 시작 시 또는 나중에 (tdd-plan 리뷰에서 승인된 Gherkin 초안을 실행 가능한 명세로 승격)
 
 #### `/tdd-rgb` — Red-Green-Blue 사이클
 
@@ -534,7 +535,7 @@ Web App 단계 E-2: Walking Skeleton
 | **tdd-red** | 실패하는 테스트 작성 | TDD 1법칙: "Write NO production code except to pass a failing test" |
 | **tdd-green** | 최소 구현으로 테스트 통과 | TPP (Transformation Priority Premise), Make-it-Work 전략 (Obvious / Fake it / Triangulation) |
 | **tdd-blue** | Composed Method 지향 리팩토링 | Tidying Process: Guard Clauses → One Pile → Reorder → Normalize Symmetries → Chunk → Comment → Extract Variable → Split Loop → Trimming |
-| **tdd-anchor-drafter** | Plan 기본 플로우 — 앵커(규칙+예제 검산표+미확정) + Gherkin 초안 1회 작성 | 앵커 100줄 이하, 산문 계층·Gherkin 사본 금지, 배움 반영은 `references/anchor-update.md` |
+| **tdd-anchor-drafter** | Plan 기본 플로우 — 앵커(규칙+예제 검산표+미확정) + Gherkin 초안 1회 작성 | 산문 계층·Gherkin 사본 금지, 배움 반영은 `references/anchor-update.md` (앵커 100줄 이하 목표는 `/tdd-plan` GOAL) |
 | **tdd-domain-modeler** (--full 전용) | Plan 단계 1 초안 — 도메인 규칙(0층) + User Story | 검산 전개 = 숫자의 정본, So that이 비면 작업 지시 |
 | **tdd-example-designer** (--full 전용) | Plan 단계 2 초안 — Gherkin 핵심 예시 | 경계 조건 5종 스캔(특히 집계 경계), Specification by Example |
 | **tdd-test-list** (--full 전용) | Plan 단계 3 초안 — Unit Test 목록 | Gherkin과 두 계층 중복 금지, Degenerate→General 도출 절차 |
