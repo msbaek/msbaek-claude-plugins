@@ -1,109 +1,56 @@
 ---
 name: tdd-plan
-description: TDD Planning - 도메인 규칙(0층) + User Story + Gherkin Scenario(programmer test) + unit test 목록 작성, 복잡도가 흐름·상태에 있으면 조건부 Use Case 추가. /tdd-plan으로 호출.
-argument-hint: "[plan-doc-path]"
+description: TDD Planning (Spec Anchored) - 얇은 앵커 문서(규칙 + 예제 검산표 + 미확정)를 에이전트 1회 + 사용자 리뷰 1회로 작성. --full로 현행 3단계 풀 플로우. /tdd-plan으로 호출.
+argument-hint: "[plan-doc-path] [--full]"
 allowed-tools: Write, Edit, Read, Bash(git add:*), Bash(git commit:*), Bash(git status:*)
 ---
 
-# TDD Planning Skill
+# TDD Planning Skill (Spec Anchored)
 
-Kent Beck의 TDD 원칙에 따라 구현 전 계획 문서를 작성하는 전문가입니다.
-요구사항(도메인 규칙 + User Story) → Gherkin Scenario(programmer test) → unit test 목록
-순서로 진행하며, Web App 유형에서는 인수 테스트 셋업(.feature)과 Walking Skeleton 단계가 추가됩니다.
-복잡도가 흐름·상태 전이에 있으면 Use Case를 조건부로 추가합니다.
+얇은 앵커를 만들고, 구현 내내 살아 있게 유지한다. 앵커 = 규칙(한 줄씩) +
+예제 검산표(값의 정본) + 미확정. 시나리오의 실행되는 정본은 `.feature`다
+(`/cucumber-acceptance`) — 앵커 문서에 Gherkin 사본을 두지 않는다.
+
+구현 중 배움은 `../../references/anchor-update.md`의 게이트로 앵커에 먼저
+반영된다 — plan은 변경 가능함이 최우선 원칙이다.
 
 ## GOAL
 
-- **성공 = 도메인 규칙(0층), User Story, Gherkin Scenario, unit test 목록이 템플릿 문서에 작성되고, 각 단계별 체크박스가 업데이트됨**
-- 단계 1: 요구사항 — 도메인 규칙(0층: 계산·제약의 근거 + 검산 전개)과 User Story(기능 나열)
-- 단계 2: Gherkin Scenario — 핵심 예시(경계·대표 예외 포함)를 실행 가능한 형식으로. Kent Beck이 말하는 programmer test(behavior에 coupled, structure에 decoupled)가 이 계층이다. 이후 `/cucumber-acceptance`의 `.feature` 원본이 된다
-- 단계 3: Unit Test 목록 — Gherkin에 없는 세밀 분기·내부 협력만. 구현 세부사항과 결합되는 classical unit test로, programmer test와는 별개 범주다(아래 "단계 3" 도입부 참조). RGB 구현 순서는 Gherkin 시나리오와 합쳐 Degenerate → General
-- (조건부) Use Case — 복잡도가 흐름·상태 전이에 있을 때만 추가 (판단 체크리스트 참조)
-- (Web App) 단계 E-1: 인수 테스트 셋업(.feature + Runner, `/cucumber-acceptance` 필수), 단계 E-2: Walking Skeleton 구현
-- 각 단계 완료 후 체크박스 업데이트 (`- [ ]` → `- [x]`)
-- 다음 단계 안내 제공
+- **성공 = 템플릿 문서의 앵커 섹션(규칙·예제·미확정)이 채워지고 사용자 리뷰 1회를
+  통과하며, (web-app) E-1 인수 셋업·E-2 Walking Skeleton으로 이어짐**
+- 승인 왕복은 기본 1회 — 앵커 초안 리뷰. 미확정 항목 질문은 그 리뷰에 함께 담는다
+- CancelOrder급 도메인에서 앵커 문서 100줄 이하
+
+## 기본 플로우 (경량)
+
+1. **`tdd-anchor-drafter` 에이전트 1회 호출** — plan-input 문서(있으면)·템플릿 문서
+   경로를 전달. 규칙·예제 검산표·미확정을 문서에 채우고 `.feature`용 Gherkin 초안을
+   반환받는다
+2. **사용자 리뷰 1회** — 앵커 내용 + Gherkin 초안 + 미확정 질문을 한 번에 제시.
+   수정 요청이면 에이전트 재호출 또는 메인이 직접 반영
+3. **커밋** — `git add [변경 파일]` (git add -A 금지) →
+   `git commit -m "docs: 앵커 작성 - [기능명]"` → 체크박스 갱신
+4. **(web-app) E-1: 인수 테스트 셋업** — `/cucumber-acceptance` 호출. 승인된 Gherkin
+   초안이 `.feature`가 된다 (미구현 시나리오 `@pending`)
+5. **(web-app) E-2: Walking Skeleton** — `tdd-skeleton-builder` 위임 (아래 참조)
+6. **다음 단계 안내** — 기어에 맞는 `/tdd-rgb` 또는 `/tdd-feature` 호출 안내.
+   구현 중 배움 반영 규약은 `../../references/anchor-update.md`가 정본
+
+### 경량 모드에 없는 것
+
+- Unit test 목록 단계 — Gherkin이 못 덮는 세밀 분기는 구현 중 발견 시
+  앵커 `## 규칙`에 한 줄 추가로 대체 (배움 반영 게이트)
+- critic 검증 — 사용자 리뷰 1회가 그 역할
+- 단계별 승인 왕복 — 리뷰는 1회다
+
+## --full 플로우
+
+high-stakes(인증·결제·데이터 삭제·외부 API·동시성 등 폭발 반경 큰 도메인)·대형·
+다팀 작업에서 사용자가 명시적으로 선택한다. 절차는
+`references/full-plan.md`가 정본 — tdd-domain-modeler → tdd-example-designer →
+tdd-test-list → tdd-plan-critic, 단계별 승인.
 
 ## CONSTRAINTS
-
-### Hard Rules
-
-#### Test Addition Rule
-
-```
-- 절차
-  - most simple and degenerate(special)에서 시작
-    - null, empty, 0, boundary, simple stuff 등과 같은 special case
-  - 다음 단계로 interesting 하지만 조금 덜 degenerate한 failing 테스트 케이스(단일 아이템, 최소 유효 값 등)를 점진적으로 추가
-  - test를 추가할 때는 특별한 이유가 있는 경우가 아니면 failing test만 추가. 모델 코드를 수정하지 않아도 성공하는 테스트는 추가하지 말아줘
-     - TEST SHOULD FAIL WHEN YOU ADD IT
-  - 마지막에 most interesting(general), 복잡한 테스트 케이스(복잡한 비즈니스 로직. 다중 할인 계산, 경계 값 케이스 등)를 추가해줘
-```
-
-#### Programmer Test 규칙 (FIRST 원칙)
-
-1. **Fast** - 테스트는 빠르게 실행되어야 함
-2. **Deterministic** - 동일한 조건에서 항상 동일한 결과
-3. **Predictive** - 모든 test가 성공하면 배포했을 때 문제 없어야 함
-4. **Behavior change에 민감, structure change에 둔감**
-   - 사용자에게 가치를 제공하는 external behavior에 coupled
-   - 리팩터링시 변경되는 internal structure에 decoupled
-5. **Cheap to write** - 테스트 작성 비용이 적어야 함
-6. **Cheap to read** - 테스트 코드가 명확하고 이해하기 쉬워야 함
-7. **Cheap to change** - 하나의 동작 변경으로 인해 실패하는 테스트가 다수이면 안됨
-
-> ※ 전체 Test Desiderata 12가지 속성은 `../tdd-rgb/references/test-design-principles.md` 참조
-
-#### 피드백 규칙
-
-- 한 단계에서 관련된 코드를 생성한 후에는 반드시 사용자에게 피드백을 요청
-- 사용자가 명시적으로 다음 단계로 진행하는 것을 결정해야만 다음 단계로 진행
-- 피드백 요청 형식: "이 [구현/테스트/설계]에 대한 피드백을 주시겠어요? 특히 [집중해야 할 부분]에 대해서요."
-
-### Principles
-
-#### 요구사항 작성 원칙 (0층 + User Story + Gherkin 공통)
-
-1. **완전성 (Completeness)**
-   - 모든 기능적 요구사항과 비기능적 요구사항 포함
-   - 경계 조건과 예외 상황 명시
-   - 입력과 출력에 대한 명확한 정의
-
-2. **명확성 (Clarity)**
-   - 애매모호한 표현 금지
-   - 구체적이고 측정 가능한 기준 제시
-   - 전문용어에 대한 명확한 정의
-
-3. **일관성 (Consistency)**
-   - 전체 문서에서 일관된 용어 사용
-   - 상호 모순되는 요구사항이 없도록 확인
-
-4. **검증 가능성 (Verifiability)**
-   - 각 요구사항이 테스트로 검증 가능하도록 작성
-   - 성공/실패 기준을 명확히 정의
-
-#### 경계 조건 식별 가이드
-
-1. **수치적 경계** - 0, 1, 최대값, 최소값, 임계점 전후 값, 음수/양수 경계
-2. **크기 경계** - 빈 컬렉션/최대 크기, 문자열 길이 제한
-3. **상태 경계** - 초기 상태/완료 상태, 활성/비활성, 유효/무효
-4. **시간 경계** - 시작/종료 시점, 타임아웃, 순서 의존성
-5. **집계 경계** - 같은 키(상품·회원·쿠폰)가 여러 항목(라인·요청·이벤트)으로 나뉠 수
-   있는가? 나뉠 수 있다면, **항목별로는 각각 통과하지만 합산하면 규칙을 위반하는**
-   입력이 존재하는가?
-
-> 5번이 놓치기 쉬운 이유: "여러 항목 중 하나가 규칙 위반"(서로 다른 상품 A·B) 시나리오는
-> 자연히 떠오르지만, **같은 키가 여러 항목으로 쪼개진 경우**는 떠오르지 않는다. 검증은
-> 항목별로 하고 반영은 누적으로 하면 그 사이가 벌어진다:
->
-> ```
-> 장바구니: [("A", 2개), ("A", 2개)]   ← 같은 상품이 두 라인
-> 재고: A = 3개
-> 검증(라인별): 2≤3 ✓ , 2≤3 ✓  → 통과
-> 차감(누적):   3-2=1 , 1-2=-1  → 재고 음수, 오버셀
-> ```
->
-> 검증 단위와 반영 단위가 다르면 그 차이가 곧 결함이다. 재고·한도·쿠폰 사용횟수·
-> 포인트처럼 **합산되는 자원**을 다루는 규칙이 있으면 이 경계를 반드시 시나리오로 만든다.
 
 #### Act-Assert 동일 추상화 수준 규칙
 
@@ -164,275 +111,7 @@ Kent Beck의 TDD 원칙에 따라 구현 전 계획 문서를 작성하는 전�
 이 규칙은 **새로 넣을 때의 시점**을 정한다. 이미 들어가 있는 도구를 제거하라는 뜻이
 아니다 — 제거는 별도 판단이다.
 
-## OUTPUT FORMAT
-
-### Document-Based Workflow
-
-**반드시 프로젝트 템플릿 문서(*.md)와 함께 작업합니다.**
-
-#### Step 1: 템플릿 문서 찾기
-1. TDD 템플릿 문서(절차 섹션이 있는 *.md) 찾기
-2. 현재 단계 파악 (체크박스 상태로 확인)
-3. 해당 섹션 내용 작성
-
-#### Step 2: 단계별 진행
-- 각 단계 완료 후 체크박스 업데이트 (`- [ ]` → `- [x]`)
-- 기존 내용은 변경하지 않고 append only로 갱신
-- 각 단계 완료 후 사용자 피드백 대기
-
----
-
-### 단계 1: 요구사항 작성 — 도메인 규칙(0층) + User Story
-
-요구사항 명세(기존 SRS가 하던 일)를 **두 부분으로 나눠** 작성한다. 규칙과 기능
-나열은 담는 그릇이 다르다 —
-계산·절사·상태 규칙은 어떤 스토리·시나리오 형식에도 담기지 않으므로(0층),
-별도 절로 살아야 한다.
-
-#### 작성 형식
-
-현재 markdown 파일의 요구사항 섹션이 비어 있으면 아래 형식으로 작성:
-
-```markdown
-## 1. 요구사항 — 도메인 규칙(0층) + User Story
-
-### 도메인 규칙 (0층)
-
-- 기본 규칙
-    - [기본적인 동작 방식과 제약조건]
-- 특별 규칙
-    - [예외상황이나 특수한 경우의 처리방식]
-- 검산 전개 (계산 도메인인 경우)
-    - [대표 입력 1건의 단계별 계산 — 숫자의 정본]
-
-### User Story (기능 나열)
-
-#### US-1 — [스토리 이름] (주 스토리)
-
-    As a    [역할 — 실제 사용자·이해관계자]
-    I want  [원하는 것]
-    So that [얻는 가치]
-
-- INVEST 점검: Valuable / Small / Testable 근거 한 줄씩
-```
-
-#### 1a. 도메인 규칙 (0층)
-
-- 계산식·절사·상태 규칙 등 **"왜 이 값이 맞는가"의 근거**
-- 구체 수치의 검산 전개도 여기에 둔다 — **숫자의 정본은 이곳 하나**이고, 단계 2
-  Gherkin의 `Examples` 표는 이 수치를 **옮겨 적은 복사본**이다 — 정본이 아니므로
-  수치를 고칠 때는 검산 전개를 고치고 표에 반영한다. 표만 고치지 않는다
-- User Story·Gherkin·Use Case 어디에도 담기지 않는 내용이므로, 생략하면 근거가
-  코드 주석·머릿속으로 흩어진다
-
-#### 1b. User Story (기능 나열)
-
-- 기능별 요구사항을 User Story로 나열한다. `So that`이 "왜 필요한가"를 강제한다 —
-  이 줄을 채울 수 없으면 스토리가 아니라 작업 지시다
-- **INVEST 점검** (스토리마다):
-    - *Valuable* — So that이 사용자 언어인가 (시스템 내부 사정이 아니라)
-    - *Small* — 한 단위인가 (계산만·조회만 등. 저장·이벤트는 별도 스토리)
-    - *Testable* — 단계 2 Gherkin으로 검증 가능한가
-
-#### 작성 샘플
-
-완성된 샘플(BowlingGame 도메인 규칙 0층, ShoppingBasket User Story + INVEST 점검)은
-이 스킬 디렉터리의 `references/examples.md`를 `Read`로 읽는다.
-
-#### 단계 1 작업 절차 — 초안은 에이전트, 승인은 메인
-
-1. **`tdd-domain-modeler` 에이전트에 초안 위임** — plan-input 문서(있으면)와 함께 전달.
-   도메인 규칙(0층: 비즈니스 규칙·제약, 계산 도메인이면 검산 전개)과 User Story(INVEST
-   점검 포함)를 템플릿 문서에 초안으로 작성해 반환
-2. **메인이 결과를 사용자에게 제시** — 에이전트가 남긴 "확인 필요" 항목이 있으면 함께 전달
-3. **사용자 승인 대기** — 명시적 승인 시에만 다음으로. 수정 요청이면 같은 에이전트를
-   재호출하거나 메인이 직접 반영
-4. **커밋** — 승인 후 메인이 변경된 파일 커밋 (에이전트는 커밋하지 않는다)
-   - `git add [변경된 파일들]` (git add -A 금지)
-   - `git commit -m "docs: 요구사항(도메인 규칙 + User Story) 작성 - [기능명]"`
-
----
-
-### 단계 2: Gherkin Scenario 작성 (예제)
-
-예제를 **Gherkin**으로 작성한다. 입력/기대결과/설명 3중 기술과 정보량은 같지만
-두 가지를 더 얻는다:
-
-1. **실행 가능성** — 이 Gherkin이 그대로 `/cucumber-acceptance`의 `.feature` 원본이
-   된다. 재작성 없이 문서→실행 이관되고, 기대값이 코드와 어긋나면 빌드가 깨져
-   드리프트가 구조적으로 차단된다.
-2. **핵심 예시 규율** — "key examples만"이라는 Specification by Example의 규율이
-   plan 단계부터 적용된다.
-
-#### 작성 규칙
-
-- `Rule:`로 User Story·비즈니스 규칙별로 그룹화한다 (US ↔ Rule 대응이 추적성)
-- 같은 규칙의 수치 변형은 `Scenario Outline` + `Examples` 표로 묶는다
-- **핵심 예시만** — happy path, 경계(임계값 전후), 대표 예외. 망라적 edge 나열
-  금지(시나리오 폭발). 커버리지용 분기는 단계 3 unit test로
-- 시나리오 선정 시 Principles의 "경계 조건 식별 가이드"를 사용한다
-- 숫자의 정본은 단계 1a의 검산 전개 — `Examples` 표 위에 「이 표의 수치는 §1 검산
-  전개의 복사본이다. 값이 다르면 검산 전개가 맞고 이 표가 틀린 것이다」 한 줄을 쓴다
-- 구현할 로직과 무관하거나 같은 규칙을 반복하는 시나리오는 제거하고 최대한 간결하게
-
-#### 예제 작성 템플릿
-
-````markdown
-## 2. Gherkin Scenario 작성
-
-(이 표의 수치는 §1 도메인 규칙의 검산 전개의 복사본이다. 값이 다르면 검산 전개가
-맞고 이 표가 틀린 것이다. `/cucumber-acceptance` 적용 시 실행되는 파일은 `.feature`다.)
-
-```gherkin
-Feature: [기능명]
-
-  Rule: [비즈니스 규칙]   # ← US-N
-
-    Scenario Outline: <케이스>. [규칙이 드러나는 이름]
-      Given [전제]
-      When [행동]
-      Then [검증]
-
-      Examples:
-        | 케이스 | 입력 | 기대값 | 걸리는 규칙 |
-```
-````
-
-#### 작성 샘플
-
-완성된 Gherkin 샘플(장바구니 구간 할인 + 빈 장바구니 거부)과 핵심 예시 선정 예는
-`references/examples.md`를 `Read`로 읽는다.
-
-#### 단계 2 작업 절차 — 초안은 에이전트, 승인은 메인
-
-1. **`tdd-example-designer` 에이전트에 초안 위임** — 승인된 단계 1 문서를 전달. Rule 그룹
-   구성, 핵심 예시 선정(happy path·경계·대표 예외), **경계 조건 5종 스캔**(집계 경계 포함)을
-   수행해 Gherkin을 템플릿 문서에 작성해 반환
-2. **메인이 결과를 사용자에게 제시** — 경계 조건 스캔 결과(해당/해당없음)를 함께 전달
-3. **사용자 승인 대기** — 명시적 승인 시에만 다음으로
-4. **커밋** — 승인 후 메인이 변경된 파일 커밋
-   - `git add [변경된 파일들]` (git add -A 금지)
-   - `git commit -m "docs: Gherkin Scenario 작성 - [기능명]"`
-
----
-
-### 단계 3: Unit Test 목록
-
-Gherkin 시나리오가 external behavior의 인수 목록을 담당하므로, 여기는 **Gherkin에
-없는 것만** 담는다:
-
-- **세밀한 분기** — null·empty·미매핑 입력 등 커버리지용 (Gherkin에 넣으면 산문이 소음)
-- **내부 협력·기술 도메인** — 직렬화·동시성·성능 등 문제 도메인의 언어가 코드인 영역
-- **property-based 후보** — "모든 입력에 대해 성립"해야 하는 성질
-
-**"Unit Test"이지 "Programmer Test"가 아니다** — Kent Beck의 programmer test는
-FIRST 4번째 원칙(behavior change에 민감, structure change에 둔감)을 만족해야
-하는데, 위 세 범주는 정의상 구현 세부사항(분기·내부 협력)에 결합된다. 이 결합은
-리팩터링 시 깨지기 쉬운 대가를 감수하고 커버리지·엣지케이스를 얻는 의도적
-선택이다. 단계 2 Gherkin 시나리오가 이 프로젝트에서 programmer test 계층이다.
-
-Cucumber를 쓰지 않는 프로젝트에서는 Gherkin 시나리오도 이 목록에 합쳐 JUnit으로
-구현한다(시나리오당 테스트 1개) — 이 경우 목록은 programmer test(Gherkin 유래)와
-unit test(세밀 분기)가 물리적으로 한 목록에 섞이지만, 개념적 구분은 유지된다.
-**RGB 구현 순서는 Gherkin 시나리오 + unit test를 합쳐 Degenerate → General로
-정렬한다.**
-
-**Degenerate → General 순서의 도출 절차** (결과가 아니라 만드는 방법):
-
-1. 가장 중요한 테스트(핵심 시나리오)를 먼저 적는다
-2. 거기 도달하기 위한 징검다리(stair-step) 테스트를 거슬러 내려간다
-3. most degenerate 테스트를 발견할 때까지 반복한다
-4. 목록을 **reverse order로 정렬**해 degenerate-first 순서를 만든다
-
-#### 테스트 목록 작성 템플릿
-
-```markdown
-## 3. Unit Test 목록 작성
-
-### [기능명]을 위한 테스트 리스트
-
-가장 단순한 특수 케이스(degenerate)에서 일반적인 케이스(general)로 진행하는 테스트 리스트:
-
-- [ ] [가장 단순한 degenerate case]
-- [ ] [기본적인 단일 요소 case]
-- [ ] [경계 조건 case]
-- [ ] [일반적인 비즈니스 규칙 case]
-- [ ] [복잡한 종합 case]
-```
-
-#### 작성 샘플
-
-완성된 테스트 목록 샘플(Cucumber 미사용 시 전체 목록 / Gherkin 병행 시 세밀 분기만),
-JavaDoc 형식 목록, External Behavior 케이스 전개는 이 스킬 디렉터리의
-`references/examples.md`를 `Read`로 읽는다.
-
-#### 중복 제거 기준
-- 비즈니스 규칙과 무관한 중복되는 테스트 케이스 제거
-- 동일한 비즈니스 규칙이 적용되는 테스트 케이스는 합치거나 제거
-- **Cucumber 병행 시, Gherkin 시나리오와 같은 검증을 unit test로 중복 작성하지 않는다** (두 계층 중복 금지. Cucumber 미사용이면 단계 3 도입부대로 시나리오를 이 목록에 합친다 — 그건 중복이 아니라 유일한 구현처)
-- 구현하려는 코드가 어떻게 동작해야 하는지 알고 있는 시나리오들을 나열
-
-#### 테스트 목록 작업 절차 — 초안은 에이전트, 승인은 메인
-
-1. **`tdd-test-list` 에이전트에 초안 위임** — 승인된 단계 2 Gherkin을 전달. 이미 덮인
-   검증 확인, 남은 세밀 분기 식별, Degenerate→General 순서 도출, 중복 제거를 수행해
-   템플릿 문서에 작성해 반환
-2. **메인이 결과를 사용자에게 제시**
-3. **사용자 승인 대기**
-4. **커밋** — 승인 후 메인이 변경된 파일 커밋
-   - `git add [변경된 파일들]` (git add -A 금지)
-   - `git commit -m "docs: unit test 목록 작성 - [기능명]"`
-5. **`tdd-plan-critic`으로 §1~§3 전체 교차검증** — 세 에이전트 산출물이 모두 승인된 뒤
-   호출. critical/major 발견은 해당 단계 에이전트를 재호출해 반영 → 재검증 → 재커밋.
-   보류 항목은 사용자에게 직접 질문. 통과해야 다음 단계로 진행한다
-6. **다음 단계 안내**
-   - **기본(acceptance-first)**: plan 합의 직후 `/cucumber-acceptance`로 `.feature` +
-     Runner를 먼저 셋업(미구현 시나리오는 `@pending`) — RGB가 진행되며 시나리오가
-     하나씩 green이 되는 이중 루프(외부 인수 루프 + 내부 TDD 루프). `tdd-plan`을
-     거쳐 온 신규 기능은 기본적으로 이 경로를 따른다
-   - 대안: `/tdd-rgb`(단계별 확인) 또는 `/tdd-feature`(feature 단위 자율)로 Cucumber
-     없이 바로 구현 — 이미 구현·테스트가 있는 기존 프로젝트에 기능을 추가할 때,
-     또는 `tdd-plan`을 거쳤어도 이 기능만 Cucumber를 의도적으로 쓰지 않기로
-     사용자가 명시적으로 선택했을 때. **단 `web-app` 유형은 Cucumber가 필수이므로,
-     프로젝트 제약(의존성 정책 등)으로 도입 불가한 경우에만 이 대안을 택하고
-     대표 시나리오 1개를 JUnit 인수 테스트로 작성한다**(단계 E-1의 탈출구). **이 대안을 고르면(사유 무관) 구현 시작
-     전에 단계 3의 Unit Test 목록으로 돌아가 Gherkin 시나리오를 합쳐 넣고
-     체크박스·커밋을 갱신한다**(단계 3 도입부의 "Cucumber를 쓰지 않는 프로젝트"
-     경로대로) — 단계 3은 acceptance-first를 가정하고 Gherkin이 담당할 검증을
-     목록에서 제외한 채 작성됐으므로, 병합 없이 그대로 구현하면 external
-     behavior 검증이 어디에도 남지 않는다
-
----
-
-### (조건부) Use Case 추가 — 복잡도가 흐름에 있을 때
-
-복잡도가 **규칙**에 있으면 0층(1a)이 두꺼워지고 Use Case는 얇아진다 — 계산 중심
-도메인은 생략이 기본이다. 복잡도가 **흐름·상태 전이**에 있으면 Use Case의 확장절이
-주역이 된다 — 주로 `web-app` 유형에서 해당한다.
-
-**판단 체크리스트 — 2개 이상이면 추가한다:**
-
-1. 액터가 2명 이상이고 이해관계자 관심사가 충돌한다 (예: 고객 vs 정산 담당자)
-2. 상태 전이가 있다 (예: 배정 전/후, 승인 대기/완료, 반품 접수/검수/환불)
-3. 대안·예외 흐름이 3개 이상이다 — "정상 흐름의 어느 지점에서 갈라지는가"가 중요
-4. 기능 간 불변식이 있다 (예: 조회가 보여준 금액 = 주문이 확정한 금액)
-
-**작성 시:**
-
-- 확장절(대안·예외 흐름)과 기능 간 불변식 중심으로 쓴다 — Gherkin은 시나리오를
-  나열할 수 있지만 "정상 흐름의 어느 지점에서 갈라지는가"라는 구조는 확장절만
-  표현한다
-- 계산 규칙은 0층(1a) 참조로 둔다 — Use Case 본문에 계산을 풀어쓰지 않는다
-- `web-app` 유형이면 E-1의 `.feature` 시나리오가 UC 주 성공 시나리오의 실행 가능한
-  형태다 — UC를 썼다면 인수 테스트가 검증할 흐름·확장 지점이 문서로 먼저 확정된 것이다
-
-**UC Scenario(구체 인스턴스 전개)는 만들지 않는다** — 하던 일의 실행 가능한
-대체물이 이미 파이프라인에 있다: 구체 수치는 Gherkin `Examples` 표(실행됨), 주
-흐름의 단계별 추적은 `.feature` 시나리오(필요 시 Step의 Approvals 출력). 검산 전개만 0층에 남긴다.
-
----
-
-### Web App 추가 단계
+## Web App 추가 단계
 
 > 다음 단계들은 TDD 유형이 `web-app`일 때만 진행합니다.
 
@@ -456,7 +135,7 @@ behavior의 주 검증층이므로 별도 High Level Test(JUnit)를 두지 않�
 real(실행 경로가 진짜인가)과 thinnest(기능이 얇은가)는 다른 축이다 — DB를 in-memory로
 대체하면 real 위반이고, 합산·할인 같은 비즈니스 규칙이 들어가면 thinnest 위반이다.
 
-**`tdd-skeleton-builder` 에이전트에 위임한다** — 승인된 단계 2 문서 경로(어떤 HTTP 요청이
+**`tdd-skeleton-builder` 에이전트에 위임한다** — 승인된 앵커 문서 경로(어떤 HTTP 요청이
 인수 조건인지 판단 근거) + E-1에서 `tdd-acceptance-builder`가 확정한 Target Design을
 전달한다. 이 단계에서 함께 확정되는 불변 규칙(에이전트가 판단·적용하는 것 — 미루면 우회가
 쌓인 뒤에 되돌려야 한다):
@@ -479,13 +158,8 @@ real(실행 경로가 진짜인가)과 thinnest(기능이 얇은가)는 다른 �
 
 ## FAILURE CONDITIONS
 
-### 품질 체크리스트
-
-단계 1~2 작성 후 다음 사항을 확인:
-
-- [ ] 모든 기능이 User Story로 나열되었고, So that이 사용자 언어인가? (비었거나 시스템 내부 사정이면 작업 지시)
-- [ ] 계산·절사 규칙의 근거(검산 전개)가 0층에 있는가? (Gherkin Examples에만 있으면 정본 부재)
-- [ ] Gherkin이 핵심 예시만 담았는가? (경계·대표 예외 포함, 망라적 edge 나열 금지)
-- [ ] 각 요구사항이 테스트로 검증 가능한가?
-- [ ] 애매모호한 표현·상호 모순되는 요구사항이 없는가?
-- [ ] UC Scenario 문서를 만들지 않았는가? (Gherkin Examples 표·`.feature` 실행이 대체)
+- 앵커 문서에 산문 계층(정본 선언·INVEST·제외 근거)이나 Gherkin 사본을 씀
+- 경량 모드에서 3 에이전트(domain-modeler·example-designer·test-list) 또는
+  critic을 호출함
+- 사용자가 --full을 선택하지 않았는데 unit test 목록 단계를 진행함
+- 승인 왕복이 리뷰 1회 + 미확정 질문을 초과함 (사용자가 수정을 요청한 경우 제외)
