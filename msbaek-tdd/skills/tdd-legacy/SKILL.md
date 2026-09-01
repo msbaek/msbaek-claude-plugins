@@ -61,6 +61,7 @@ argument-hint: "<대상 클래스 FQCN 또는 파일 경로>"
 5. 커밋: `test: <대상> characterization 테스트 추가`. 커밋 메시지는
    `docs/reviewable-commits.md`(없으면 `~/.claude/docs/reviewable-commits.md`)
    표준을 따른다 — body에 어떤 행위를 고정했고 sabotage 검증 결과를 기록.
+   길이는 `../../references/commit-style.md`의 간결성 규칙(제목 + 핵심 bullet 2~4줄)을 따른다.
    커밋 직전 `git diff --stat`으로 테스트 외 파일 변경이 없는지 확인한다
    (sabotage 원복 누락 차단).
 6. **사용자 검토 대기** — 고정한 행위 목록과 의심 동작 보고

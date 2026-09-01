@@ -82,7 +82,7 @@ Remember: "Blue phase is about making code **EASIER TO CHANGE**, not making it p
   (커밋 보류 모드에서는 분리할 커밋이 없으므로, 변경 요약에 One Pile 적용 사실을 명시한다)
 - [ ] 다른 클래스로의 Extract Method·Domain Logic 이동을 하지 않았는가
 - [ ] (커밋하는 경우) 커밋 메시지가 `docs/reviewable-commits.md` 표준을 따르는가 (subject
-  `refactor:`, body에 무엇을·왜 개선했는지)
+  `refactor:`, body에 무엇을·왜 개선했는지, `../references/commit-style.md`의 간결성 준수)
 - [ ] (커밋 보류인 경우) 커밋하지 않고 변경 요약(tidying이 무엇을 드러냈는지)을 반환했는가
 
 ## OUTPUT FORMAT
@@ -106,7 +106,8 @@ Remember: "Blue phase is about making code **EASIER TO CHANGE**, not making it p
    - `git status`로 변경 확인, `git add [변경된 파일들]` (`git add -A` 금지)
    - 커밋 메시지는 `docs/reviewable-commits.md`(없으면 `~/.claude/docs/reviewable-commits.md`)
      표준을 따른다. subject는 `refactor:` 접두사, body에 무엇을·왜 정리했는지. 형식은 이
-     표준이 유일한 출처이므로 여기서 재기술하지 않는다.
+     표준이 유일한 출처이므로 여기서 재기술하지 않는다. 길이는
+     `../references/commit-style.md`의 간결성 규칙(제목 + 핵심 bullet 2~4줄)을 따른다.
    - 한글 메시지는 임시 파일 + `git commit -F` (`-m "한글"` 금지 — 깨짐)
 5. **완료 보고 및 문서 업데이트**
    - RGB 모드: 템플릿 문서에 구조 개선 사항 한 줄 기록, 다음 Red Phase 안내

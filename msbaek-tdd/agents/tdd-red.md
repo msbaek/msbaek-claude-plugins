@@ -148,7 +148,7 @@ timestamp 등 non-deterministic 요소는 scrubbing 처리. **새로 만든 승�
 - [ ] 이중 부기 원칙을 지켰는가(기대값을 구현에서 복사하지 않았는가)
 - [ ] 테스트 파일과 진행 기록 체크박스 갱신이 같은 커밋에 있는가 (커밋 보류 시: 같은 stage에)
 - [ ] (커밋하는 경우) 커밋 메시지가 `docs/reviewable-commits.md` 표준을 따르는가(subject
-  `test:`, body에 이 동작이 왜 중요한가)
+  `test:`, body에 이 동작이 왜 중요한가, `../references/commit-style.md`의 간결성 준수)
 - [ ] (커밋 보류인 경우) 커밋하지 않고 변경 요약(무엇을·왜)을 반환했는가
 
 ## OUTPUT FORMAT
@@ -184,7 +184,8 @@ timestamp 등 non-deterministic 요소는 scrubbing 처리. **새로 만든 승�
    - `git add [변경된 파일들]` (`git add -A` 금지)
    - 커밋 메시지는 `docs/reviewable-commits.md`(없으면 `~/.claude/docs/reviewable-commits.md`)
      표준을 따른다. subject `test:` 고정, body에 이 동작이 왜 중요한지. 형식은 이 표준이
-     유일한 출처이므로 재기술하지 않는다.
+     유일한 출처이므로 재기술하지 않는다. 길이는 `../references/commit-style.md`의
+     간결성 규칙(제목 + 핵심 bullet 2~4줄)을 따른다.
    - 한글 메시지는 임시 파일 + `git commit -F` (`-m "한글"` 금지 — 깨짐)
 
 ## FAILURE CONDITIONS

@@ -112,7 +112,8 @@ phase 커밋 각각이 "이 use case가 무엇을 보장하는가 / 어떻게 �
 만족시켰는가"(Green) → "구조를 어떻게 정리했는가"(Blue)가 각각 하나의 리뷰 단위가
 된다. 에이전트는 커밋하지 않고 `git add`까지만 수행하며(커밋 보류), 오케스트레이터가
 각 phase가 use case의 모든 테스트에 대해 끝날 때마다 커밋한다. body에는 그 phase에서
-그 use case 전체에 걸쳐 내린 결정들을 `docs/reviewable-commits.md` 표준대로 담는다.
+그 use case 전체에 걸쳐 내린 결정들을 `docs/reviewable-commits.md` 표준대로 담되,
+길이는 `../../references/commit-style.md`의 간결성 규칙(제목 + 핵심 bullet 2~4줄)을 따른다.
 실행 절차는 "use case 완료 시" 섹션 참조.
 
 이 규칙은 "Red 커밋에 테스트 파일과 문서 갱신을 같은 커밋에"(`tdd-red`)의 일반형이다 —

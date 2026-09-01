@@ -68,7 +68,7 @@ high 기어**이기 때문이다. 따라서 tdd-rgb의 high 기어 안전장치�
 
 #### 4. Reviewable 커밋 (mental model을 박제하라)
 
-- 모든 커밋은 **`docs/reviewable-commits.md`(없으면 `~/.claude/docs/reviewable-commits.md`) 표준**을 단일 출처로 따른다. subject·body 형식의 유일한 정의처가 이 표준이며, 이 스킬·에이전트는 형식을 **재기술하지 않고 경로로 참조만** 한다 — 규칙이 바뀌면 이 표준 파일 1곳만 고치면 모든 소비자에 반영된다(드리프트 방지). (배포 시 표준 전문은 README의 "커밋 표준" 섹션 참조.)
+- 모든 커밋은 **`docs/reviewable-commits.md`(없으면 `~/.claude/docs/reviewable-commits.md`) 표준**을 단일 출처로 따른다. subject·body 형식의 유일한 정의처가 이 표준이며, 이 스킬·에이전트는 형식을 **재기술하지 않고 경로로 참조만** 한다 — 규칙이 바뀌면 이 표준 파일 1곳만 고치면 모든 소비자에 반영된다(드리프트 방지). (배포 시 표준 전문은 README의 "커밋 표준" 섹션 참조.) 단, **길이는 플러그인 `../../references/commit-style.md`의 간결성 규칙(제목 + 핵심 bullet 2~4줄)이 우선한다** — 표준의 채널들을 장문 서술로 풀지 않는다.
 - 이 스킬 고유사항만 여기 명시: 커밋이 phase마다 하나이므로 subject의 type 접두사는
   그 phase 그대로(`test:`/`feat:`/`refactor:`)이고, 무엇을 했는지가 아니라 **그 phase가
   이 use case에 대해 무엇을 보장·구현·정리했는지**를 적는다.

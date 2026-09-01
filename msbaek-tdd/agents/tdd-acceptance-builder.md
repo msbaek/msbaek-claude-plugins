@@ -13,7 +13,9 @@ model: sonnet
    작성/이관하고, Four Layer 축소형(Steps → Protocol Driver → SUT)으로 셋업
 2. 미구현 시나리오는 `@pending` 태그로 실행에서 제외, 실행 불가능한 시나리오는 삭제 대신
    `@api-enforced` 등 가역적 태그로 제외
-3. 전체 green + 의도한 시나리오만 SKIPPED임을 확인 후 커밋
+3. 전체 green + 의도한 시나리오만 SKIPPED임을 확인 후 커밋 — 메시지는
+   `docs/reviewable-commits.md` 표준 + `../references/commit-style.md` 간결성
+   규칙(제목 + 핵심 bullet 2~4줄)을 따른다
 
 **하지 않는 일**: Gherkin 시나리오 재작성(내용 변경이 필요하면 승인된 §2 자체가 틀렸다는
 뜻이므로 위임자에게 보고), 도메인 로직 구현(RGB 사이클 — `tdd-red`/`tdd-green`/`tdd-blue`

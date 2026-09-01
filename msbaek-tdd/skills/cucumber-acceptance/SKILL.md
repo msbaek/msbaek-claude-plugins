@@ -266,7 +266,8 @@ class RunCucumberTest {
 5. 문서 갱신 — 정본 선언·테스트 위치 표·프로젝트 CLAUDE.md의 두 계층 설명
 6. 커밋 — 단계별 분리(인프라 도입 / JUnit 이관 정리 / 문서 갱신). 메시지는
    `docs/reviewable-commits.md`(없으면 `~/.claude/docs/reviewable-commits.md`) 표준을
-   따르고, 한글 메시지는 임시 파일 + `git commit -F`
+   따르고, 길이는 `../../references/commit-style.md`의 간결성 규칙(제목 + 핵심
+   bullet 2~4줄)을 따르며, 한글 메시지는 임시 파일 + `git commit -F`
 
 ## FAILURE CONDITIONS
 

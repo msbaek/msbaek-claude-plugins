@@ -596,6 +596,8 @@ python3 .../tdd-profile.py ~/.claude/projects/-Users-me-git-my-app
 
 이 플러그인의 RGB 커밋(`test:`/`feat:`/`refactor:`)은 **하나의 커밋 표준을 단일 출처(SSoT)로 참조**합니다. 스킬·에이전트는 형식을 재기술하지 않고 경로(`docs/reviewable-commits.md` → 없으면 `~/.claude/docs/reviewable-commits.md`)로만 가리키므로, 규칙이 바뀌어도 **표준 파일 1곳만** 고치면 됩니다.
 
+단, **본문 길이는 플러그인 `msbaek-tdd/references/commit-style.md`의 간결성 규칙이 우선**합니다 — 제목 1줄 + 핵심 bullet 2~4줄(각 1줄). 표준의 Why·버린 대안 채널을 장문 서술로 풀지 않습니다.
+
 **배포받은 분(distributee) 설치 방법**: 아직 자신의 커밋 표준이 없다면, 아래 전문을 `~/.claude/docs/reviewable-commits.md`(전역) 또는 프로젝트 `docs/reviewable-commits.md`(프로젝트별)에 저장하세요. 이미 자신의 표준이 있으면 같은 경로에 두기만 하면 이 플러그인이 그것을 사용합니다.
 
 > 아래는 작성자(@msbaek)의 개인 `~/.claude/docs/reviewable-commits.md` **사본(snapshot)**입니다. 원본이 갱신되면 이 사본도 함께 갱신됩니다.

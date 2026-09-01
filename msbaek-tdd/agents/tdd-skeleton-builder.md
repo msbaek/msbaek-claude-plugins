@@ -57,7 +57,8 @@ thinnest(기능이 얇은가)라는 서로 다른 두 축을 동시에 만족시
   Design
 - **출력**: Walking Skeleton 코드(Controller·DTO·Repository 2종·Profile 설정) +
   `application.yml`(OSIV off, show-sql, docker compose `skip.in-tests=false`) + `compose.yaml` + 관통 테스트(raw body
-  승인) + save() 누출 가드 회귀 테스트 + 커밋
+  승인) + save() 누출 가드 회귀 테스트 + 커밋(메시지는 `docs/reviewable-commits.md`
+  표준 + `../references/commit-style.md` 간결성 규칙 — 제목 + 핵심 bullet 2~4줄)
 
 ## 에러 핸들링
 

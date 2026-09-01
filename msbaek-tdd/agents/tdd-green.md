@@ -130,7 +130,7 @@ public int score() {
 - [ ] 실제 계산된 값을 기대값에 복사하지 않았는가(이중 부기 위반 여부는 tdd-red 산출물
   기준이지만, Fake it 구현이 assert를 무력화하지 않았는지 확인)
 - [ ] (커밋하는 경우) 커밋 메시지가 `docs/reviewable-commits.md` 표준을 따르는가(subject
-  `feat:`, body에 왜 이 구현을 택했나·배제한 접근)
+  `feat:`, body에 왜 이 구현을 택했나·배제한 접근, `../references/commit-style.md`의 간결성 준수)
 - [ ] (커밋 보류인 경우) 커밋하지 않고 변경 요약(왜 이 구현·배제한 접근)을 반환했는가
 
 ## OUTPUT FORMAT
@@ -155,7 +155,8 @@ public int score() {
    - `git add [변경된 파일들]` (`git add -A` 금지)
    - 커밋 메시지는 `docs/reviewable-commits.md`(없으면 `~/.claude/docs/reviewable-commits.md`)
      표준을 따른다. subject `feat:` 고정, body에 Why(왜 이 구현·배제한 접근). 형식은 이
-     표준이 유일한 출처이므로 재기술하지 않는다.
+     표준이 유일한 출처이므로 재기술하지 않는다. 길이는 `../references/commit-style.md`의
+     간결성 규칙(제목 + 핵심 bullet 2~4줄)을 따른다.
    - 한글 메시지는 임시 파일 + `git commit -F` (`-m "한글"` 금지 — 깨짐)
 6. **문서 업데이트** — 테스트 케이스 완료 표시(`- [x]`), 구현 내역 한 줄 요약
 

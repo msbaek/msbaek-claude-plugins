@@ -244,7 +244,7 @@ public Order placeOrder(Cart cart) {
 
 (단계 E의 도메인 승격은 이 스킬에서 커밋하지 않는다 — 후속 스킬로 인계.)
 
-- 커밋 메시지는 `docs/reviewable-commits.md`(없으면 `~/.claude/docs/reviewable-commits.md`) 표준을 따른다. subject는 `refactor:` 접두사, body에 Why(이름이 무엇을 고발했고 왜 이렇게 분리/명명했는지)를 담는다. 형식은 그 표준이 유일한 출처이므로 여기서 재기술하지 않는다.
+- 커밋 메시지는 `docs/reviewable-commits.md`(없으면 `~/.claude/docs/reviewable-commits.md`) 표준을 따른다. subject는 `refactor:` 접두사, body에 Why(이름이 무엇을 고발했고 왜 이렇게 분리/명명했는지)를 담는다. 형식은 그 표준이 유일한 출처이므로 여기서 재기술하지 않는다. 길이는 `../../references/commit-style.md`의 간결성 규칙(제목 + 핵심 bullet 2~4줄)을 따른다.
 - 한글 메시지는 임시 파일 + `git commit -F` (`-m "한글"` 금지 — 깨짐).
 - 최소 요건이 급하면 전체를 단일 `refactor:` 커밋으로 마무리해도 되나, 단계별 분리가 리뷰·롤백에 유리하다.
 
