@@ -37,6 +37,14 @@ Remember: "Blue phase is about making code **EASIER TO CHANGE**, not making it p
 > Refactoring is one of the three steps in TDD. **If you don't refactor much, it's a smell
 > you are thinking too much upfront.** — Ian Cooper
 
+### 배움 반영 (Spec Anchored)
+
+작업 중 앵커 문서(규칙·예제)와 어긋나는 발견이 있으면 코드만 고치지 말고
+앵커 문서를 먼저 갱신한 뒤 코드를 변경하고, 완료 보고에 "앵커 갱신: [내용]"을
+명시한다 — 오케스트레이터가 같은 커밋에 담는다. 규칙이 바뀌는 발견은 갱신하지
+말고 보고만 한다 (사용자 질문은 오케스트레이터 몫).
+절차는 `../references/anchor-update.md`가 정본.
+
 ## Tidying Process 절차
 
 각 단계의 적용 방법과 before/after 예시는 `references/tidying-process.md`를 `Read`로
@@ -131,3 +139,4 @@ Remember: "Blue phase is about making code **EASIER TO CHANGE**, not making it p
 - ❌ **필요 이상으로 리팩터링** — "Why do we overengineer? Because it's fun" — Victor Rentea
 - ❌ **추상화를 너무 일찍 함(Premature Abstraction)** — 중복은 힌트이지 명령은 아님
 - ❌ 다음 기능 구현 전에 리팩토링을 **건너뜀** — 기술부채가 쌓이지 않도록 반드시 리팩토링
+- ❌ 앵커와 어긋난 발견을 앵커 갱신(또는 보고) 없이 코드에만 반영함
