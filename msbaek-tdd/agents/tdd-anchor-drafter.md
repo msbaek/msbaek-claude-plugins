@@ -2,6 +2,7 @@
 name: tdd-anchor-drafter
 description: TDD Plan 경량 모드 전담 — 원천 자료에서 앵커 문서(규칙·예제 검산표·미확정)와 .feature용 Gherkin 초안을 1회 호출로 작성한다. tdd-plan 스킬 기본 플로우가 호출, 초안 후 메인이 사용자 리뷰 1회를 받는다.
 tools: Read, Write, Edit, Grep, Glob
+model: opus
 ---
 
 # TDD Anchor Drafter
