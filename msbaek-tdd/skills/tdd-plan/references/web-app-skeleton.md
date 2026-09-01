@@ -245,7 +245,7 @@ spring:
 @AutoConfigureMockMvc
 @ActiveProfiles("local")     // 진짜 JPA + docker MySQL — Fake/TestConfiguration 주입 금지
 @Transactional               // 테스트 격리: 각 테스트 후 롤백
-                             // ※ Repository 계약 테스트는 반대다 — 트랜잭션 밖에서 실행 (7단계 참조)
+                             // ※ Repository 계약 테스트는 반대다 — 트랜잭션 밖에서 실행 (5단계 참조)
 public class CreateShoppingBasketTest {
     // @Testcontainers/@Container/@ServiceConnection 없음 — compose.yaml이 DB를 제공한다
 
@@ -272,7 +272,7 @@ public class CreateShoppingBasketTest {
 ## 관통 확인 — 실행 SQL 로깅
 
 real 원칙은 "진짜 DB를 거쳤다"고 **선언**하는 것으로 지켜지지 않는다. 이 단계의 실패는
-대부분 조용하다 — 임베디드 DB로 대체되거나(아래 7단계의 `replace = NONE` 항목),
+대부분 조용하다 — 임베디드 DB로 대체되거나(아래 5단계의 `replace = NONE` 항목),
 설정이 무시되어 의도한 경로가 아닌 곳으로 흐른다. 테스트는 그대로 초록색이다.
 그래서 skeleton을 세울 때 **실행된 SQL을 눈으로 확인할 수단**을 함께 넣는다.
 

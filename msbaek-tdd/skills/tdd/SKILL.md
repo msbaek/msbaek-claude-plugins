@@ -99,7 +99,7 @@ FQCN을 기반으로 다음 경로를 결정합니다:
 2. 진행 기록의 기어 상태 확인 — 있으면 현재 기어와 전환 이력을 함께 안내, 없으면 low로 간주
 3. 완료된 단계와 다음 단계 안내
 4. 적절한 다음 명령어 안내:
-   - 요구사항(도메인 규칙 + User Story)/Gherkin Scenario/unit test 목록 미완성 → **"/tdd-plan 실행하세요"**
+   - 앵커(규칙·예제·미확정) 미완성 → **"/tdd-plan 실행하세요"** (high-stakes·대형 작업이면 `/tdd-plan --full`로 3 에이전트 + critic 풀 플로우를 안내)
    - 테스트 구현 단계 → 아래 "구현 스킬 라우팅" 표로 기어에 맞는 호출을 안내
    - 대상이 테스트 없는 기존 코드(레거시)라면 이 템플릿 흐름 대신 → **"/tdd-legacy로 안전망부터 구축하세요"**
 
@@ -126,68 +126,56 @@ high다(상세는 tdd-rgb의 "기어(Gears)" 섹션).
 
 ---
 
-### General TDD 템플릿 (4단계)
+### General TDD 템플릿 (2단계)
 
 ```markdown
 # {ClassName} TDD 구현
 
 ## 절차
-- [ ] 1. 요구사항 작성 (도메인 규칙 + User Story)
-- [ ] 2. Gherkin Scenario 작성
-- [ ] 3. Unit Test 목록 작성
-- [ ] 4. 테스트 구현 (RGB 사이클)
+- [ ] 1. 앵커 작성 (규칙 + 예제 검산표 + 미확정)
+- [ ] 2. 테스트 구현 (RGB 사이클)
 
-## 1. 요구사항 — 도메인 규칙(0층) + User Story
+## 규칙
 
-## 2. Gherkin Scenario
+## 예제 (검산표)
 
-## 3. Unit Test 목록
+## 미확정
 
-## 4. 진행 기록
+## 진행 기록
 
 기어: low
+
+## 배움 로그
 ```
 
 ---
 
-### Web App TDD 템플릿 (10단계)
+### Web App TDD 템플릿 (8단계)
 
 ```markdown
 # AI와 Pair로 {ClassName}을 TDD로 구현하기 (Web App)
 
 ## 전체적인 절차
-- [ ] 1. 요구사항 작성 (도메인 규칙 + User Story, 조건부 Use Case)
-- [ ] 2. Gherkin Scenario 작성
-- [ ] 3. 인수 테스트 셋업 (.feature + Runner, 미구현은 @pending)
-- [ ] 4. Unit Test 목록 작성
-- [ ] 5. Walking Skeleton 구현
-- [ ] 6. 테스트 구현 (RGB 사이클 — 각 Green이 자기 시나리오 @pending 해제)
-- [ ] 7. JPA Repository 완성 (계약 테스트로 InMemory와 동등성 검증)
-- [ ] 8. DSL 개선 (Steps·Protocol Driver·Test Data Builder)
-- [ ] 9. 적대적 리뷰 (high 기어 또는 폭발 반경 high-stakes 시 — 7·8을 마친 뒤 실행, diff가 전체 구현을 포함해야 함)
-- [ ] 10. 하드닝 게이트 (① CRAP·DRY 분석 → ② /system-wide-refactoring → ③ mutation 대표 파일 1개 — 제안만, 실행은 사용자 결정)
+- [ ] 1. 앵커 작성 (규칙 + 예제 검산표 + 미확정)
+- [ ] 2. 인수 테스트 셋업 (.feature + Runner, 미구현은 @pending — .feature가 시나리오의 실행되는 정본)
+- [ ] 3. Walking Skeleton 구현
+- [ ] 4. 테스트 구현 (RGB 사이클 — 각 Green이 자기 시나리오 @pending 해제)
+- [ ] 5. JPA Repository 완성 (계약 테스트로 InMemory와 동등성 검증)
+- [ ] 6. DSL 개선 (Steps·Protocol Driver·Test Data Builder)
+- [ ] 7. 적대적 리뷰 (high 기어 또는 폭발 반경 high-stakes 시 — 5·6을 마친 뒤 실행, diff가 전체 구현을 포함해야 함)
+- [ ] 8. 하드닝 게이트 (① CRAP·DRY 분석 → ② /system-wide-refactoring → ③ mutation 대표 파일 1개 — 제안만, 실행은 사용자 결정)
 
-## 1. 요구사항 — 도메인 규칙(0층) + User Story
+## 규칙
 
-## 2. Gherkin Scenario
+## 예제 (검산표)
 
-## 3. 인수 테스트 셋업
+## 미확정
 
-## 4. Unit Test 목록
-
-## 5. Walking Skeleton
-
-## 6. 진행 기록
+## 진행 기록
 
 기어: low
 
-## 7. JPA Repository
-
-## 8. DSL 개선
-
-## 9. 적대적 리뷰
-
-## 10. 하드닝 게이트
+## 배움 로그
 ```
 
 > Web App은 `/cucumber-acceptance`가 **필수**다 — 단계 2의 Gherkin이 `.feature`로

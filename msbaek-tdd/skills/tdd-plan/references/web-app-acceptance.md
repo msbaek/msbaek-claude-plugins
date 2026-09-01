@@ -9,7 +9,7 @@ Web App은 `/cucumber-acceptance`가 **필수**다. 단계 2에서 쓴 Gherkin�
 않는다** — 같은 검증이 두 계층에 중복되면 안 된다(`cucumber-acceptance`의 Hard Rule).
 
 - `/cucumber-acceptance`를 호출해 `.feature` + Runner + Steps + Protocol Driver를 셋업
-- 미구현 시나리오는 `@pending` 태그로 제외 — 6단계 RGB 사이클에서 각 Green이 자기
+- 미구현 시나리오는 `@pending` 태그로 제외 — 4단계 RGB 사이클에서 각 Green이 자기
   시나리오의 태그를 같은 커밋에서 해제한다. `@Disabled` 일괄 토글이 아니라
   **시나리오 단위 해제**다. `Scenario Outline`의 Examples 행이 여러 규칙에 걸쳐 있으면
   블록을 쪼개 더 작은 단위로 해제한다 — `cucumber-acceptance`의 "Scenario Outline —

@@ -85,12 +85,12 @@ LAZY 연관 접근이 전부 `LazyInitializationException`이다(detached 엔티
 
 ## 이후 단계와의 연결
 
-아래 단계 번호는 Web App TDD 템플릿의 "전체적인 절차" 10단계(tdd skill의 템플릿
+아래 단계 번호는 Web App TDD 템플릿의 "전체적인 절차" 8단계(tdd skill의 템플릿
 참조) 기준이다.
 
-- **6단계 RGB 사이클**: 도메인 규칙은 repository 없는 단위 테스트로 성장시키고,
+- **4단계 RGB 사이클**: 도메인 규칙은 repository 없는 단위 테스트로 성장시키고,
   저장이 필요한 테스트만 `inMemory` profile의 In-Memory 구현(Map 기반)을 사용
-- **7단계 JPA Repository**: "처음 구현"이 아니라 **완성** — skeleton의 최소 JPA를
+- **5단계 JPA Repository**: "처음 구현"이 아니라 **완성** — skeleton의 최소 JPA를
   성장한 도메인 전체를 커버하도록 확장하고, 같은 계약 테스트 스위트를 InMemory·JPA
   양쪽에 실행해 두 구현의 동등성을 검증한다 (in-memory가 JPA 의미론과 조용히
   어긋나는 드리프트 방지):
