@@ -110,7 +110,7 @@ TDD 프로젝트의 진입점입니다. 템플릿 문서와 테스트 클래스�
 | 유형 | 설명 | 단계 |
 |------|------|------|
 | `general` | 일반 TDD | 요구사항 → Gherkin Scenario → Unit Test 목록 → RGB 사이클 (4단계) |
-| `web-app` | Web App TDD | 요구사항 → Gherkin Scenario → 인수 테스트 셋업(.feature) → Unit Test 목록 → Walking Skeleton → RGB 사이클 → JPA 완성 → DSL (8단계) |
+| `web-app` | Web App TDD | 요구사항 → Gherkin Scenario → 인수 테스트 셋업(.feature) → Unit Test 목록 → Walking Skeleton → RGB 사이클 → JPA 완성 → DSL → 적대적 리뷰 → 하드닝 게이트 (10단계) |
 
 #### `/tdd-plan` — TDD 계획 수립
 
@@ -341,8 +341,9 @@ flowchart TD
     H --> I{"구현 방식"}
     I -->|"feature 단위 자율<br>(간결 plan 직접 합의)"| J["/tdd-feature<br>Red→Green→Blue 전체, 3커밋"]
     I -->|"단계별 검토<br>(plan 문서 기반)"| K["/tdd-rgb --gear=low|mid|high"]
-    J --> R["완료 보고 + 적대적 리뷰"]
-    K --> R
+    J --> M["web-app-finish<br>인수 테스트 전체 green · JPA 완성 · DSL 개선"]
+    K --> M
+    M --> R["완료 보고 + 적대적 리뷰<br>(high 기어 또는 폭발 반경 high-stakes 시)"]
     subgraph HG["하드닝 게이트 (제안만 — 실행은 사용자 결정)"]
         R --> S["① 정리할 곳 찾기<br>crap4java-analyzer (복잡도×커버리지)<br>dry4java-analyzer (구조적 중복)"]
         S --> T["② 구조 정리<br>/system-wide-refactoring"]
@@ -350,11 +351,12 @@ flowchart TD
     end
     U --> L{"다음 feature?"}
     L -->|있음| I
-    L -->|없음| M["마무리: web-app-finish<br>인수 테스트 전체 green · JPA 완성 · DSL 개선"]
+    L -->|없음| Z["완료"]
 ```
 
 - 하드닝 게이트의 순서는 비용순이 아니라 **파이프라인순**입니다 — ②의 구조 정리가 뮤테이션 지점을 바꾸므로 ③이 마지막입니다. 적용 조건·제안 블록 형식의 정본은 `skills/tdd-rgb/references/hardening-gate.md`입니다.
 - CRAP·mutation은 Maven 전용이므로 Gradle 프로젝트에서는 ①의 DRY 점검과 ②만 제안됩니다.
+- web-app-finish가 적대적 리뷰보다 앞서는 이유: 리뷰 diff가 JPA 완성·DSL 개선까지 포함한 전체 구현을 덮어야 하기 때문입니다 (`skills/tdd-rgb/references/web-app-finish.md`).
 
 ### 기존 코드 리팩토링 (TDD 없이)
 

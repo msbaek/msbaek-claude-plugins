@@ -150,7 +150,7 @@ high다(상세는 tdd-rgb의 "기어(Gears)" 섹션).
 
 ---
 
-### Web App TDD 템플릿 (8단계)
+### Web App TDD 템플릿 (10단계)
 
 ```markdown
 # AI와 Pair로 {ClassName}을 TDD로 구현하기 (Web App)
@@ -164,6 +164,8 @@ high다(상세는 tdd-rgb의 "기어(Gears)" 섹션).
 - [ ] 6. 테스트 구현 (RGB 사이클 — 각 Green이 자기 시나리오 @pending 해제)
 - [ ] 7. JPA Repository 완성 (계약 테스트로 InMemory와 동등성 검증)
 - [ ] 8. DSL 개선 (Steps·Protocol Driver·Test Data Builder)
+- [ ] 9. 적대적 리뷰 (high 기어 또는 폭발 반경 high-stakes 시 — 7·8을 마친 뒤 실행, diff가 전체 구현을 포함해야 함)
+- [ ] 10. 하드닝 게이트 (① CRAP·DRY 분석 → ② /system-wide-refactoring → ③ mutation 대표 파일 1개 — 제안만, 실행은 사용자 결정)
 
 ## 1. 요구사항 — 도메인 규칙(0층) + User Story
 
@@ -182,6 +184,10 @@ high다(상세는 tdd-rgb의 "기어(Gears)" 섹션).
 ## 7. JPA Repository
 
 ## 8. DSL 개선
+
+## 9. 적대적 리뷰
+
+## 10. 하드닝 게이트
 ```
 
 > Web App은 `/cucumber-acceptance`가 **필수**다 — 단계 2의 Gherkin이 `.feature`로
