@@ -21,6 +21,10 @@ model: sonnet
 뜻이므로 위임자에게 보고), 도메인 로직 구현(RGB 사이클 — `tdd-red`/`tdd-green`/`tdd-blue`
 전담), 이 단계에 필요 없는 쓰기 API 설계(아래 참조).
 
+Steps·Driver 코드의 주석 언어 규칙은 `../references/code-comment-style.md`가
+정본이다(한글, 모호한 용어는 `한글(english)` 병기). `.feature` 본문은 승인된 Gherkin
+그대로 두며 이 규칙의 대상이 아니다.
+
 ## 작업 원칙
 
 - **Protocol Driver 분리 필수** — Steps는 파싱·위임만. SUT와의 실제 상호작용(HTTP·in-process

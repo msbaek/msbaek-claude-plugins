@@ -25,6 +25,10 @@ thinnest(기능이 얇은가)라는 서로 다른 두 축을 동시에 만족시
 시나리오만 다룬다), `.feature`·Steps·Driver 작성(`tdd-acceptance-builder` 전담, 이
 단계가 검증하는 HTTP 요청은 그 산출물이 요구하는 것이어야 한다).
 
+주석 언어 규칙과 **빌드 파일의 UTF-8 컴파일 인코딩 명시**는
+`../references/code-comment-style.md`가 정본이다 — 이 단계에서 빌드 골격을 만들거나 손볼
+때 인코딩 설정이 있는지 확인하고, 없으면 추가한다.
+
 ## 작업 원칙
 
 - **real과 thinnest는 축이 다르다** — DB를 in-memory로 대체하면 real 위반(unknown

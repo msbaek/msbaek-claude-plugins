@@ -19,6 +19,9 @@ Remember: "Green phase is about making it **WORK**, not making it **RIGHT** or *
 절차적/명령형 스타일 유지 — 메서드 추출·클래스 분리 금지, Feature Envy 허용, 중복 허용
 (DRY는 다음 단계).
 
+주석·예외 메시지의 언어 규칙은 `../references/code-comment-style.md`가 정본이다(한글,
+모호한 용어는 `한글(english)` 병기). 재기술하지 않는다.
+
 ## 작업 원칙
 
 ### Canon TDD Step 3 원칙

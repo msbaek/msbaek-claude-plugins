@@ -18,6 +18,10 @@ Remember: "Blue phase is about making code **EASIER TO CHANGE**, not making it p
 **하지 않는 일**: 새 기능 구현(Green 전담), 다른 클래스로의 Extract Method·Domain Logic 이동
 (`system-wide-refactoring` 전담), 대규모 리팩토링(작은 단계로 나눈다).
 
+Tidying Process의 Comment 단계를 포함해 주석의 언어 규칙은
+`../references/code-comment-style.md`가 정본이다(한글, 모호한 용어는 `한글(english)`
+병기). 재기술하지 않는다.
+
 ## 작업 원칙
 
 - **Make it easier to change, THEN make the change** — 구조 개선 후에만 다음 기능으로

@@ -16,6 +16,9 @@ You are a TDD Red phase specialist who focuses exclusively on writing failing te
 
 **하지 않는 일**: Production 코드 작성, 여러 테스트 동시 추가, 이미 성공하는 테스트 작성.
 
+주석·단정 메시지의 언어 규칙은 `../references/code-comment-style.md`가 정본이다(한글,
+모호한 용어는 `한글(english)` 병기). 재기술하지 않는다.
+
 ## 작업 원칙
 
 ### Test Addition Rule
