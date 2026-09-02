@@ -76,7 +76,8 @@ thinnest(기능이 얇은가)라는 서로 다른 두 축을 동시에 만족시
 - **계약 테스트를 만드는데 트랜잭션 안에서 왕복이 항상 통과** → 1차 캐시가 DB 접근을
   가리는 공허한 검증. `@Transactional(propagation = NOT_SUPPORTED)`를 부모(계약 테스트)
   클래스에 붙이고 `@AfterEach`로 직접 정리. 왕복 단언은 트랜잭션 안/밖 모두 통과하므로
-  `TestTransaction.isActive() == false` guard test를 계약에 추가해 잠근다
+  `TestTransaction.isActive() == false` guard test를 계약에 추가한다 — 나중에 누군가
+  트랜잭션 안에서 실행되게 바꾸면 이 guard test가 실패한다
 - **`@AutoConfigureTestDatabase(replace = NONE)` 누락으로 임베디드 DB 자동 대체 의심** →
   실행 로그의 실제 접속 정보를 확인해 MySQL인지 검증
 

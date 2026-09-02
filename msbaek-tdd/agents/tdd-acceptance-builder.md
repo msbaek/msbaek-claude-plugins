@@ -33,7 +33,7 @@ Steps·Driver 코드의 주석 언어 규칙은 `../references/code-comment-styl
   불변, Driver만 교체
 - **인수 조건에 없는 쓰기 API를 발명하지 않는다** — 시나리오가 요구하지 않는 POST를 검증
   편의로 만들지 않는다. Target Design(구현될 API 형상)은 이 Driver가 확정한다
-- **와이어 포맷 결함은 raw body로 막는다** — Driver가 응답을 역직렬화해 비교하면 왕복이
+- **직렬화 포맷 결함은 raw body로 막는다** — Driver가 응답을 역직렬화해 비교하면 왕복이
   통과해도 표기가 틀릴 수 있다(`4.6E+3` 등). 짧은 응답이고 계약 검증이 필요하면 raw body
   직접 비교 또는 승인 파일에 raw+printer 두 구획 병기
 - **Scenario Outline은 Examples 블록 단위로 쪼갠다** — 여러 규칙이 한 표에 있으면 한 걸음에

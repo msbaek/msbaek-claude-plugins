@@ -148,7 +148,7 @@ class MemberApiTest {
     }
 
     @Test
-    @DisplayName("@Sql seed로 넣은 회원을 조회하면 응답 본문 전체가 승인된 와이어 포맷과 같다")
+    @DisplayName("@Sql seed로 넣은 회원을 조회하면 응답 본문 전체가 승인된 직렬화 포맷과 같다")
     void returnsMemberSeededBySqlScript() throws Exception {
         Approvals.verify(memberApi().getMember(1L));
     }
@@ -191,7 +191,7 @@ class MemberApi {
 ```
 
 > **skeleton의 승인 대상은 raw body다.** 응답을 DTO로 역직렬화해 다시 찍지 않는다 —
-> 재직렬화하면 수치 표기·필드 유무 같은 와이어 포맷 결함이 보이지 않는다
+> 재직렬화하면 수치 표기·필드 유무 같은 직렬화 포맷 결함이 보이지 않는다
 > (`{"amount":4.6E+3}`). 비결정 값(id)은 Scrubber로 치환한다(위 예시는 `@Sql` 고정
 > id라 불필요). 읽기 좋은 출력이 함께 필요하면 raw를 **교체하지 말고** 한 승인 파일에
 > raw 구획 + printer 구획 두 개로 담는다. 404 본문도 같은 방식으로 승인한다 —

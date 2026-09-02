@@ -97,12 +97,12 @@ return new DdpResponse(ddp.longValueExact());
 `BigDecimal.setScale(-2)`처럼 scale이 음수면 Jackson이 `toString()`을 그대로 써서
 `{"ddpAmount":4.6E+3}`을 내보내는데, driver가 응답을 다시 `BigDecimal`로 역직렬화하고
 `isEqualByComparingTo`로 비교하면 **왕복(round-trip)은 통과한다.** 시나리오가 전부 green인데
-와이어 포맷만 틀린 상태가 된다. 게다가 `BigDecimal.ZERO`를 반환하는 경로는 평범하게 `0`으로
+직렬화 포맷만 틀린 상태가 된다. 게다가 `BigDecimal.ZERO`를 반환하는 경로는 평범하게 `0`으로
 나가므로 응답 형식이 실행 경로마다 갈린다.
 
 두 가지로 막는다.
 
-1. **와이어 포맷은 raw body로 검증하는 테스트를 따로 둔다.** 직렬화는 "문제 도메인의 언어가
+1. **직렬화 포맷은 raw body로 검증하는 테스트를 따로 둔다.** 직렬화는 "문제 도메인의 언어가
    코드인 영역"이라 Gherkin이 아니라 각자의 도구로 다룬다(위 Hard Rules 표).
 
    ```java
