@@ -113,6 +113,17 @@ class BasketControllerTest {
 - RGB 사이클의 도메인 단위 테스트는 repository가 필요 없고, 저장이 필요한 테스트만
   `inMemory` profile로 빠르게 실행한다
 
+## 거부 응답 본문 — ProblemDetail은 설정을 켜야 나간다
+
+`ErrorResponseException`에 `ProblemDetail`을 담아 던져도
+`spring.mvc.problemdetails.enabled: true`가 없으면 **상태 코드만 나가고 본문이 빈다**.
+
+> 실측(Spring Boot 3.5.5): 거부 사유를 본문으로 검증하는 인수 시나리오 5건이 테스트
+> 실패로 이 사실을 드러냈고, 설정을 켠 뒤 통과했다.
+
+거부 응답이 사유·에러 코드를 담기로 했다면 이 설정을 skeleton 단계에서 함께 켜고, 본문을
+승인 대상에 넣는다(`tdd-red`의 "거부·에러 응답도 승인 대상이다").
+
 ## 인수 조건에 없는 API를 발명하지 않는다
 
 skeleton이 관통을 증명하려면 HTTP 요청이 필요하지만, **그 요청은 Gherkin 시나리오가
