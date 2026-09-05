@@ -13,6 +13,15 @@
             "command": "bash ${CLAUDE_PLUGIN_ROOT}/hooks/observe-agent-start.sh"
           }
         ]
+      },
+      {
+        "matcher": "Skill",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT}/hooks/mark-tdd-active.sh"
+          }
+        ]
       }
     ],
     "PostToolUse": [
