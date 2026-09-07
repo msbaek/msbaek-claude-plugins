@@ -13,7 +13,7 @@
 ## JPA Repository 완성
 
 Walking Skeleton에서 최소 JPA로 시작해 RGB 사이클 동안 `inMemory` profile로 도메인을
-성장시켰으므로, 여기서는 JPA를 **완성**한다 (처음 작성이 아니다):
+확장했으므로, 여기서는 JPA를 **완성**한다 (처음 작성이 아니다):
 
 1. **JPA Mapping**: 성장한 Entity, Value Object에 대해 매핑 완성. 필요 시 inner class를 outer class로 분리
 2. **JPA Repository Interface**: JpaRepository를 상속받는 인터페이스 확장
@@ -36,7 +36,7 @@ Walking Skeleton에서 최소 JPA로 시작해 RGB 사이클 동안 `inMemory` p
 - Test Data Builder 패턴 적용
 - 가독성과 재사용성 향상
 
-**Protocol Driver** — 테스트는 도메인 언어("회원 1을 조회한다")로 말하고, 경로·MockMvc·
+**Protocol Driver** — 테스트는 도메인 언어("회원 1을 조회한다")로 기술하고, 경로·MockMvc·
 상태 코드는 Driver 한 곳에만 둔다. 인수 테스트(Cucumber Steps)와 skeleton 테스트가
 같은 Driver를 공유한다. 코드는 `tdd-plan/references/web-app-skeleton.md`의 `MemberApi`
 (정본: https://github.com/msbaek/tmpl/blob/main/src/test/java/pe/msbaek/tmpl/member/MemberApi.java).
