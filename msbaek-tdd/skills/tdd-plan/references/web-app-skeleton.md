@@ -7,8 +7,8 @@
 
 GOOS(Growing Object-Oriented Software)의 정의: "자동으로 빌드·배포·테스트할 수 있는
 실제 기능(real functionality)의 가장 얇은 슬라이스(thinnest possible slice)".
-인프라 미지수(빌드 설정·DB 연결·wire 포맷)와 도메인 미지수를 한 방정식에 넣지 않기 위해,
-도메인 사이클(RGB) 시작 전에 인프라 경로를 먼저 증명한다. 이 단계의 테스트는
+인프라 미지수(빌드 설정·DB 연결·직렬화 포맷)와 도메인 미지수를 동시에 검증하지 않기
+위해, 도메인 사이클(RGB) 시작 전에 인프라 경로를 먼저 증명한다. 이 단계의 테스트는
 기능 검증이 아니라 **뼈대 자체가 동작하는지 확인하는 테스트**다.
 
 **real과 "비즈니스 로직 제외"는 충돌하지 않는다 — 축이 다르다**:
@@ -69,7 +69,7 @@ Spring Data JPA는 리포지토리 인터페이스 `X`가 있으면 같은 패�
 구현 프래그먼트"로 **자동 병합**한다(직접 작성한 메서드를 추가하라고 만든 정식 기능).
 따라서 Spring Data 인터페이스명 뒤에 그대로 `Impl`을 붙인 이름을 **포트 구현체에 쓰면
 안 된다** — 프록시가 우리 어댑터를 프래그먼트로 삼고, 어댑터는 생성자로 그 인터페이스를
-다시 요구해 `BeanCurrentlyInCreationException`(순환 의존)이 난다.
+다시 요구해 `BeanCurrentlyInCreationException`(순환 의존)이 발생한다.
 
 | | 안전 | 위험 |
 |---|---|---|
@@ -82,7 +82,7 @@ Spring Data JPA는 리포지토리 인터페이스 `X`가 있으면 같은 패�
 "진짜 DB가 기본, in-memory는 명시적으로 요청할 때만"이 real 원칙의 기본값이다.
 
 RGB 사이클에서의 사용법. 도메인 테스트는 Spring 컨텍스트 없이 **직접 생성**해 쓰는 것이
-가장 빠르다 (profile 빈은 앱을 `inMemory`로 띄울 때 쓰인다):
+가장 빠르다 (profile 빈은 앱을 `inMemory`로 실행할 때 쓰인다):
 
 ```java
 class AddItemToBasketTest {                        // Spring 부팅 없음 — 밀리초 단위
@@ -113,10 +113,10 @@ class BasketControllerTest {
 - RGB 사이클의 도메인 단위 테스트는 repository가 필요 없고, 저장이 필요한 테스트만
   `inMemory` profile로 빠르게 실행한다
 
-## 거부 응답 본문 — ProblemDetail은 설정을 켜야 나간다
+## 거부 응답 본문 — ProblemDetail은 설정을 켜야 포함된다
 
 `ErrorResponseException`에 `ProblemDetail`을 담아 던져도
-`spring.mvc.problemdetails.enabled: true`가 없으면 **상태 코드만 나가고 본문이 빈다**.
+`spring.mvc.problemdetails.enabled: true`가 없으면 **상태 코드만 전송되고 본문이 빈다**.
 
 > 실측(Spring Boot 3.5.5): 거부 사유를 본문으로 검증하는 인수 시나리오 5건이 테스트
 > 실패로 이 사실을 드러냈고, 설정을 켠 뒤 통과했다.
@@ -128,11 +128,11 @@ class BasketControllerTest {
 
 skeleton이 관통을 증명하려면 HTTP 요청이 필요하지만, **그 요청은 Gherkin 시나리오가
 실제로 요구하는 것이어야 한다.** 시나리오가 전부 "이미 상태가 정해진 장바구니"를 전제로
-시작한다면 생성(POST) API는 어떤 인수 조건도 요구하지 않는 지어내기(invent)품이다. 두 가지 이유로
+시작한다면 생성(POST) API는 어떤 인수 조건도 요구하지 않는 지어낸(invent) 것이다. 두 가지 이유로
 금지한다:
 
 - **Target Design 선점** — 구현될 API 형상은 Protocol Driver가 확정한다
-  (`cucumber-acceptance`). skeleton이 먼저 POST 계약을 못박으면 이 원칙과 충돌한다
+  (`cucumber-acceptance`). skeleton이 먼저 POST 계약을 확정하면 이 원칙과 충돌한다
 - **No overengineering** — 요구되지 않은 엔드포인트는 이후 계속 유지·검증해야 하는 부채다
 
 **판단 절차**: 단계 2 Gherkin에서 그 쓰기 경로를 요구하는 시나리오를 찾는다. 없으면
@@ -201,14 +201,13 @@ class MemberApi {
 }
 ```
 
-> **skeleton의 승인 대상은 raw body다.** 응답을 DTO로 역직렬화해 다시 찍지 않는다 —
+> **skeleton의 승인 대상은 raw body다.** 응답을 DTO로 역직렬화해 다시 출력하지 않는다 —
 > 재직렬화하면 수치 표기·필드 유무 같은 직렬화 포맷 결함이 보이지 않는다
 > (`{"amount":4.6E+3}`). 비결정 값(id)은 Scrubber로 치환한다(위 예시는 `@Sql` 고정
 > id라 불필요). 읽기 좋은 출력이 함께 필요하면 raw를 **교체하지 말고** 한 승인 파일에
 > raw 구획 + printer 구획 두 개로 담는다. 404 본문도 같은 방식으로 승인한다 —
 > 예외는 처음부터 `@RestControllerAdvice` 한 곳(`web-app-persistence.md` 4번).
 > 판단 기준과 두 종류 승인의 구분은 `tdd-red` 에이전트의 "Approved Text Rule"이
-> 정본이다.
 > 정본이다.
 
 > 생성이 실제 인수 조건인 경우(예: "고객이 장바구니를 만든다" 시나리오가 있음)에만
@@ -219,7 +218,7 @@ class MemberApi {
 skeleton 테스트에 Fake Repository를 주입하지 않는다(real 위반). docker MySQL을
 **Spring Boot Docker Compose**로 띄우고 진짜 JPA 경로로 관통한다 — `compose.yaml`
 하나를 `bootRun`과 테스트가 공유하고, 연결 정보(url·user·password)는 Spring Boot가
-compose 파일에서 읽어 자동 주입하므로 `application.yml`에 datasource 설정을 쓰지 않는다:
+compose 파일에서 읽어 자동 설정하므로 `application.yml`에 datasource 설정을 쓰지 않는다:
 
 ```kotlin
 // build.gradle.kts — testAndDevelopmentOnly (developmentOnly는 test classpath에서
@@ -277,14 +276,14 @@ public class CreateShoppingBasketTest {
 
 | 방법 | 장점 | 주의 |
 |---|---|---|
-| **Spring Boot Docker Compose** (기본) | `compose.yaml` 하나를 `bootRun`과 테스트가 공유, datasource 설정·`@Container`/`@ServiceConnection` 보일러플레이트 없음 | `skip.in-tests=false`를 빠뜨리면 테스트에서 조용히 건너뛰어 임베디드 DB로 대체됨(아래 "관통 확인"으로 잡는다). CI에는 Docker Compose가 있어야 한다 |
+| **Spring Boot Docker Compose** (기본) | `compose.yaml` 하나를 `bootRun`과 테스트가 공유, datasource 설정·`@Container`/`@ServiceConnection` 보일러플레이트 없음 | `skip.in-tests=false`를 누락하면 테스트에서 조용히 건너뛰어 임베디드 DB로 대체됨(아래 "관통 확인"으로 탐지한다). CI에는 Docker Compose가 있어야 한다 |
 | **Testcontainers** (대안) | 테스트가 컨테이너 수명을 소유, CI에서 표준 (`@Testcontainers` + `@Container @ServiceConnection static MySQLContainer<?>`) | 일부 Docker 환경(OrbStack 등)에서 docker-java의 API 버전 협상이 실패하면 `1.32`로 폴백해 "minimum supported API version is 1.40" 오류. 라이브러리 문제이며 `systemProperty("api.version", "1.41")`로 우회 가능 |
 
 ## 관통 확인 — 실행 SQL 로깅
 
 real 원칙은 "진짜 DB를 거쳤다"고 **선언**하는 것으로 지켜지지 않는다. 이 단계의 실패는
 대부분 조용하다 — 임베디드 DB로 대체되거나(아래 5단계의 `replace = NONE` 항목),
-설정이 무시되어 의도한 경로가 아닌 곳으로 흐른다. 테스트는 그대로 초록색이다.
+설정이 무시되어 의도한 경로가 아닌 곳으로 실행된다. 테스트는 그대로 초록색이다.
 그래서 skeleton을 세울 때 **실행된 SQL을 눈으로 확인할 수단**을 함께 넣는다.
 
 ```yaml
@@ -296,14 +295,14 @@ spring:
 
 이것으로 "MySQL에 정말 쿼리가 나갔는가"는 확인된다. 다만 파라미터가 `?`로 남아
 **바인딩된 실제 값은 보이지 않는다**. 값까지 봐야 하거나 JPA를 거치지 않는 경로
-(`JdbcTemplate` 등)까지 덮으려면 p6spy를 얹는다:
+(`JdbcTemplate` 등)까지 포함하려면 p6spy를 추가한다:
 
 ```kotlin
 // build.gradle.kts — 버전은 반드시 Spring Boot 버전에 맞춰 고른다 (아래 주의 참조)
 implementation("com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.12.1")
 ```
 
-기본 한 줄 로그는 긴 쿼리를 읽기 어렵다. `spy.properties`로 포매터를 갈아 끼워 정렬된
+기본 한 줄 로그는 긴 쿼리를 읽기 어렵다. `spy.properties`로 포매터를 교체해 정렬된
 박스 형태로 본다(정본: https://github.com/msbaek/tmpl/blob/main/src/main/java/pe/msbaek/tmpl/config/PrettySqlFormatter.java):
 
 ```properties
@@ -353,12 +352,12 @@ decorator:
       logging: slf4j
 ```
 
-**버전 주의**: 이 스타터는 Spring Boot 메이저 버전에 묶여 있다. 맞지 않는 조합을 쓰면
+**버전 주의**: 이 스타터는 Spring Boot 메이저 버전에 의존한다. 맞지 않는 조합을 쓰면
 자동 설정이 적용되지 않고, 그 실패 역시 조용하다.
 
 | Spring Boot | p6spy-spring-boot-starter |
 |---|---|
-| 4.x | 쓰지 않음 — `2.0.x`도 실측 무동작(문서 끝 "Boot 4로 올릴 때 함정" 참조) |
+| 4.x | 쓰지 않음 — `2.0.x`도 실측 무동작(문서 끝 "Boot 4 업그레이드 주의점" 참조) |
 | 3.x | `1.12.1` |
 
 위 표는 이 문서를 쓴 시점의 값이다. 좌표를 복사하기 전에
@@ -368,8 +367,8 @@ decorator:
 **Spring Boot 버전 선택**: 새 프로젝트를 만든다면 [start.spring.io](https://start.spring.io/)에서
 제공하는 **3.x 계열의 최신 GA 버전**을 쓴다 — 목록에 `(SNAPSHOT)`이 붙은 항목은
 제외하고, 4.x는 테스트 어노테이션 패키지 이동·p6spy 스타터 무동작 등 함정이 있어
-아직 기본으로 쓰지 않는다(문서 끝 "Boot 4로 올릴 때 함정"). 특정 버전을
-관성으로 복사하지 말고 매번 확인한다.
+아직 기본으로 쓰지 않는다(문서 끝 "Boot 4 업그레이드 주의점"). 특정 버전을
+확인 없이 복사하지 말고 매번 확인한다.
 
 **프로퍼티 이름 주의**: prefix는 `decorator.datasource.p6spy`이고 활성화 키는
 `enable-logging`이다. `logging`은 활성화 플래그가 아니라 appender 선택
@@ -382,9 +381,9 @@ SQL은 보인다.** "로그가 나온다"는 사실은 설정이 맞다는 증�
 (Principles의 "도구는 최초로 필요해진 시점에 추가한다"). `show-sql`만으로 관통 확인이
 되는 동안에는 그것으로 충분하다.
 
-## Boot 4로 올릴 때 함정 (기본은 3.x 최신 GA — 아래는 4.x 전환 시에만)
+## Boot 4 업그레이드 주의점 (기본은 3.x 최신 GA — 아래는 4.x 전환 시에만)
 
-**Boot 4 어노테이션 패키지 이동** — import를 Boot 3 기억으로 쓰면 컴파일 에러다:
+**Boot 4 어노테이션 패키지 이동** — import를 Boot 3 패키지 경로로 쓰면 컴파일 에러다:
 
 | 어노테이션 | Boot 4 패키지 |
 |---|---|
@@ -394,11 +393,11 @@ SQL은 보인다.** "로그가 나온다"는 사실은 설정이 맞다는 증�
 
 **Boot 4에서는 스타터를 쓰지 않는다** — `p6spy-spring-boot-starter`(gavlyukovskiy)는
 Boot 4에서 `DataSourceAutoConfiguration` 패키지 이동 때문에 **조용히 무동작**한다
-(에러 없음, 로그도 그대로 `?`). 순정 p6spy를 넣고 `BeanPostProcessor`로 DataSource를
+(에러 없음, 로그도 그대로 `?`). plain p6spy를 넣고 `BeanPostProcessor`로 DataSource를
 직접 감싼다(실측: [tmpl](https://github.com/msbaek/tmpl) Boot 4 시도 당시):
 
 ```kotlin
-// build.gradle.kts — Boot 4: 순정 p6spy
+// build.gradle.kts — Boot 4: plain p6spy
 implementation("p6spy:p6spy:3.9.1")
 ```
 
@@ -422,4 +421,4 @@ class P6SpyConfig {
 ```
 
 로그 형식은 `src/main/resources/spy.properties`(`appender=com.p6spy.engine.spy.appender.Slf4JLogger`,
-`logMessageFormat=...`)로 정한다. 아래 스타터 방식은 **Boot 3.x까지**만 유효하다.
+`logMessageFormat=...`)로 정한다. 위 스타터 방식은 **Boot 3.x까지**만 유효하다.
