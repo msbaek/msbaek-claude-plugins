@@ -8,7 +8,7 @@ allowed-tools: Bash(python3:*), Read
 # TDD Profile Skill
 
 `bin/tdd-profile.py`를 실행하고 그 출력을 **해석해서** 병목 3개 이내와 model/effort
-조정안을 보고한다. 숫자는 스크립트가 내고, 판단은 이 스킬이 한다.
+조정안을 보고한다. 숫자는 스크립트가 산출하고, 판단은 이 스킬이 한다.
 
 ## GOAL
 
@@ -24,7 +24,7 @@ allowed-tools: Bash(python3:*), Read
 - 메인 wall-clock은 에이전트 실행 대기를 포함하지 않는다(에이전트 행이 따로 있다).
   둘을 더해서 단계 시간으로 말한다
 - 모델 제안은 스크립트의 휴리스틱(`out/turn`, `tools/turn`, edits)을 근거로 하되,
-  코드 편집 에이전트(tdd-red/green/blue)를 haiku로 내리자고 하지 않는다 — 편집 품질
+  코드 편집 에이전트(tdd-red/green/blue)를 haiku로 변경하자고 하지 않는다 — 편집 품질
   하락 위험이 절감분보다 크다
 - hunk-reviewer가 에이전트 목록에 보이면 hook 차단 이전 세션인지 확인하고 보고한다
   (`hooks/block-hunk-reviewer.sh`, v1.17.0 이후는 차단됨)
@@ -42,7 +42,7 @@ allowed-tools: Bash(python3:*), Read
    1. **에이전트 합산 시간 1위 타입** (Agents by type) — 호출 빈도를 줄일 수 있는가
    2. **단계별 wall + 에이전트 wall 합 1위** — 그 단계의 `turns`가 큰가(왕복 과다),
       `cache+`가 큰가(반복 읽기·캐시 만료)
-   3. **Heaviest turns**의 `cache+` 300k 이상이 같은 단계에 몰려 있는가 → 1h 캐시
+   3. **Heaviest turns**의 `cache+` 300k 이상이 같은 단계에 집중되어 있는가 → 1h 캐시
       TTL 만료 또는 컨텍스트 압축 후 재적재 신호
 4. model/effort: Recommendation 절의 단계별 제안과 "실제 사용" 절을 대조해 **다른
    곳만** 말한다 (이미 일치하면 "유지")

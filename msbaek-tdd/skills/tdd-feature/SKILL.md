@@ -21,9 +21,9 @@ argument-hint: "[feature/use case 설명 또는 plan-doc-path]"
 
 #### 1. WIP = 1 (한 번에 하나의 feature)
 
-- **한 실행에서 feature(use case) 하나만 구현한다.** plan에 feature가 2개 이상이면, 이번에 구현할 **하나를 선택**하고 나머지는 건드리지 않는다.
+- **한 실행에서 feature(use case) 하나만 구현한다.** plan에 feature가 2개 이상이면, 이번에 구현할 **하나를 선택**하고 나머지는 수정하지 않는다.
 - 선택한 feature 완료 후 종료한다. 남은 feature는 "이어서 다시 호출" 또는 "다른 세션에서" 진행하도록 안내한다.
-- **이유**: 한 번에 하나에 집중해야 맥락과 품질이 유지되고, 슬라이스 단위로 동작을 검증할 수 있다(Walking Skeleton → 슬라이스 정교화).
+- 한 번에 하나에 집중해야 맥락·품질이 유지되고 슬라이스 단위로 동작을 검증할 수 있다(Walking Skeleton → 슬라이스 정교화).
 
 #### 2. 자율성 경계 = Phase 경계
 
@@ -35,7 +35,7 @@ argument-hint: "[feature/use case 설명 또는 plan-doc-path]"
 
 이 스킬은 `--gear` 옵션을 받지 않는다. **Phase B의 자율 진행 자체가 feature 범위의
 high 기어**이기 때문이다. 따라서 tdd-rgb의 high 기어 안전장치를 동일하게 적용한다
-(자율성만 가져오고 안전망을 빼는 것은 허용되지 않는다):
+(자율성만 가져오고 안전망을 제외하는 것은 허용되지 않는다):
 
 - **시작 전 폭발 반경(blast radius) 점검** — 인증/인가, 결제·금액 계산, 데이터 삭제·변경, 외부 API
   호출, 동시성에 해당하면 Phase B 진입 전에 경고하고 "`/tdd-rgb --gear=low|mid`로
@@ -54,21 +54,22 @@ high 기어**이기 때문이다. 따라서 tdd-rgb의 high 기어 안전장치�
 - **feature(use case) 하나 = 최대 3개 커밋.** 테스트 단위가 아니라 **phase 단위**로 나눈다
   — 그 feature의 모든 test에 대한 Red 변경을 한 커밋(`test:`)에, Green 변경을 한 커밋
   (`feat:`)에, Blue 변경을 한 커밋(`refactor:`, tidying이 불필요하면 생략)에 담는다.
-  테스트마다 나누지 않고, feature 전체를 관통해 한 phase씩 끝낸다: 모든 test의 Red를 다
+  테스트마다 나누지 않고, feature 전체를 진행해 한 phase씩 끝낸다: 모든 test의 Red를 다
   쓴 뒤 → 모든 test의 Green을 채우고 → 마지막에 Blue를 한 번 적용한다.
 - 따라서 **R/G/B 에이전트는 커밋하지 않는다** — `git add`까지만 수행하고(커밋 보류), 각
   phase가 feature의 모든 test에 대해 끝날 때마다 이 오케스트레이터가 커밋한다.
 - **use case 경계를 넘겨 합치지 않는다** — 두 feature를 같은 phase 커밋에 담으면 "이
-  phase가 이 feature에 대해 무엇을 했는가"라는 리뷰 단위가 깨진다. Hard Rule 1(WIP=1)이
+  phase가 이 feature에 대해 무엇을 했는가"라는 리뷰 단위가 성립하지 않는다. Hard Rule 1(WIP=1)이
   이 경계를 자동으로 보장한다.
-- **잃는 것을 알고 쓴다**: test 단위 revert는 여전히 불가능하고(되돌림 단위는 phase로
-  커진다) — 다만 3개로 나뉘면서 phase 단위 되돌림(구현만, 또는 tidying만)은 가능해졌다.
-  high 기어는 확신이 높을 때 쓰는 기어이므로 남은 손실을 감수한다. 확신이 부족하면
-  `/tdd-rgb --gear=low|mid`로 간다 (정본: `../tdd-rgb/SKILL.md`의 "진행 표기 규칙").
+- **제약**: test 단위 revert는 불가능하다(되돌림 단위는 phase). phase 단위 되돌림
+  (구현만, 또는 tidying만)은 가능하다. 확신이 부족하면 `/tdd-rgb --gear=low|mid`로
+  간다 (정본: `../tdd-rgb/SKILL.md`의 "진행 표기 규칙").
 
-#### 4. Reviewable 커밋 (mental model을 박제하라)
+#### 4. Reviewable 커밋 (mental model을 커밋에 기록한다)
 
-- 모든 커밋은 **`docs/reviewable-commits.md`(없으면 `~/.claude/docs/reviewable-commits.md`) 표준**을 단일 출처로 따른다. subject·body 형식의 유일한 정의처가 이 표준이며, 이 스킬·에이전트는 형식을 **재기술하지 않고 경로로 참조만** 한다 — 규칙이 바뀌면 이 표준 파일 1곳만 고치면 모든 소비자에 반영된다(드리프트 방지). (배포 시 표준 전문은 README의 "커밋 표준" 섹션 참조.) 단, **길이는 플러그인 `../../references/commit-style.md`의 간결성 규칙(제목 + 핵심 bullet 2~4줄)이 우선한다** — 표준의 채널들을 장문 서술로 풀지 않는다.
+- 모든 커밋은 **`docs/reviewable-commits.md`(없으면 `~/.claude/docs/reviewable-commits.md`) 표준**을 단일 출처로 따른다.
+- 이 스킬·에이전트는 subject·body 형식을 재기술하지 않고 경로로 참조만 한다(배포 시 표준 전문은 README의 "커밋 표준" 섹션 참조).
+- 단, 길이는 플러그인 `../../references/commit-style.md`의 간결성 규칙(제목 + 핵심 bullet 2~4줄)이 우선한다.
 - 이 스킬 고유사항만 여기 명시: 커밋이 phase마다 하나이므로 subject의 type 접두사는
   그 phase 그대로(`test:`/`feat:`/`refactor:`)이고, 무엇을 했는지가 아니라 **그 phase가
   이 use case에 대해 무엇을 보장·구현·정리했는지**를 적는다.
@@ -97,7 +98,7 @@ high 기어**이기 때문이다. 따라서 tdd-rgb의 high 기어 안전장치�
 
 #### 간결 우선 (anti-verbose)
 
-superpowers·tdd-plan의 장황함을 덜어낸다. plan은 **합의에 꼭 필요한 것**만 담는다.
+superpowers·tdd-plan의 장황함을 제거한다. plan은 **합의에 꼭 필요한 것**만 담는다.
 
 - **남길 것**: 문제(무엇을·왜), feature별 스토리 한 줄·핵심 규칙, programmer test 목록.
 - **버릴 것**: 요구사항 작성 원칙(완전성/명확성/일관성)의 메타설명, INVEST 점검 서술, Gherkin `Rule:`/`Examples` 정식 서식(핵심 예시는 test 목록 항목으로 흡수), 별도 경계조건 섹션.
@@ -182,11 +183,10 @@ plan 문서의 `## 진행 기록` 섹션에 `Phase B 시작 커밋: {feature: �
 선택된 feature의 구현 목록(web-app은 `.feature`의 `@pending` 시나리오 목록, general은
 앵커 문서 `## 예제 (검산표)` 표의 미구현 행 — Cucumber 없이 구현하기로 선택했다면 앵커
 예제 검산표를 구현 목록으로 사용한다. `--full`로 작성한 경우 그 unit test 목록)를 위에서
-아래로 순회한다. **테스트 단위로 R→G→B를 반복하지 않는다** — feature 전체를 phase 단위로 관통한다: 모든 test에 대해 Red를 다 마친 뒤, 모든 test에 대해 Green을 채우고, 마지막에 Blue를 feature 범위로 한 번 적용한다. **단계·test 사이에 사용자 피드백을 요청하지 않는다.**
+아래로 순회한다. **테스트 단위로 R→G→B를 반복하지 않는다** — feature 전체를 phase 단위로 진행한다: 모든 test에 대해 Red를 다 마친 뒤, 모든 test에 대해 Green을 채우고, 마지막에 Blue를 feature 범위로 한 번 적용한다. **단계·test 사이에 사용자 피드백을 요청하지 않는다.**
 
-협력 객체가 얽힌 feature에서는 phase 도중 "이 test 하나만 지금 확인하고 싶다"는 충동이
-들 수 있다 — 참고 phase를 끝까지 마친 뒤 한 번에 실행·확인한다. 그래야 phase 경계가
-실제 리뷰 단위(이 phase가 feature 전체에 대해 무엇을 했는가)로 남는다.
+협력 객체가 다수 관여하는 feature에서도 phase를 끝까지 마친 뒤 실행·확인한다. 그래야
+phase 경계가 실제 리뷰 단위(이 phase가 feature 전체에 대해 무엇을 했는가)로 남는다.
 
 #### feature의 3-phase
 
@@ -200,7 +200,7 @@ plan 문서의 `## 진행 기록` 섹션에 `Phase B 시작 커밋: {feature: �
    절차적으로**"를 명시한다 — 추출·일반화 없이 통과만 시킨다(정리는 Blue phase가
    담당). **커밋 보류**. 전체 완료 후 스위트 전부 green을 확인한다.
 4. **self-check (Green 커밋 전)** — 커밋할 diff가 이미 추출된 private 메서드·이름 붙은
-   중간 변수를 여럿 갖고 있다면(Composed Method 형태), "Blue가 정리할 게 없다"로 넘기지
+   중간 변수를 여럿 갖고 있다면(Composed Method 형태), "Blue가 정리할 게 없다"로 판단하지
    말고 **Green 위임 자체를 의심한다** — 참조 구현이나 최종 형태를 그대로 옮겨 쓰지
    않았는지 확인하고, 인위적으로 절차적인 형태로 다시 만들어 커밋한다.
 5. **커밋 2 (`feat:`)** — `git add` 후 커밋. subject `feat(<범위>): <feature 이름>`.
@@ -209,7 +209,7 @@ plan 문서의 `## 진행 기록` 섹션에 `Phase B 시작 커밋: {feature: �
    위임한다. Local Tidying Process. **커밋 보류**. 적용 후에도 스위트 green 유지를
    확인한다.
 7. **커밋 3 (`refactor:`)** — 변경이 있으면 `git add` 후 커밋. 변경이 없으면(이미
-   깔끔하면) 생략한다 — 억지로 만들지 않는다.
+   깔끔하면) 생략한다.
 
 각 phase 내부(1, 3, 6)에서 test마다 에이전트가 반환한 변경 요약(무엇을·왜 그렇게
 했는가)을 보관한다 — 그 phase 커밋 body의 재료다. 작업 내역은 plan 문서에 1~3줄
@@ -256,7 +256,7 @@ phase마다 커밋 하나이므로 그 phase가 feature 전체에 걸쳐 무엇�
 - feature의 모든 test가 `- [x]`이고 전체 테스트가 통과하면 구현 완료.
   **체크박스만으로 판정하지 않는다** — 전체 스위트 green을 함께 확인한다. Red phase
   커밋 시점에는 모든 test가 아직 실패 상태이므로 체크박스는 전부 `- [ ]`로 남아 있는
-  것이 정상이다 — Green phase 커밋에서 한꺼번에 `- [x]`로 뒤집는다.
+  것이 정상이다 — Green phase 커밋에서 일괄 `- [x]`로 갱신한다.
 - **진행 기록 대조**: Green phase 커밋 직후, 체크된 항목과 실제 테스트 코드를 맞춰
   본다. 체크 안 된 항목을 덮는 테스트가 이미 있거나, 체크됐는데 대응 테스트가 없으면
   그 자리에서 바로잡는다(자율 진행은 중간 검토가 없어 드리프트가 누적된다).
@@ -275,12 +275,12 @@ phase마다 커밋 하나이므로 그 phase가 feature 전체에 걸쳐 무엇�
   diff를 대상으로, `../tdd-rgb/references/adversarial-review.md`(리뷰어 선택·내장
   프롬프트·심각도 처리)를 `Read`로 읽어 그대로 따른다. green 스위트 + 적대적 리뷰
   통과가 Definition of Done. 리뷰에서 수정이 발생하면 **그 수정이 속한 phase의 커밋에**
-  `--amend`로 합친다 — 이미 커밋된 다른 phase는 건드리지 않는다.
+  `--amend`로 합친다 — 이미 커밋된 다른 phase는 수정하지 않는다.
 - **완료 보고**: 구현된 test 목록, 3-phase 커밋 해시(test:/feat:/refactor:, 생략된
   phase가 있으면 명시), 통과 상태, 적대적 리뷰 결과를 요약한다. 표본 정독용으로
   대표 test 하나(가장 복잡했거나 후퇴가 있었던 것)를 추천해 함께 제시한다.
 - **하드닝 제안 (실행 아님)**: 완료 보고 마지막에 `../tdd-rgb/references/hardening-gate.md`를
-  `Read`로 읽어 그 규칙대로 제안 블록을 붙인다 — CRAP·DRY(빠름, 변경 파일 한정)와
+  `Read`로 읽어 그 규칙대로 제안 블록을 추가한다 — CRAP·DRY(빠름, 변경 파일 한정)와
   mutation(느림, 파일 1개)을 사용자가 복사해 실행할 수 있는 명령으로. 블록 안의 순서는
   비용순이 아니라 **파이프라인순**이다 — ①CRAP·DRY(정리할 곳 찾기) →
   ②`/system-wide-refactoring`(정리) → ③mutation(정리된 코드에). ②가 뮤턴트 지점을
@@ -288,7 +288,7 @@ phase마다 커밋 하나이므로 그 phase가 feature 전체에 걸쳐 무엇�
   (Java·src/main 변경 존재, CRAP·mutation은 추가로 Maven 필요) 미충족 시 생략 사실만
   한 줄 보고. **자동 실행 금지.**
 - **세션 프로파일 안내**: 하드닝 제안 다음 줄에 "`/tdd-profile` — 이 세션의 단계·
-  에이전트별 시간·토큰과 model/effort 조정안" 한 줄을 붙인다. 실행은 사용자가 한다.
+  에이전트별 시간·토큰과 model/effort 조정안" 한 줄을 추가한다. 실행은 사용자가 한다.
 - **WIP=1 안내**: plan에 다른 feature가 남아 있으면 — "feature {F} 완료. 남은 feature: {목록}. 이어서 진행하려면 `/tdd-feature {plan경로}`로 다시 호출하거나, 다른 세션에서 진행하세요." (자동으로 다음 feature를 시작하지 않는다.)
 
 ## FAILURE CONDITIONS
@@ -304,7 +304,7 @@ phase마다 커밋 하나이므로 그 phase가 feature 전체에 걸쳐 무엇�
 | 하드닝 도구를 자동 실행함 | 제안만 모드 위반 — 실행을 중단하고 제안 블록으로 되돌린다 |
 | 적대적 리뷰 없이 완료 보고 | Definition of Done 미달 — 리뷰 실행 후 결과를 포함해 재보고 |
 | 진행 기록 체크박스와 실제 테스트 불일치 | 드리프트 — 완료 처리의 대조로 바로잡고, Green phase 커밋에 문서 갱신을 함께 담는다 |
-| 에이전트가 test마다 커밋해버림 | 커밋 보류 지시 누락(Hard Rule 3) — `git reset --soft`로 그 phase 시작점까지 되돌려 phase 커밋 하나로 다시 만든다 |
+| 에이전트가 test마다 커밋함 | 커밋 보류 지시 누락(Hard Rule 3) — `git reset --soft`로 그 phase 시작점까지 되돌려 phase 커밋 하나로 다시 만든다 |
 | feature 2개가 한 phase 커밋에 담김 | use case 경계 위반 — WIP=1을 지키지 않은 결과. 커밋을 분리한다 |
 | 테스트 단위로 R→G→B를 반복함(phase를 안 나눔) | Hard Rule 2a/3 위반 — high 기어의 3-phase 커밋 단위를 따르지 않은 것. 이미 커밋됐다면 phase 경계로 재구성하거나 사용자에게 보고 |
 | low·mid 검토 밀도를 요구받고도 이 스킬로 진행 | 기어 불일치 — `/tdd-rgb --gear=low\|mid`로 전환 안내 |

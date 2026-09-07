@@ -27,12 +27,12 @@ argument-hint: "<대상 클래스 FQCN 또는 파일 경로>"
   sabotage로 일시 변경한 코드는 반드시 원복하고 커밋에 포함하지 않는다.
 - 단계(1→2→3) 경계마다 사용자 검토 후 진행 (레거시는 확신이 낮은 상황 —
   기어 모델의 low 상당 밀도로 고정).
-- 리팩토링·seam 생성·의존성 깨기는 범위 밖 — 필요하면 핸드오프 후 진행.
+- 리팩토링·seam 생성·의존성 깨기(dependency breaking)는 범위 밖 — 필요하면 핸드오프 후 진행.
 
 ### Principles
 
 - 테스트하기 어려운 의존성(DB·시간·랜덤)이 있으면 값을 고정할 수 있는 가장 얇은
-  방법(고정 입력, 시스템 프로퍼티, 테스트 전용 설정)을 먼저 찾고, 그걸로 안 되면
+  방법(고정 입력, 시스템 프로퍼티, 테스트 전용 설정)을 먼저 찾고, 불가능하면
   그 지점을 사용자에게 보고한다 — 의존성 깨기는 이 스킬이 하지 않는다.
 - unit test vs approval test는 트레이드오프다: 설계가 매우 나쁠 때는 approval이
   효율적이고, 설계가 좋아지면 composable한 unit test가 낫다. 둘은 공존 가능하다.
@@ -52,7 +52,7 @@ argument-hint: "<대상 클래스 FQCN 또는 파일 경로>"
 2. **golden master 작성**: 대표 입력으로 현재 출력을 그대로 어설션에 고정.
    기대값을 추측하지 말고 실제 실행 결과를 기록한다.
 3. **어설션 정확성 검증 — SUT sabotage**: 통과하는 어설션마다
-   - SUT를 일시적으로 깨서(값 하나 변경 등) 테스트를 실행
+   - SUT를 일시적으로 변형해서(값 하나 변경 등) 테스트를 실행
    - 해당 어설션이 실제로 실패하는지 확인
    - 원복 후 다시 통과 확인
    - 실패하지 않는 어설션 = 동어반복 — 어설션을 고친다
@@ -86,7 +86,7 @@ argument-hint: "<대상 클래스 FQCN 또는 파일 경로>"
        `pitest { targetClasses = ["<대상 FQCN>"] }` → `./gradlew pitest`
      - Maven: `org.pitest:pitest-maven` 플러그인 `<targetClasses>` 설정 →
        `mvn test-compile org.pitest:pitest-maven:mutationCoverage`
-2. 대상 클래스에 mutation 실행 → 살아남은 뮤턴트 = 안전망의 구멍
+2. 대상 클래스에 mutation 실행 → 살아남은 뮤턴트 = 안전망의 미검출 영역
 3. 뮤턴트를 죽이는 테스트를 보강하고 재실행 (반복).
    죽일 수 없는 동등 뮤턴트(equivalent mutant)로 판정되면 사유와 함께
    사용자에게 보고하고 score 계산에서 제외를 합의한다 (무한 보강 루프 금지).
