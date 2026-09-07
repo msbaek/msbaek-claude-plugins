@@ -20,7 +20,7 @@ Primitive Obsession을 제거하여 도메인 개념을 명시적으로 표현�
 
 ### Hard Rules
 - **동작 변경 금지** — 구조 개선만 수행
-- **테스트 수정 금지** — 구조 변경이 테스트를 깨면 되돌리기
+- **테스트 수정 금지** — 구조 변경이 테스트를 실패시키면 되돌리기
 - **사용자 확인 없이 리팩토링 금지** — 모든 후보는 사용자 승인 후 실행
 - **커밋 단위** — 1파일 x 1기법 = 1커밋 (논리적으로 연결된 파일은 함께)
 - **git add -A 금지** — 변경된 파일만 명시적으로 추가
@@ -241,6 +241,6 @@ refactor: discover value object [객체명] in [클래스명]
 공통 실패 조건(승인 없이 적용, 테스트 실패 방치, 테스트 수정, 커밋 단위, `git add -A`, heredoc
 한글 메시지)은 `../../references/refactoring-procedure.md`에 있다. 아래는 이 기법에 고유한 것만.
 
-- ❌ 관련 로직 없는 모든 primitive를 객체로 감쌈 (불필요한 복잡도)
-- ❌ 단순 getter/setter만 있는 Value Object 생성 (의미 없음)
-- ❌ mutable Value Object 생성 (불변성 필수)
+- 관련 로직 없는 모든 primitive를 객체로 감쌈 (불필요한 복잡도)
+- 단순 getter/setter만 있는 Value Object 생성 (의미 없음)
+- mutable Value Object 생성 (불변성 필수)

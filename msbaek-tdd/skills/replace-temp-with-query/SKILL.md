@@ -16,7 +16,7 @@ argument-hint: "[commit-ref]"
 ## CONSTRAINTS
 
 - **동작 변경 금지**: 구조 개선만 수행 (기능 변경 없음)
-- **테스트 수정 금지**: 구조 변경이 테스트를 깨면 되돌리기
+- **테스트 수정 금지**: 구조 변경이 테스트를 실패시키면 되돌리기
 - **사용자 확인 필수**: 자동 적용 금지
 - **명시적 git add**: `git add -A` 금지, 변경된 파일만 명시
 - **단일 커밋**: 하나의 `refactor:` 커밋으로 완료
@@ -62,13 +62,13 @@ private double shipping() { return order.getTotal() > 100 ? 0 : 10; }
 
 ## 적용 기준
 
-### ✅ 적용 대상
+### 적용 대상
 - 한 번만 대입되는 임시 변수
 - 여러 곳에서 참조되는 변수
 - 복잡한 표현식을 담은 변수 (의미 부여 가치 높음)
 - Extract Method 전 단계로 사용
 
-### ❌ 적용 제외
+### 적용 제외
 - **루프 내 누적 변수** (accumulator): `sum += value;`
 - **부수효과 있는 표현식**: 메서드 호출이 상태 변경하는 경우
 - **여러 번 대입되는 변수**: 값이 변경되는 경우
@@ -114,13 +114,13 @@ private double shipping() { return order.getTotal() > 100 ? 0 : 10; }
 
 ### 출력 예시
 ```
-✅ Replace Temp with Query 완료
+완료: Replace Temp with Query
 
 변경 내용:
 - OrderService.java: basePrice 변수 → basePrice() 메서드
 - InvoiceCalculator.java: discount 변수 → discount() 메서드
 
-테스트: ✅ 모든 테스트 통과 (23 tests)
+테스트: 모든 테스트 통과 (23 tests)
 커밋: refactor: replace temp with query in OrderService, InvoiceCalculator
 ```
 

@@ -21,7 +21,7 @@ decompose-conditional과 상호 보완:
 ## CONSTRAINTS
 
 - **동작 변경 금지**: 구조 개선만 수행 (기능 변경 없음)
-- **테스트 수정 금지**: 구조 변경이 테스트를 깨면 되돌리기
+- **테스트 수정 금지**: 구조 변경이 테스트를 실패시키면 되돌리기
 - **사용자 확인 필수**: 자동 적용 금지
 - **명시적 git add**: `git add -A` 금지, 변경된 파일만 명시
 - **단일 커밋**: 하나의 `refactor:` 커밋으로 완료
@@ -84,13 +84,13 @@ if (isSpecialDeal() || isLoyalCustomer()) {
 
 ## 적용 기준
 
-### ✅ 적용 대상
+### 적용 대상
 - 2개 이상의 조건문이 동일한 결과(return/throw/assign)를 냄
 - 조건들이 논리적으로 OR 또는 AND로 결합 가능
 - 각 조건이 독립적 (부수효과 없음)
 - 통합 후 의미 있는 이름을 부여할 수 있음
 
-### ❌ 적용 제외
+### 적용 제외
 - **다른 결과**: 조건들이 서로 다른 결과를 냄
 - **부수효과 사이**: 조건 사이에 부수효과 코드가 있음
 - **의도적 분리**: 각 조건이 서로 다른 비즈니스 규칙을 표현 (분리가 의도적)
@@ -139,7 +139,7 @@ if (isSpecialDeal() || isLoyalCustomer()) {
 
 ### 출력 예시
 ```
-✅ Consolidate Conditional Expression 완료
+완료: Consolidate Conditional Expression
 
 변경 내용:
 - DisabilityService.java:15-17
@@ -148,10 +148,10 @@ if (isSpecialDeal() || isLoyalCustomer()) {
 - VacationPolicy.java:30-34
   AND 통합: 중첩 if → 단일 조건으로 플래트닝
 
-테스트: ✅ 모든 테스트 통과 (23 tests)
+테스트: 모든 테스트 통과 (23 tests)
 커밋: refactor: consolidate conditional in DisabilityService, VacationPolicy
 
-💡 제안: DisabilityService.java의 통합된 조건이 복잡합니다.
+제안: DisabilityService.java의 통합된 조건이 복잡합니다.
    /decompose-conditional 적용을 고려해보세요.
 ```
 

@@ -18,7 +18,7 @@ argument-hint: "[commit-ref]"
 
 ### Hard Rules
 - **동작 변경 금지** — 구조 개선만 수행
-- **테스트 수정 금지** — 구조 변경이 테스트를 깨면 되돌리기
+- **테스트 수정 금지** — 구조 변경이 테스트를 실패시키면 되돌리기
 - **사용자 확인 없이 리팩토링 금지** — 모든 후보는 사용자 승인 후 실행
 - **커밋 단위** — 단계별 커밋 (Special Case 생성 → 소스 수정 → 호출처 정리)
 - **git add -A 금지** — 변경된 파일만 명시적으로 추가
@@ -111,13 +111,13 @@ public class NullPaymentMethod implements PaymentMethod {
 
 ## 적용 기준
 
-### ✅ 적용 대상
+### 적용 대상
 - 동일 타입에 대한 null 검사가 **3곳 이상** 반복
 - null일 때의 기본값/기본 동작이 **일관됨**
 - 대상 타입이 **상속 또는 인터페이스 구현 가능** (final 아님)
 - null 처리 로직이 흩어져 있어 일관성 유지가 어려운 경우
 
-### ❌ 적용 제외
+### 적용 제외
 - **null 검사 1-2곳**: 과도한 추상화
 - **동작이 호출처마다 다름**: 일관된 기본 동작이 없으면 Special Case 불가
 - **외부 라이브러리 클래스**: 상속 불가
@@ -154,7 +154,7 @@ public class NullPaymentMethod implements PaymentMethod {
 3. ReportService.java:20 → null이면 0 반환
 4. NotificationService.java:55 → null이면 스킵
 
-**기본 동작 일관성**: ✅ (1-3은 일관된 기본값, 4는 스킵)
+**기본 동작 일관성**: 일관됨 (1-3은 일관된 기본값, 4는 스킵)
 
 **제안**:
 1. UnknownCustomer extends Customer 생성
@@ -192,6 +192,6 @@ public class NullPaymentMethod implements PaymentMethod {
 공통 실패 조건(승인 없이 적용, 테스트 실패 방치, 테스트 수정, 커밋 단위, `git add -A`, heredoc
 한글 메시지)은 `../../references/refactoring-procedure.md`에 있다. 아래는 이 기법에 고유한 것만.
 
-- ❌ null일 때 동작이 호출처마다 다른데 억지로 통합
-- ❌ null 검사가 1-2곳뿐인데 적용 (과도한 추상화)
-- ❌ final 클래스에 적용 시도
+- null일 때 동작이 호출처마다 다른데 억지로 통합
+- null 검사가 1-2곳뿐인데 적용 (과도한 추상화)
+- final 클래스에 적용 시도

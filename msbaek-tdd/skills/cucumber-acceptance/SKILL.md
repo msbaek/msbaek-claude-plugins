@@ -8,10 +8,10 @@ argument-hint: "[feature 설명 또는 요구사항 문서/.feature 경로]"
 
 ## GOAL
 
-- **성공 = 요구사항의 Gherkin 시나리오가 `.feature` 파일로 실행되어, 기대 수치가 코드와 어긋나면 빌드가 깨지는 상태**
+- **성공 = 요구사항의 Gherkin 시나리오가 `.feature` 파일로 실행되어, 기대 수치가 코드와 어긋나면 빌드가 실패하는 상태**
 - 기능의 external behavior(고객이 사용하는 것과 기능)를 Cucumber가 **주 검증층**으로 담당 — programmer test 역할까지 겸한다
 - 더 세밀한 검증(분기 커버리지·내부 협력)은 JUnit·Mockito가 **보조**
-- 문서와 코드의 기대값 드리프트가 구조적으로 불가능해짐 — `.feature`의 Examples 표(검산 전개의 복사본)가 코드와 어긋나면 조용히 남지 못하고 빌드가 깨진다
+- 문서와 코드의 기대값 드리프트가 구조적으로 불가능해짐 — `.feature`의 Examples 표(검산 전개의 복사본)가 코드와 어긋나면 조용히 남지 못하고 빌드가 실패한다
 
 ## CONSTRAINTS
 
@@ -202,13 +202,13 @@ Claude가 아래 절차를 대신 수행하고, 사람은 결과(green + 의도�
 
 ## 적용 기준
 
-### ✅ 적용 대상
+### 적용 대상
 - 고객·이해관계자가 보는 기능의 external behavior
 - 요구사항 문서에 Gherkin/기대값 표가 이미 있고, 코드와의 드리프트가 걱정되는 경우
 - `tdd-plan` 리뷰에서 승인된 Gherkin 전문 — 재작성 없이 그대로 `.feature`가 된다 (위 "도입 시점"의 acceptance-first)
 - 비개발자(PO·QA·도메인 전문가) 또는 AI가 명세를 리뷰·승인하는 워크플로우
 
-### ❌ 적용 제외
+### 적용 제외
 - 분기 커버리지·내부 협력 검증 → JUnit·Mockito (위계 표 참조)
 - property-based 검증 → jqwik 등
 - 직렬화·동시성·성능 등 문제 도메인의 언어가 코드인 영역
@@ -271,10 +271,10 @@ class RunCucumberTest {
 
 ## FAILURE CONDITIONS
 
-- ❌ 망라적 edge case를 시나리오로 나열 (시나리오 폭발 — 핵심 예시만)
-- ❌ step definition에 SUT 상호작용을 직접 삽입 (Protocol Driver 미분리)
-- ❌ 실행 불가능한 시나리오를 삭제 (태그 제외로 가역 처리해야 함)
-- ❌ 이관 후 JUnit에 같은 검증의 인수 테스트 방치 (두 계층 중복)
-- ❌ 문서↔실행 정렬을 `@Order`류 순서 어노테이션으로 흉내 냄
-- ❌ property-based·기술 도메인 검증을 Gherkin으로 작성
-- ❌ 느린 채널(브라우저 등)을 기본 driver로 선택해 주 검증층이 느려짐
+- 망라적 edge case를 시나리오로 나열 (시나리오 폭발 — 핵심 예시만)
+- step definition에 SUT 상호작용을 직접 삽입 (Protocol Driver 미분리)
+- 실행 불가능한 시나리오를 삭제 (태그 제외로 가역 처리해야 함)
+- 이관 후 JUnit에 같은 검증의 인수 테스트 방치 (두 계층 중복)
+- 문서↔실행 정렬을 `@Order`류 순서 어노테이션으로 흉내 냄
+- property-based·기술 도메인 검증을 Gherkin으로 작성
+- 느린 채널(브라우저 등)을 기본 driver로 선택해 주 검증층이 느려짐

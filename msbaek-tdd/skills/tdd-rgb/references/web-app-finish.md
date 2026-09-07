@@ -42,7 +42,7 @@ Walking Skeleton에서 최소 JPA로 시작해 RGB 사이클 동안 `inMemory` p
 (정본: https://github.com/msbaek/tmpl/blob/main/src/test/java/pe/msbaek/tmpl/member/MemberApi.java).
 
 **Test Data Builder** — 테스트는 관심 있는 속성만 명시하고 나머지는 기본값. 도메인
-객체에 속성이 늘어도 기존 테스트는 컴파일이 깨지지 않는다
+객체에 속성이 늘어도 기존 테스트는 컴파일이 실패하지 않는다
 (정본: https://github.com/msbaek/tmpl/blob/main/src/test/java/pe/msbaek/tmpl/member/MemberBuilder.java):
 
 ```java

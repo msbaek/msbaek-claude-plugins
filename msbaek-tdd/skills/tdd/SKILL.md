@@ -118,13 +118,13 @@ high다(상세는 tdd-rgb의 "기어(Gears)" 섹션).
 | 이론이 명확, 테스트 목록 전체를 자율로 | high | `/tdd-rgb --gear=high` (완료 + 적대적 리뷰 후 최종 검토) |
 | 이론이 명확, feature 하나를 plan 합의 후 자율로 | high | `/tdd-feature` (Phase B = feature 범위 high) |
 
-폭발 반경이 큰 영역(인증·인가, 결제·금액 계산, 데이터 삭제·변경, 외부 API, 동시성)은
+폭발 반경(blast radius)이 큰 영역(인증·인가, 결제·금액 계산, 데이터 삭제·변경, 외부 API, 동시성)은
 기어와 무관하게 완료 시 적대적 리뷰를 1회 실행한다
-(`../tdd-rgb/references/gears.md`의 "폭발 반경" 참조).
+(`../tdd-rgb/references/gears.md`의 "폭발 반경(blast radius)" 참조).
 
 - 진행 기록에 기어가 남아 있으면 `--gear` 없이 `/tdd-rgb`만 호출해도 그 기어로 복원된다
 - `/tdd-feature`는 `--gear`를 받지 않는다 — Phase B 자율 진행이 곧 high다
-- 폭발 반경이 큰 영역(인증·결제·데이터 삭제·외부 API·동시성)은 확신이 높아도 한 단
+- 폭발 반경(blast radius)이 큰 영역(인증·결제·데이터 삭제·외부 API·동시성)은 확신이 높아도 한 단
   낮은 기어를 권장한다 — 두 스킬 모두 시작 시 이 점검을 수행한다
 
 ---
@@ -165,7 +165,7 @@ high다(상세는 tdd-rgb의 "기어(Gears)" 섹션).
 - [ ] 4. 테스트 구현 (RGB 사이클 — 각 Green이 자기 시나리오 @pending 해제)
 - [ ] 5. JPA Repository 완성 (계약 테스트로 InMemory와 동등성 검증)
 - [ ] 6. DSL 개선 (Steps·Protocol Driver·Test Data Builder)
-- [ ] 7. 적대적 리뷰 (high 기어 또는 폭발 반경 high-stakes 시 — 5·6을 마친 뒤 실행, diff가 전체 구현을 포함해야 함)
+- [ ] 7. 적대적 리뷰 (high 기어 또는 폭발 반경(blast radius) high-stakes 시 — 5·6을 마친 뒤 실행, diff가 전체 구현을 포함해야 함)
 - [ ] 8. 하드닝 게이트 (① CRAP·DRY 분석 → ② /system-wide-refactoring → ③ mutation 대표 파일 1개 — 제안만, 실행은 사용자 결정)
 
 ## 규칙

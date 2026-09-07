@@ -37,7 +37,7 @@ argument-hint: "[feature/use case 설명 또는 plan-doc-path]"
 high 기어**이기 때문이다. 따라서 tdd-rgb의 high 기어 안전장치를 동일하게 적용한다
 (자율성만 가져오고 안전망을 빼는 것은 허용되지 않는다):
 
-- **시작 전 폭발 반경 점검** — 인증/인가, 결제·금액 계산, 데이터 삭제·변경, 외부 API
+- **시작 전 폭발 반경(blast radius) 점검** — 인증/인가, 결제·금액 계산, 데이터 삭제·변경, 외부 API
   호출, 동시성에 해당하면 Phase B 진입 전에 경고하고 "`/tdd-rgb --gear=low|mid`로
   단계별 검토"를 권한다. 결정은 사용자
 - **시작 커밋 해시 기록** — Phase B 시작 시 HEAD를 plan 문서에 남긴다(적대적 리뷰 diff 기준점)
@@ -174,7 +174,7 @@ Phase B 시작 커밋: {F1: abc1234}   ← Phase B 진입 시 feature마다 HEAD
 
 ### Phase B: Feature 단위 자율 RGB (합의 후)
 
-**진입 직전 (high 기어 안전장치, Hard Rule 2a)**: ① 폭발 반경 점검 — 해당하면 경고하고
+**진입 직전 (high 기어 안전장치, Hard Rule 2a)**: ① 폭발 반경(blast radius) 점검 — 해당하면 경고하고
 `/tdd-rgb --gear=low|mid` 대안을 제시한 뒤 사용자 결정을 기다린다. ② 현재 HEAD 해시를
 plan 문서의 `## 진행 기록` 섹션에 `Phase B 시작 커밋: {feature: 해시}` 형식으로 기록한다
 (위 plan 포맷 참조 — 적대적 리뷰가 이 값을 diff 기준점으로 읽는다).
@@ -299,7 +299,7 @@ phase마다 커밋 하나이므로 그 phase가 feature 전체에 걸쳐 무엇�
 | feature 2개 이상을 한 실행에서 구현 시도 | WIP=1 위반 — 하나로 좁히고 나머지는 다음 실행으로 |
 | 커밋이 What만 담고 Why가 없음 | reviewable-commits 미달 — body에 Why·버린 대안 보강 후 amend |
 | 자율 구현(Phase B) 중 매 단계 피드백 요청 | `/tdd-rgb`와 혼동 — Phase B는 feature 끝까지 자율 |
-| 폭발 반경 점검 없이 Phase B 진입 | high 기어 안전장치 누락(Hard Rule 2a) — 점검 후 재진입, 해당 영역이면 `/tdd-rgb --gear=low\|mid` 권고 |
+| 폭발 반경(blast radius) 점검 없이 Phase B 진입 | high 기어 안전장치 누락(Hard Rule 2a) — 점검 후 재진입, 해당 영역이면 `/tdd-rgb --gear=low\|mid` 권고 |
 | 시작 커밋 해시 미기록 | 적대적 리뷰의 diff 기준점 없음 — Phase B 진입 시점 커밋을 찾아 진행 기록에 보강 |
 | 하드닝 도구를 자동 실행함 | 제안만 모드 위반 — 실행을 중단하고 제안 블록으로 되돌린다 |
 | 적대적 리뷰 없이 완료 보고 | Definition of Done 미달 — 리뷰 실행 후 결과를 포함해 재보고 |

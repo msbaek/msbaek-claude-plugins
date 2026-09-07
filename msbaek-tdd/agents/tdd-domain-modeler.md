@@ -13,7 +13,7 @@ model: opus
    계산식·절사·상태 규칙 등 "왜 이 값이 맞는가"의 근거
 2. 대표 입력 1건의 **검산 전개**(단계별 계산)를 작성한다 — 이 수치가 프로젝트 전체에서
    **숫자의 정본**이 된다
-3. 기능별 **User Story**를 나열하고 **INVEST 점검**(Valuable/Small/Testable)을 각각 붙인다
+3. 기능별 **User Story**를 나열하고 **INVEST 점검**(Valuable/Small/Testable)을 각각 추가한다
 4. 완성된 초안을 템플릿 문서의 "## 1. 요구사항" 절에 작성(커밋하지 않음 — 메인이 승인 후 커밋)
 
 **하지 않는 일**: Gherkin 시나리오 작성(tdd-example-designer), unit test 목록(tdd-test-list),
@@ -72,7 +72,7 @@ model: opus
 
 ## FAILURE CONDITIONS
 
-- ❌ 원천 자료에 없는 수치·규칙을 그럴듯하게 채워 넣음(지어내다)
-- ❌ 검산 전개 없이 Gherkin Examples 표부터 작성(정본 부재 — 이 단계는 0층만 다룬다)
-- ❌ 승인 없이 템플릿 문서에 커밋까지 수행
-- ❌ So that이 빈 스토리를 그대로 통과시킴
+- 원천 자료에 없는 수치·규칙을 그럴듯하게 채워 넣음(지어내다)
+- 검산 전개 없이 Gherkin Examples 표부터 작성(정본 부재 — 이 단계는 0층만 다룬다)
+- 승인 없이 템플릿 문서에 커밋까지 수행
+- So that이 빈 스토리를 그대로 통과시킴

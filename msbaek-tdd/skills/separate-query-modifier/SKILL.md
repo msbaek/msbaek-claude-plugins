@@ -20,7 +20,7 @@ argument-hint: "[commit-ref]"
 
 ### Hard Rules
 - **동작 변경 금지** — 구조 개선만 수행
-- **테스트 수정 금지** — 구조 변경이 테스트를 깨면 되돌리기
+- **테스트 수정 금지** — 구조 변경이 테스트를 실패시키면 되돌리기
 - **사용자 확인 없이 리팩토링 금지** — 모든 후보는 사용자 승인 후 실행
 - **커밋 단위** — 1파일 x 1기법 = 1커밋 (논리적으로 연결된 파일은 함께)
 - **git add -A 금지** — 변경된 파일만 명시적으로 추가
@@ -151,19 +151,19 @@ public class TaskQueue {
 }
 ```
 
-### ⚠️ 예외: 원자적 연산
+### 예외: 원자적 연산
 
 ```java
 // 분리하면 안 되는 경우: thread-safety 파괴
 public class AtomicCounter {
     private int value;
     
-    // ❌ 분리하면 race condition 발생
+    // 분리하면 race condition 발생
     public int getAndIncrement() {
         return value++;  // 원자적 연산 - CAS
     }
     
-    // ✅ 이런 경우는 CQS 예외로 유지
+    // 이런 경우는 CQS 예외로 유지
     // 분리 시: getValue() + increment() → thread-unsafe
 }
 ```
@@ -230,7 +230,7 @@ Separate Query from Modifier를 적용해야 하는 경우:
 
 **적용할까요?** (yes / no / 수정 요청)
 
-⚠️ 주의: 원자적 연산이 필요한 경우 적용하지 마세요.
+주의: 원자적 연산이 필요한 경우 적용하지 마세요.
 ```
 
 - 사용자가 **yes** → 실행 목록에 추가
@@ -264,7 +264,7 @@ refactor: separate query from modifier in [클래스명].[메서드명]
 공통 실패 조건(승인 없이 적용, 테스트 실패 방치, 테스트 수정, 커밋 단위, `git add -A`, heredoc
 한글 메시지)은 `../../references/refactoring-procedure.md`에 있다. 아래는 이 기법에 고유한 것만.
 
-- ❌ 원자적 연산(CAS, pop)을 분리하여 thread-safety 파괴
-- ❌ 호출자 코드 수정 누락 (Query와 Modifier 모두 호출해야 함)
-- ❌ Query 메서드에 여전히 부수효과 남음 (완전히 순수해야 함)
-- ❌ Modifier가 값을 반환 (void여야 함)
+- 원자적 연산(CAS, pop)을 분리하여 thread-safety 파괴
+- 호출자 코드 수정 누락 (Query와 Modifier 모두 호출해야 함)
+- Query 메서드에 여전히 부수효과 남음 (완전히 순수해야 함)
+- Modifier가 값을 반환 (void여야 함)

@@ -36,13 +36,13 @@ thinnest(기능이 얇은가)라는 서로 다른 두 축을 동시에 만족시
   파이프라인을 거쳐도 real이 아니다
 - **OSIV는 도입 시점을 판단할 항목이 아니다 — 항상 끈다.** 부재는 off가 아니라 on이다
   (설정 파일에 항목이 없으면 Spring Boot 기본값 `true`가 켜진다)
-- **적용 순서 — 쓰기 경로는 가드가 경계보다 먼저.** Controller에 트랜잭션 경계를 얹는
+- **적용 순서 — 쓰기 경로는 가드가 경계보다 먼저.** Controller에 트랜잭션 경계를 추가하는
   같은 변경에 `save()` 누출 가드(회귀 테스트)를 동봉한다. 경계 없이 가드부터 만들면
   그 가드는 위험 경로를 한 번도 실행하지 않는 공허한 검증이 된다
 - **가드로 detach를 쓰지 않는다** — LAZY 유지와 배타적(detached 엔티티는 지연 로딩 불가).
   쓰기 경로 가드는 Controller 경계 테스트로 세운다
 - **새 회귀 테스트는 실패 주입으로 비공허성을 확인한다** — 보호 장치를 일부러 제거하고
-  그 테스트가 실제로 빨간불이 되는지 본 뒤에야 믿는다. 통과했다는 사실 자체는 정보가
+  그 테스트가 실제로 실패하는지 확인한 뒤에야 신뢰한다. 통과했다는 사실 자체는 정보가
   아니다(조용한 실패)
 - **관통 확인 — 실행된 SQL을 눈으로 본다.** 최소 `show-sql: true`. 이 단계에서 p6spy를
   미리 넣지 않는다(도구는 최초로 필요해진 시점에)
@@ -67,15 +67,15 @@ thinnest(기능이 얇은가)라는 서로 다른 두 축을 동시에 만족시
 ## 에러 핸들링
 
 - **인수 조건에 쓰기(POST) 요청이 없음** → 쓰기 API를 만들지 않고, Repository로
-  직접 시드 후 읽기 경로 하나만 HTTP로 관통시킨다(발명 금지)
-- **테스트가 compose를 건너뛰고 임베디드 DB로 붙음** → `spring.docker.compose.skip.in-tests=false`
+  직접 시드 후 읽기 경로 하나만 HTTP로 관통시킨다(지어내기(invent) 금지)
+- **테스트가 compose를 건너뛰고 임베디드 DB에 연결됨** → `spring.docker.compose.skip.in-tests=false`
   누락. 실행 SQL 로그(MySQL dialect)로 확인 후 설정 추가
 - **Docker Compose를 쓸 수 없는 환경**(CI에 compose 없음 등) → Testcontainers 대안으로
   전환을 위임자에게 제안. Testcontainers가 Docker API 버전 협상에 실패(OrbStack 등)하면
   `systemProperty("api.version", "1.41")`로 우회
 - **계약 테스트를 만드는데 트랜잭션 안에서 왕복이 항상 통과** → 1차 캐시가 DB 접근을
   가리는 공허한 검증. `@Transactional(propagation = NOT_SUPPORTED)`를 부모(계약 테스트)
-  클래스에 붙이고 `@AfterEach`로 직접 정리. 왕복 단언은 트랜잭션 안/밖 모두 통과하므로
+  클래스에 선언하고 `@AfterEach`로 직접 정리. 왕복 단언은 트랜잭션 안/밖 모두 통과하므로
   `TestTransaction.isActive() == false` guard test를 계약에 추가한다 — 나중에 누군가
   트랜잭션 안에서 실행되게 바꾸면 이 guard test가 실패한다
 - **`@AutoConfigureTestDatabase(replace = NONE)` 누락으로 임베디드 DB 자동 대체 의심** →
@@ -97,7 +97,7 @@ thinnest(기능이 얇은가)라는 서로 다른 두 축을 동시에 만족시
 - [ ] Controller 반환 타입이 엔티티가 아니라 DTO인가
 - [ ] 연관관계가 LAZY로 유지되고, 조회 지점에서 `@EntityGraph`/fetch join으로 명시적으로
   당기는가(전역 EAGER 없음)
-- [ ] `save()` 누출 가드 테스트가 실패 주입(가드 코드 일시 제거)으로 실제 빨간불이 되는
+- [ ] `save()` 누출 가드 테스트가 실패 주입(가드 코드 일시 제거)으로 실제 실패이 되는
   것을 확인했는가
 - [ ] docker MySQL로 실제 관통했는지 실행 로그(SQL)로 확인했는가(임베디드 DB 자동 대체
   아님)
@@ -116,10 +116,10 @@ thinnest(기능이 얇은가)라는 서로 다른 두 축을 동시에 만족시
 
 ## FAILURE CONDITIONS
 
-- ❌ Fake Repository·하드코딩 응답으로 관통을 대신함(real 위반)
-- ❌ 비즈니스 로직(계산·검증)이 들어간 시나리오를 대상으로 선택(thinnest 위반)
-- ❌ OSIV 설정을 명시하지 않고 넘어감
-- ❌ 연관관계를 EAGER로 바꿔 LAZY 접근 오류를 우회
-- ❌ Controller가 엔티티를 직접 반환
-- ❌ 가드 없이 트랜잭션 경계만 올림(가드가 경계보다 먼저 순서 위반)
-- ❌ 실패 주입 검증 없이 회귀 가드를 완료로 보고
+- Fake Repository·하드코딩 응답으로 관통을 대신함(real 위반)
+- 비즈니스 로직(계산·검증)이 들어간 시나리오를 대상으로 선택(thinnest 위반)
+- OSIV 설정을 명시하지 않고 넘어감
+- 연관관계를 EAGER로 바꿔 LAZY 접근 오류를 우회
+- Controller가 엔티티를 직접 반환
+- 가드 없이 트랜잭션 경계만 추가함(가드가 경계보다 먼저 순서 위반)
+- 실패 주입 검증 없이 회귀 가드를 완료로 보고

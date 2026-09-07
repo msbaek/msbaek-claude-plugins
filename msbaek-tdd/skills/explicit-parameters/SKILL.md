@@ -16,7 +16,7 @@ argument-hint: "[commit-ref]"
 ## CONSTRAINTS
 
 - **동작 변경 금지**: 구조 개선만 수행 (기능 변경 없음)
-- **테스트 수정 금지**: 구조 변경이 테스트를 깨면 되돌리기
+- **테스트 수정 금지**: 구조 변경이 테스트를 실패시키면 되돌리기
 - **사용자 확인 필수**: 자동 적용 금지
 - **명시적 git add**: `git add -A` 금지, 변경된 파일만 명시
 - **단일 커밋**: 하나의 `refactor:` 커밋으로 완료
@@ -81,20 +81,20 @@ class PricingContext {
 
 ## 적용 기준
 
-### ✅ 적용 대상
+### 적용 대상
 - 클래스 필드를 메서드 내에서만 참조
 - Singleton 패턴으로 전역 접근하는 의존성
 - 테스트 시 Mocking이 필요한 의존성
 - 순수 함수로 전환 가능한 메서드
 
-### ❌ 적용 제외
+### 적용 제외
 - **생성자 주입으로 관리되는 필드**: DI 컨테이너 관리 대상
 - **도메인 상태 필드**: 객체의 본질적 상태 (e.g., `Customer.name`)
 - **불변 상수**: `private static final` 값
 - **파라미터 수 폭발**: 3개 이상이면 Parameter Object 고려
 - **Method Object의 입력·계산 상태 필드**: 인자 전달 최소화가 그 객체의 존재 이유 — 이 스킬의 대상은 협력 객체 의존성이지 계산 상태가 아니다 (extract-method-object의 "추출 후 데이터 결정" 참조)
 
-### ⚠️ 주의사항
+### 주의사항
 - 파라미터 개수 증가는 신중히 판단
 - 호출부 모두 업데이트 필요 (IDE 리팩토리 활용)
 - 순수 함수화가 목적이라면 필드 제거까지 진행
@@ -146,7 +146,7 @@ class PricingContext {
 
 ### 출력 예시
 ```
-✅ Explicit Parameters 완료
+완료: Explicit Parameters
 
 변경 내용:
 - OrderService.java: calculateTotal() 파라미터 추가 (2개)
@@ -156,10 +156,10 @@ class PricingContext {
 
 영향받는 호출부: 8곳 자동 업데이트
 
-테스트: ✅ 모든 테스트 통과 (23 tests)
+테스트: 모든 테스트 통과 (23 tests)
 커밋: refactor: explicit parameters in OrderService, PaymentProcessor
 
-💡 제안: OrderService.calculateTotal()은 파라미터 3개 이상입니다.
+제안: OrderService.calculateTotal()은 파라미터 3개 이상입니다.
    Introduce Parameter Object를 고려해보세요.
 ```
 

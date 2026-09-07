@@ -16,7 +16,7 @@ argument-hint: "[commit-ref]"
 ## CONSTRAINTS
 
 - **동작 변경 금지**: 구조 개선만 수행 (기능 변경 없음)
-- **테스트 수정 금지**: 구조 변경이 테스트를 깨면 되돌리기
+- **테스트 수정 금지**: 구조 변경이 테스트를 실패시키면 되돌리기
 - **사용자 확인 필수**: 자동 적용 금지
 - **명시적 git add**: `git add -A` 금지, 변경된 파일만 명시
 - **단일 커밋**: 하나의 `refactor:` 커밋으로 완료
@@ -123,14 +123,14 @@ Map<String, List<Employee>> byDept = employees.stream()
 
 ## 적용 기준
 
-### ✅ 적용 대상
+### 적용 대상
 - 컬렉션 순회 + 필터링/변환/집계/검색 패턴
 - 중간 변수(`result`, `total`, `found`)에 결과를 누적하는 루프
 - 플래그 변수(`boolean found = false`)로 제어하는 루프
 - 중첩 루프에서 내부 루프가 독립적 검색/필터인 경우
 - `computeIfAbsent` + `add` 패턴의 그룹핑 루프
 
-### ❌ 적용 제외
+### 적용 제외
 - **부수효과가 핵심인 루프**: DB 저장, 로깅 등 각 요소마다 side effect 수행 (forEach로만 바꾸는 것은 가치 없음)
 - **인덱스 기반 접근 필수**: `list.get(i-1)` 비교, 인접 요소 참조 등
 - **break/continue 조건이 복잡**: Stream으로 변환하면 오히려 난해
@@ -190,7 +190,7 @@ Map<String, List<Employee>> byDept = employees.stream()
 
 ### 출력 예시
 ```
-✅ Replace Loop with Pipeline 완료
+완료: Replace Loop with Pipeline
 
 변경 내용:
 - OrderService.java:30-36
@@ -199,7 +199,7 @@ Map<String, List<Employee>> byDept = employees.stream()
 - ReportService.java:50-55
   집계: for+if+= → stream().filter().mapToInt().sum()
 
-테스트: ✅ 모든 테스트 통과 (23 tests)
+테스트: 모든 테스트 통과 (23 tests)
 커밋: refactor: replace loop with pipeline in OrderService, ReportService
 ```
 

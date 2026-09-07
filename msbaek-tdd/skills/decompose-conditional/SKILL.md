@@ -20,7 +20,7 @@ Guard Clauses와 상호 보완:
 ## CONSTRAINTS
 
 - **동작 변경 금지**: 구조 개선만 수행 (기능 변경 없음)
-- **테스트 수정 금지**: 구조 변경이 테스트를 깨면 되돌리기
+- **테스트 수정 금지**: 구조 변경이 테스트를 실패시키면 되돌리기
 - **사용자 확인 필수**: 자동 적용 금지
 - **명시적 git add**: `git add -A` 금지, 변경된 파일만 명시
 - **단일 커밋**: 하나의 `refactor:` 커밋으로 완료
@@ -101,19 +101,19 @@ processRequest();
 
 ## 적용 기준
 
-### ✅ 적용 대상
+### 적용 대상
 - 복잡한 boolean 표현식 (AND/OR 2개 이상)
 - 분기 로직이 의미 있는 단위로 추출 가능
 - 여러 곳에서 유사한 조건 사용
 - 삼항 연산자가 중첩된 경우
 
-### ❌ 적용 제외
+### 적용 제외
 - **단순 조건**: `if (x > 0)` 같은 간단한 표현식
 - **단일 분기**: else가 없고 분기 로직이 1줄
 - **다른 클래스 의존**: 추출한 메서드가 다른 클래스를 요구하는 경우
 - **테스트 전용 조건**: 프로덕션 코드에 없는 테스트 케이스
 
-### ⚠️ 주의사항
+### 주의사항
 - Guard Clause와 함께 사용하면 효과 극대화
 - Extract Method가 단일 클래스 내 완결되지 않으면 적용 보류
 - 조건식만 추출하거나 분기만 추출하는 부분 적용도 가능
@@ -164,7 +164,7 @@ processRequest();
 
 ### 출력 예시
 ```
-✅ Decompose Conditional 완료
+완료: Decompose Conditional
 
 변경 내용:
 - PricingService.java:30
@@ -175,10 +175,10 @@ processRequest();
   조건: eligibleForSpecialDiscount() 메서드 추출
   분기: 그대로 유지 (간단)
 
-테스트: ✅ 모든 테스트 통과 (23 tests)
+테스트: 모든 테스트 통과 (23 tests)
 커밋: refactor: decompose conditional in PricingService, AuthService
 
-💡 제안: AuthService.java:52에 중첩 조건이 남아 있습니다.
+제안: AuthService.java:52에 중첩 조건이 남아 있습니다.
    Guard Clause 적용을 고려해보세요.
 ```
 

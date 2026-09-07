@@ -49,7 +49,7 @@ allowed-tools: Write, Edit, Read, Bash(git add:*), Bash(git commit:*), Bash(git 
 
 ## --full 플로우
 
-high-stakes(인증·결제·데이터 삭제·외부 API·동시성 등 폭발 반경 큰 도메인)·대형·
+high-stakes(인증·결제·데이터 삭제·외부 API·동시성 등 폭발 반경(blast radius) 큰 도메인)·대형·
 다팀 작업에서 사용자가 명시적으로 선택한다. 절차는
 `references/full-plan.md`가 정본 — tdd-domain-modeler → tdd-example-designer →
 tdd-test-list → tdd-plan-critic, 단계별 승인.
@@ -63,7 +63,7 @@ tdd-test-list → tdd-plan-critic, 단계별 승인.
 - api를 호출하여 행동을 수행하고, 같은 api 레벨에서 결과를 검증
 - 예: post로 생성하고 get으로 검증하는 방식 — 단, **그 post가 실제 인수 조건일 때만**이다.
   시나리오가 요구하지 않는 쓰기 API를 검증 편의를 위해 만들지 않는다(단계 E-2의
-  "인수 조건에 없는 API를 발명하지 않는다" 참조). 이때는 given을 Repository 시드로 두고
+  "인수 조건에 없는 API를 지어내지(invent) 않는다" 참조). 이때는 given을 Repository 시드로 두고
   읽기 경로만 같은 레벨에서 검증한다
 
 #### 조용한 실패 — 관찰된 정상 상태는 의도된 설정을 보증하지 않는다
@@ -109,7 +109,7 @@ tdd-test-list → tdd-plan-critic, 단계별 승인.
 
 - **approvaltests** — 첫 다중 값 검증(코드에서 관찰 가능)
 - **p6spy** — ① `JdbcTemplate`·native query 등 **JPA를 거치지 않는 데이터 접근 경로가
-  처음 등장할 때**(`show-sql`은 이 경로를 아예 못 본다 — 코드 리뷰로 잡히는 신호)
+  처음 등장할 때**(`show-sql`은 이 경로를 아예 못 본다 — 코드 리뷰로 탐지되는 신호)
   ② 바인딩된 파라미터 **값**이 원인 후보인 디버깅을 시작할 때(주관적이어도 안전)
 
 이 규칙은 **새로 넣을 때의 시점**을 정한다. 이미 들어가 있는 도구를 제거하라는 뜻이
@@ -150,7 +150,7 @@ real(실행 경로가 진짜인가)과 thinnest(기능이 얇은가)는 다른 �
 - 트랜잭션 경계는 Controller에 둔다(이 단계 한정, 조회는 `@Transactional(readOnly = true)`).
   경계만을 위해 서비스 계층을 새로 만들지 않는다
 - 연관관계는 LAZY를 유지한다 — 터지는 지점마다 EAGER로 바꾸는 것은 우회이고, 목록 조회가
-  생기는 순간 N+1이 된다. 필요한 지점에서 fetch join·`@EntityGraph`로 명시적으로 당긴다
+  생기는 순간 N+1이 된다. 필요한 지점에서 fetch join·`@EntityGraph`로 명시적으로 로딩한다
 - Controller 반환 타입은 엔티티가 아니라 DTO다 — OSIV를 끈 상태에서 엔티티를 반환하면
   JSON 직렬화가 트랜잭션 **밖**에서 일어난다. 이 실패는 테스트에 안 보인다(클래스 레벨
   `@Transactional` 안에서 직렬화가 끝나므로 테스트는 초록색, 실서버만 500)

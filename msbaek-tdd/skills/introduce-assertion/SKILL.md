@@ -16,7 +16,7 @@ argument-hint: "[commit-ref]"
 ## CONSTRAINTS
 
 - **동작 변경 금지**: assertion 추가만 수행 (기존 로직 변경 없음)
-- **테스트 수정 금지**: assertion 추가가 테스트를 깨면 되돌리기
+- **테스트 수정 금지**: assertion 추가가 테스트를 실패시키면 되돌리기
 - **사용자 확인 필수**: 자동 적용 금지
 - **명시적 git add**: `git add -A` 금지, 변경된 파일만 명시
 - **단일 커밋**: 하나의 `refactor:` 커밋으로 완료
@@ -75,20 +75,20 @@ public int allocateSlots(int requested, int available) {
 
 ## 적용 기준
 
-### ✅ 적용 대상
+### 적용 대상
 - 메서드가 특정 조건을 가정하지만 명시하지 않은 경우
 - 내부 메서드(private/package-private)의 전제 조건
 - 계산 결과의 사후 조건 (결과값 범위 검증)
 - 알고리즘의 불변식 (invariant)
 - null이 아닌 것을 암묵적으로 가정하는 경우
 
-### ❌ 적용 제외
+### 적용 제외
 - **public API의 입력 검증**: assertion이 아니라 명시적 예외(IllegalArgumentException 등)를 사용해야 함
 - **비즈니스 규칙 검증**: 도메인 로직으로 처리해야 할 것
 - **이미 Guard Clause나 예외로 처리된 조건**: 중복
 - **외부 입력(사용자, API 응답)**: 시스템 경계는 명시적 검증 필요
 
-### ⚠️ 주의사항
+### 주의사항
 - assertion 실패 = 프로그래머의 버그 (예상치 못한 상황)
 - 예외(Exception) = 예상 가능한 오류 상황 (사용자 입력 오류 등)
 - 이 구분이 모호하면 사용자에게 질문
@@ -155,7 +155,7 @@ org.springframework.util.Assert를 사용합니다.
 
 ### 출력 예시
 ```
-✅ Introduce Assertion 완료 (Spring Assert)
+완료: Introduce Assertion (Spring Assert)
 
 변경 내용:
 - PricingService.java:20
@@ -164,7 +164,7 @@ org.springframework.util.Assert를 사용합니다.
 - OrderProcessor.java:45
   전제 조건: Assert.notNull(order), Assert.notEmpty(order.getItems())
 
-테스트: ✅ 모든 테스트 통과 (23 tests)
+테스트: 모든 테스트 통과 (23 tests)
 커밋: refactor: introduce assertions in PricingService, OrderProcessor
 ```
 

@@ -26,7 +26,7 @@ Tidying Process의 Comment 단계를 포함해 주석의 언어 규칙은
 
 - **Make it easier to change, THEN make the change** — 구조 개선 후에만 다음 기능으로
 - **Small, safe, reversible steps만** — 한 번에 하나의 tidying, 각 단계마다 테스트 실행
-- **동작 변경 없음** — 구조만 개선. 테스트가 깨지면 즉시 되돌린다
+- **동작 변경 없음** — 구조만 개선. 테스트가 실패하면 즉시 되돌린다
 - **Red-Green 다음에만** — Red·Green 단계 도중에는 tidy하지 않는다(Standalone 모드 제외)
 - **80% 규칙** — 지금 할 수 있는 수준에서 80% 이하로 리팩토링한다. 끝까지 개선하면(토끼굴)
   맥락 없는 동료는 이해할 수 없다. 나중에 도메인 지식·역량이 늘면 더 잘 할 수 있고,
@@ -36,7 +36,7 @@ Tidying Process의 Comment 단계를 포함해 주석의 언어 규칙은
   일정을 잡지 않는다(화장실 가며 손 씻듯) — 별도 일정이 필요하면 그건 리팩토링이 아니라
   리스트럭처링
 - **품질 게이트(절차 7단계)에서 오히려 이해하기 어려워졌으면** One Pile로 돌아가 재추출한다 —
-  억지로 밀어붙이지 않는다
+  강행하지 않는다
 
 > Refactoring is one of the three steps in TDD. **If you don't refactor much, it's a smell
 > you are thinking too much upfront.** — Ian Cooper
@@ -130,17 +130,17 @@ Tidying Process의 Comment 단계를 포함해 주석의 언어 규칙은
 
 ### 절대 금지 사항
 
-- ❌ **새로운 기능 구현 금지** — Green Phase 전담
-- ❌ **대규모 리팩토링 금지** — 작은 단계로 나누기
-- ❌ **테스트 수정 금지** — 구조 변경이 테스트를 깨면 되돌리기
-- ❌ **다른 클래스로의 Extract Method 금지** — 같은 클래스 내부 사설 메서드 추출은 허용,
+- **새로운 기능 구현 금지** — Green Phase 전담
+- **대규모 리팩토링 금지** — 작은 단계로 나누기
+- **테스트 수정 금지** — 구조 변경으로 테스트가 실패하면 되돌리기
+- **다른 클래스로의 Extract Method 금지** — 같은 클래스 내부 사설 메서드 추출은 허용,
   새 클래스 생성·이동은 `system-wide-refactoring` 스킬 전담
-- ❌ **Domain Logic 이동 금지** — 로직을 다른 클래스로 옮기는 것(Split by Abstraction Layer
+- **Domain Logic 이동 금지** — 로직을 다른 클래스로 옮기는 것(Split by Abstraction Layer
   등)은 `system-wide-refactoring` 스킬 전담
 
 ### 흔한 실수들
 
-- ❌ **필요 이상으로 리팩터링** — "Why do we overengineer? Because it's fun" — Victor Rentea
-- ❌ **추상화를 너무 일찍 함(Premature Abstraction)** — 중복은 힌트이지 명령은 아님
-- ❌ 다음 기능 구현 전에 리팩토링을 **건너뜀** — 기술부채가 쌓이지 않도록 반드시 리팩토링
-- ❌ 앵커와 어긋난 발견을 앵커 갱신(또는 보고) 없이 코드에만 반영함
+- **필요 이상으로 리팩터링** — "Why do we overengineer? Because it's fun" — Victor Rentea
+- **추상화를 너무 일찍 함(Premature Abstraction)** — 중복은 힌트이지 명령은 아님
+- 다음 기능 구현 전에 리팩토링을 **건너뜀** — 기술부채가 누적되지 않도록 리팩토링한다
+- 앵커와 어긋난 발견을 앵커 갱신(또는 보고) 없이 코드에만 반영함

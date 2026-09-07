@@ -1,6 +1,6 @@
 # 풀 plan 플로우 (--full)
 
-`/tdd-plan --full`이 따르는 현행 3단계 플로우의 정본. high-stakes(폭발 반경 큰 도메인)·
+`/tdd-plan --full`이 따르는 현행 3단계 플로우의 정본. high-stakes(폭발 반경(blast radius) 큰 도메인)·
 대형·다팀 작업에서 무거운 명세가 정당화될 때만 쓴다. 기본 경량 플로우는
 `../SKILL.md`가 정본이다.
 
@@ -115,7 +115,7 @@ tdd-test-list(단계 3) → tdd-plan-critic(교차검증). 각 단계 승인 후
 두 가지를 더 얻는다:
 
 1. **실행 가능성** — 이 Gherkin이 그대로 `/cucumber-acceptance`의 `.feature` 원본이
-   된다. 재작성 없이 문서→실행 이관되고, 기대값이 코드와 어긋나면 빌드가 깨져
+   된다. 재작성 없이 문서→실행 이관되고, 기대값이 코드와 어긋나면 빌드가 실패해
    드리프트가 구조적으로 차단된다.
 2. **핵심 예시 규율** — "key examples만"이라는 Specification by Example의 규율이
    plan 단계부터 적용된다.
@@ -184,7 +184,7 @@ Gherkin 시나리오가 external behavior의 인수 목록을 담당하므로, �
 **"Unit Test"이지 "Programmer Test"가 아니다** — Kent Beck의 programmer test는
 FIRST 4번째 원칙(behavior change에 민감, structure change에 둔감)을 만족해야
 하는데, 위 세 범주는 정의상 구현 세부사항(분기·내부 협력)에 결합된다. 이 결합은
-리팩터링 시 깨지기 쉬운 대가를 감수하고 커버리지·엣지케이스를 얻는 의도적
+리팩터링 시 실패하기 쉬운 비용를 감수하고 커버리지·엣지케이스를 얻는 의도적
 선택이다. 단계 2 Gherkin 시나리오가 이 프로젝트에서 programmer test 계층이다.
 
 Cucumber를 쓰지 않는 프로젝트에서는 Gherkin 시나리오도 이 목록에 합쳐 JUnit으로

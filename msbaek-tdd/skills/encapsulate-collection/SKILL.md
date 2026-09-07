@@ -17,7 +17,7 @@ argument-hint: "[commit-ref]"
 ## CONSTRAINTS
 
 - **동작 변경 금지**: 구조 개선만 수행 (기능 변경 없음)
-- **테스트 수정 금지**: 구조 변경이 테스트를 깨면 되돌리기
+- **테스트 수정 금지**: 구조 변경이 테스트를 실패시키면 되돌리기
 - **사용자 확인 필수**: 자동 적용 금지
 - **명시적 git add**: `git add -A` 금지, 변경된 파일만 명시
 - **단일 커밋**: 하나의 `refactor:` 커밋으로 완료
@@ -114,7 +114,7 @@ class Cart {
     private List<CartLine> lines;
 
     public Cart(List<CartLine> lines) {
-        this.lines = lines;                    // ❌ 참조를 그대로 보관
+        this.lines = lines;                    // 참조를 그대로 보관
     }
 }
 
@@ -122,7 +122,7 @@ class Cart {
     private final List<CartLine> lines;
 
     public Cart(List<CartLine> lines) {
-        this.lines = new ArrayList<>(lines);   // ✅ 들어올 때 복사
+        this.lines = new ArrayList<>(lines);   // 들어올 때 복사
     }
 }
 ```
@@ -160,20 +160,20 @@ class Students {
 
 ## 적용 기준
 
-### ✅ 적용 대상
+### 적용 대상
 - `public List<T> getXxx()` 패턴
 - 내부 컬렉션을 그대로 반환하는 getter
 - 외부에서 `getXxx().add()` 호출하는 코드
 - 도메인 객체의 컬렉션 필드
 - **생성자·팩토리가 받은 컬렉션을 그대로 필드에 보관하는 코드** (위 "반대 방향" 참조)
 
-### ❌ 적용 제외
+### 적용 제외
 - **DTO/VO**: 단순 데이터 전송 객체 (불변성 불필요)
 - **Builder 패턴**: 빌더 내부 컬렉션 (완성 전까지 가변)
 - **읽기 전용 래퍼**: 이미 Unmodifiable 반환 중
 - **불변 컬렉션**: `List.of()`, `Set.of()` 사용 중
 
-### ⚠️ 주의사항
+### 주의사항
 - 호출부에서 `getXxx().add()` 패턴 모두 변경 필요
 - 테스트 코드도 영향받음 (명시적 메서드 사용으로 전환)
 - Unmodifiable vs 방어적 복사 선택:
@@ -232,7 +232,7 @@ Unmodifiable vs 방어적 복사 선택: (unmodifiable / copy)
 
 ### 출력 예시
 ```
-✅ Encapsulate Collection 완료
+완료: Encapsulate Collection
 
 변경 내용:
 - Course.java:15
@@ -247,10 +247,10 @@ Unmodifiable vs 방어적 복사 선택: (unmodifiable / copy)
 
 영향받는 호출부: 8곳 자동 업데이트
 
-테스트: ✅ 모든 테스트 통과 (23 tests)
+테스트: 모든 테스트 통과 (23 tests)
 커밋: refactor: encapsulate collection in Course, Team
 
-💡 제안: Course.students는 First Class Collection으로 추출 가능합니다.
+제안: Course.students는 First Class Collection으로 추출 가능합니다.
    /first-class-collection 스킬을 고려해보세요.
 ```
 

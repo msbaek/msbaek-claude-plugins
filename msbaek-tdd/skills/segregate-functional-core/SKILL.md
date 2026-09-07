@@ -292,8 +292,8 @@ pure는 아니지만 판단 로직은 mock 없이 테스트할 수 있다. JPA/H
 
 **적용할까요?** (yes / no / 수정 요청)
 
-⚠️ 성능상 모든 데이터 사전 로드가 부담되면 적용하지 말 것.
-⚠️ 도메인 모델 불변 비용이 크면 Mutable Shell로 타협 가능.
+성능상 모든 데이터 사전 로드가 부담되면 적용하지 말 것.
+도메인 모델 불변 비용이 크면 Mutable Shell로 타협 가능.
 ```
 
 - 사용자가 **yes** → 실행 목록에 추가
@@ -329,10 +329,10 @@ refactor: segregate functional core from [원본클래스명].[메서드명]
 공통 실패 조건(승인 없이 적용, 테스트 실패 방치, 테스트 수정, 커밋 단위, `git add -A`, heredoc
 한글 메시지)은 `../../references/refactoring-procedure.md`에 있다. 아래는 이 기법에 고유한 것만.
 
-- ❌ Functional Core 내부에 I/O 호출 잔존 (진짜 pure 아님)
-- ❌ Functional Core 내부에서 mutation 발생 (입력 컬렉션 수정 등)
-- ❌ Imperative Shell이 여전히 판단 로직 포함 (read → write 사이에 분기 존재)
-- ❌ `read → pure → write` 순서가 어긋남 (중간에 I/O 끼어듦)
-- ❌ Functional Core 테스트에 mock 사용 (값 기반이어야 함)
-- ❌ DDD Trilemma 무시하고 성능 감당 불가능한 사전 로드 강행
-- ❌ 원자성이 필요한 read-modify-write를 분리하여 race condition 유발
+- Functional Core 내부에 I/O 호출 잔존 (진짜 pure 아님)
+- Functional Core 내부에서 mutation 발생 (입력 컬렉션 수정 등)
+- Imperative Shell이 여전히 판단 로직 포함 (read → write 사이에 분기 존재)
+- `read → pure → write` 순서가 어긋남 (중간에 I/O 끼어듦)
+- Functional Core 테스트에 mock 사용 (값 기반이어야 함)
+- DDD Trilemma 무시하고 성능 감당 불가능한 사전 로드 강행
+- 원자성이 필요한 read-modify-write를 분리하여 race condition 유발
