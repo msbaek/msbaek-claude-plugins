@@ -36,7 +36,7 @@ Steps·Driver 코드의 주석 언어 규칙은 `../references/code-comment-styl
 - **직렬화 포맷 결함은 raw body 비교로 탐지한다** — Driver가 응답을 역직렬화해 비교하면 왕복이
   통과해도 표기가 틀릴 수 있다(`4.6E+3` 등). 짧은 응답이고 계약 검증이 필요하면 raw body
   직접 비교 또는 승인 파일에 raw+printer 두 구획 병기
-- **Scenario Outline은 Examples 블록 단위로 분리한다** — 여러 규칙이 한 표에 있으면 한 걸음에
+- **Scenario Outline은 Examples 블록 단위로 분리한다** — 여러 규칙이 한 표에 있으면 한 사이클에
   전부 green으로 만들어야 해 TDD 단위로 너무 크다. 전부 green이면 다시 합친다(누락되기
   쉬운 3번째 단계이므로 완료 보고에 명시)
 - 절차 세부(Four Layer 구조 예시, 태그 문법, 승인 배치, Cucumber-JVM 셋업, 실전 제약)는

@@ -11,7 +11,7 @@ thinnest(기능이 얇은가)라는 서로 다른 두 축을 동시에 만족시
 
 ## 핵심 역할
 
-1. **real** — 실제 HTTP → 실제 앱 → 실제 DB(docker MySQL, Spring Boot Docker Compose)를 관통하는
+1. **real** — 실제 HTTP → 실제 앱 → 실제 DB(docker MySQL, Spring Boot Docker Compose)를 관통(end-to-end)하는
    최소 슬라이스 구축. Fake Repository·하드코딩 응답 금지
 2. **thinnest** — 비즈니스 로직(합산·할인·검증) 없는 pass-through만. 계산이 필요한
    시나리오는 이 단계 대상이 아니다
@@ -26,7 +26,7 @@ thinnest(기능이 얇은가)라는 서로 다른 두 축을 동시에 만족시
 단계가 검증하는 HTTP 요청은 그 산출물이 요구하는 것이어야 한다).
 
 주석 언어 규칙과 **빌드 파일의 UTF-8 컴파일 인코딩 명시**는
-`../references/code-comment-style.md`가 정본이다 — 이 단계에서 빌드 골격을 만들거나 손볼
+`../references/code-comment-style.md`가 정본이다 — 이 단계에서 빌드 골격을 만들거나 수정할
 때 인코딩 설정이 있는지 확인하고, 없으면 추가한다.
 
 ## 작업 원칙
@@ -40,11 +40,11 @@ thinnest(기능이 얇은가)라는 서로 다른 두 축을 동시에 만족시
   같은 변경에 `save()` 누출 가드(회귀 테스트)를 동봉한다. 경계 없이 가드부터 만들면
   그 가드는 위험 경로를 한 번도 실행하지 않는 공허한 검증이 된다
 - **가드로 detach를 쓰지 않는다** — LAZY 유지와 배타적(detached 엔티티는 지연 로딩 불가).
-  쓰기 경로 가드는 Controller 경계 테스트로 세운다
+  쓰기 경로 가드는 Controller 경계 테스트로 작성한다
 - **새 회귀 테스트는 실패 주입으로 비공허성을 확인한다** — 보호 장치를 일부러 제거하고
   그 테스트가 실제로 실패하는지 확인한 뒤에야 신뢰한다. 통과했다는 사실 자체는 정보가
   아니다(조용한 실패)
-- **관통 확인 — 실행된 SQL을 눈으로 본다.** 최소 `show-sql: true`. 이 단계에서 p6spy를
+- **관통 확인 — 실행된 SQL을 로그로 확인한다.** 최소 `show-sql: true`. 이 단계에서 p6spy를
   미리 넣지 않는다(도구는 최초로 필요해진 시점에)
 - **Spring Data 자동 프래그먼트 충돌 주의** — 포트 구현체 이름은 Spring Data 인터페이스가
   아니라 포트 인터페이스에서 파생시킨다(`XImpl`이 Spring Data `X`와 겹치면 순환 의존)
@@ -96,8 +96,8 @@ thinnest(기능이 얇은가)라는 서로 다른 두 축을 동시에 만족시
 - [ ] `application.yml`에 `spring.jpa.open-in-view: false`가 명시되어 있는가
 - [ ] Controller 반환 타입이 엔티티가 아니라 DTO인가
 - [ ] 연관관계가 LAZY로 유지되고, 조회 지점에서 `@EntityGraph`/fetch join으로 명시적으로
-  당기는가(전역 EAGER 없음)
-- [ ] `save()` 누출 가드 테스트가 실패 주입(가드 코드 일시 제거)으로 실제 실패이 되는
+  로딩하는가(전역 EAGER 없음)
+- [ ] `save()` 누출 가드 테스트가 실패 주입(가드 코드 일시 제거)으로 실제로 실패하는
   것을 확인했는가
 - [ ] docker MySQL로 실제 관통했는지 실행 로그(SQL)로 확인했는가(임베디드 DB 자동 대체
   아님)

@@ -15,7 +15,7 @@ Tidying의 목표는 **Composed Method Pattern** — 메서드 내 모든 작업
 0. Guard Clauses (중첩 제거)
   │
   ▼
-조숙한 리팩터링으로 Composed Method 위배?
+성급한(premature) 리팩터링으로 Composed Method 위배?
   ├─ Yes → 1. One Pile (inline method) ──┐
   │                                       │
   └─ No ──┐                              │
@@ -74,7 +74,7 @@ public void processOrder(Order order) {
 > "커플링을 유발하는 관심사를 직교화할 방법을 찾을 때까지의 임시 방안" — Kent Beck
 
 **진입 조건** (하나 이상 해당 시):
-- 조숙한 리팩터링으로 Composed Method가 위배되어 코드 의도가 전달되지 않을 때
+- 성급한(premature) 리팩터링으로 Composed Method가 위배되어 코드 의도가 전달되지 않을 때
 - **여러 메서드에 걸친 관심사**: 자원 열기/닫기, 트랜잭션 시작/종료 등이 분산
 - **인스턴스 변수를 통한 암묵적 결합**: 한 메서드에서 열고, 다른 메서드에서 닫는 패턴
 - **적절한 추상화가 보이지 않을 때**: 분리의 축이 불분명한 상태
@@ -147,8 +147,8 @@ void process() {
 
 문장 수준을 넘어 **클래스 멤버 수준**에도 같은 원칙을 적용한다:
 - **클래스 멤버 순서**: private field → constructor → public method → 그 public method들이
-  호출하는 private method (호출 순서를 따르는 step-down 배열). 논문의 요약·소개만 읽고도
-  전체를 파악할 수 있듯, 파일 위쪽만 읽으면 이 클래스가 무엇을 하는지 알 수 있게 한다.
+  호출하는 private method (호출 순서를 따르는 step-down 배열). 파일 위쪽만 읽으면
+  이 클래스가 무엇을 하는지 파악할 수 있게 한다.
   여러 메서드가 호출하는 leaf 헬퍼(예: 절사·포맷 유틸)는 클래스 하단에 둔다.
 
 ```java
@@ -198,7 +198,7 @@ processOrder(order);
 ```java
 // Before: 선언 순서 불일치 (Canonical Order 위반)
 void process(User user, Product product) { ... }
-void validate(Product product, User user) { ... }  // 왜 순서가 다른가?
+void validate(Product product, User user) { ... }  // 순서 불일치
 
 // After: 정규 순서 유지
 void process(User user, Product product) { ... }
@@ -265,7 +265,7 @@ if (item.getProduct().isOnSale() && !isVipCustomer) {
 ```
 
 **중복 설명 금지**: 같은 사실을 두 곳(예: 상수 선언부와 사용처)에 설명하지 않는다 —
-의미가 필요한 한 곳에만 둔다. 두 곳에 두면 규칙이 바뀔 때 한 곳을 놓쳐 comment rot이 생긴다.
+의미가 필요한 한 곳에만 둔다. 두 곳에 두면 규칙이 바뀔 때 한 곳을 놓쳐 주석 부패(comment rot)가 발생한다.
 이름(상수명·메서드명)이 이미 의미를 전달하면 그 자체로 충분하고, 주석은 이름이 담지 못하는
 근거(예: 스펙 조항 참조)에만 쓴다.
 
