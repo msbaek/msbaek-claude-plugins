@@ -170,16 +170,16 @@ public class NullPaymentMethod implements PaymentMethod {
 1. Special Case 클래스 작성 (상속 또는 인터페이스 구현)
 2. 기본값을 반환하는 메서드 오버라이드
 3. isUnknown() 메서드 추가
-5. 커밋: `refactor: introduce special case <클래스명>`
+4. 커밋: `refactor: introduce special case <클래스명>`
 
 **커밋 2: 소스에서 null 대신 Special Case 반환**
 1. null을 반환하던 곳에서 Special Case 인스턴스 반환
-3. 커밋: `refactor: return <Special Case> instead of null in <소스클래스>`
+2. 커밋: `refactor: return <Special Case> instead of null in <소스클래스>`
 
 **커밋 3: 호출처 null 검사 제거**
 1. null 검사 코드 제거
 2. 직접 메서드 호출로 대체
-4. 커밋: `refactor: remove null checks for <타입> in callers`
+3. 커밋: `refactor: remove null checks for <타입> in callers`
 
 #### 결과 보고
 

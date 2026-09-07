@@ -131,7 +131,7 @@ class OrderHandler {
 ### 문맥(Context) 추가하기
 
 `name`, `street`, `state`를 단독으로 쓰면 의미가 불명확하다. 해결 우선순위:
-1. **클래스로 묶기** (최선) — `Address` 클래스에 `street`, `state` 필드를 담는다
+1. **클래스로 그룹화** (최선) — `Address` 클래스에 `street`, `state` 필드를 담는다
 2. **접두사** (최후 수단) — `addrState`
 
 ## Naming Smells
@@ -194,7 +194,7 @@ String customerName;
 ```
 
 ### 6. 중요 정보 생략 (Missing Information)
-아무것도 알려주지 않으면서 알려주는 척하는 이름 — 가장 위험한 종류.
+정보가 없으면서 정보가 있는 것처럼 보이는 이름 — 가장 위험한 종류.
 ```java
 // Bad
 void process() { ... }
@@ -207,7 +207,7 @@ void refundPayment() { ... }
 ```
 
 ### 7. Junk Drawer 클래스
-이름이 모호해서 온갖 책임이 계속 쌓이는 클래스.
+이름이 모호해서 온갖 책임이 계속 누적되는 클래스.
 ```java
 // Bad: 계속 커지는 MemberService (등록·포인트·알림·통계...)
 
@@ -304,8 +304,7 @@ class MemberPointsCalculator { ... }
 테스트: 모든 테스트 통과 (23 tests)
 커밋: refactor: improve naming in OrderService
 
-제안: Customer.java에 축약어 3개가 남아 있습니다.
-   다음 리팩토링 시 고려해보세요.
+제안: Customer.java에 축약어 3개가 남아 있음. 다음 리팩토링 대상에 포함한다.
 ```
 
 ## FAILURE CONDITIONS

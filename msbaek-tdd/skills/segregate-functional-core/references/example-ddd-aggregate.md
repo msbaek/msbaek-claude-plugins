@@ -1,8 +1,8 @@
 # Before/After 예시 2 — DDD Aggregate (주문 할인 적용)
 
 SKILL.md 본문의 감사 로그 예제는 stateless 한 계산이었다. DDD 맥락에서는 aggregate
-mutation이 개입해 **DDD Trilemma**(순수성·완전성·성능 중 둘만 동시 만족)를 체감할 수 있다.
-도메인 모델 mutation이 얽힌 대상을 분리할 때 읽는다.
+mutation이 개입해 **DDD Trilemma**(순수성·완전성·성능 중 둘만 동시 만족)를 확인할 수 있다.
+도메인 모델 mutation이 포함된 대상을 분리할 때 읽는다.
 
 ```java
 // Before: 판단 + aggregate mutation + I/O 혼재

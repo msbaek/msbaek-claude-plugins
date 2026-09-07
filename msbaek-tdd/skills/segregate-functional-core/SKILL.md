@@ -6,7 +6,7 @@ argument-hint: "[commit-ref]"
 
 # Segregate Functional Core Skill
 
-I/O 호출이나 Mock collaborator 호출과 순수 계산이 뒤섞인 메서드를 **Impure-Pure-Impure Sandwich**(빵속빵) 구조로 분리. Functional Core(순수 로직)와 Imperative Shell(I/O)이 나뉘어 테스트 용이성과 가독성 향상.
+I/O 호출이나 Mock collaborator 호출과 순수 계산이 혼재된 메서드를 **Impure-Pure-Impure Sandwich**(빵속빵) 구조로 분리. Functional Core(순수 로직)와 Imperative Shell(I/O)이 나뉘어 테스트 용이성과 가독성 향상.
 
 ## GOAL
 
@@ -197,8 +197,8 @@ public sealed interface AuditInstruction
 }
 ```
 
-**왜 sealed + record?**
-- `permits`로 variant 집합이 닫혀 있어 Shell에서 `switch` pattern matching이 exhaustiveness 검증됨 → 새 Instruction 추가 시 컴파일러가 누락을 잡음
+**sealed + record를 선택한 이유**
+- `permits`로 variant 집합이 닫혀 있어 Shell에서 `switch` pattern matching이 exhaustiveness 검증됨 → 새 Instruction 추가 시 컴파일러가 누락을 탐지함
 - record는 `equals`/`hashCode`/`toString` 자동 생성 → Functional Core 테스트에서 `assertThat(...).isEqualTo(...)` 바로 사용
 
 > Java 8+ 호환이 필요한 경우: `AuditInstruction`을 abstract class 또는 interface로 두고 `CreateFile`/`AppendTo`를 일반 class + factory method로 구현. 기능은 동일하지만 pattern matching 이점은 포기.
@@ -329,10 +329,10 @@ refactor: segregate functional core from [원본클래스명].[메서드명]
 공통 실패 조건(승인 없이 적용, 테스트 실패 방치, 테스트 수정, 커밋 단위, `git add -A`, heredoc
 한글 메시지)은 `../../references/refactoring-procedure.md`에 있다. 아래는 이 기법에 고유한 것만.
 
-- Functional Core 내부에 I/O 호출 잔존 (진짜 pure 아님)
+- Functional Core 내부에 I/O 호출 잔존 (완전한 pure가 아님)
 - Functional Core 내부에서 mutation 발생 (입력 컬렉션 수정 등)
 - Imperative Shell이 여전히 판단 로직 포함 (read → write 사이에 분기 존재)
-- `read → pure → write` 순서가 어긋남 (중간에 I/O 끼어듦)
+- `read → pure → write` 순서가 어긋남 (중간에 I/O 삽입됨)
 - Functional Core 테스트에 mock 사용 (값 기반이어야 함)
 - DDD Trilemma 무시하고 성능 감당 불가능한 사전 로드 강행
 - 원자성이 필요한 read-modify-write를 분리하여 race condition 유발

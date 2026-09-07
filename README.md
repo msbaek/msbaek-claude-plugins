@@ -76,23 +76,23 @@ TDD가 익숙하지 않다면 슬래시 커맨드로 **명시적으로 호출**�
 /tdd-rgb --gear=low                             # 3. 매 단계(R/G/B)마다 검토
 ```
 
-- `low` 기어를 쓰면 Red·Green·Blue 각 단계 후 멈춰서 확인할 수 있습니다 — 느리지만 TDD 리듬이 몸에 익습니다
+- `low` 기어를 쓰면 Red·Green·Blue 각 단계 후 멈춰서 확인할 수 있습니다 — 느리지만 TDD 리듬에 익숙해집니다
 - 한 단계씩 눈으로 확인하면서 "실패하는 테스트 → 최소 구현 → 정리"의 순서가 왜 중요한지 체감하게 됩니다
 
 > 각 커맨드의 상세 옵션은 [사용법](#사용법), 유형별 전체 흐름은 [워크플로우 예시](#워크플로우-예시)를 참고하세요.
 
 ### 숙련자 — 설치만 해도 이득
 
-Java·TDD에 익숙하다면 매번 커맨드를 칠 필요가 없습니다. **설치만 해두면** Claude가 작업 맥락을 보고 적합한 스킬을 스스로 적용합니다.
+Java·TDD에 익숙하다면 매번 커맨드를 입력할 필요가 없습니다. **설치만 해두면** Claude가 작업 맥락을 보고 적합한 스킬을 스스로 적용합니다.
 
 - "테스트 없는 이 레거시 클래스 손보려는데" → `/tdd-legacy`의 안전망 절차(Characterization → Approval → Mutation)
 - "이 긴 메서드 이름이 하는 일을 안 드러낸다" → `/intent-revealing-names`의 이름 주도 관통 리팩토링
 - "인수 테스트 도입하고 싶다" → `/cucumber-acceptance`의 Four Layer 구축
 - "이 기능 TDD로 끝까지 구현해줘" → `/tdd-feature`의 plan 합의 → 자율 RGB
 
-즉, 평소처럼 자연어로 요청해도 검증된 절차와 커밋 규율이 따라옵니다.
+즉, 평소처럼 자연어로 요청해도 검증된 절차와 커밋 규율이 적용됩니다.
 
-> **단, 자동 적용의 범위**: 핵심 워크플로우 스킬은 위처럼 자연어 요청에서 발동하지만, [선택 리팩토링 스킬 18개](#선택-리팩토링-스킬-18개)는 대부분 커맨드로 **명시 호출**해야 확실합니다(`/decompose-conditional`, `/discover-value-object` 등). 특정 기법을 태우고 싶다면 이름을 직접 부르세요.
+> **단, 자동 적용의 범위**: 핵심 워크플로우 스킬은 위처럼 자연어 요청에서 발동하지만, [선택 리팩토링 스킬 18개](#선택-리팩토링-스킬-18개)는 대부분 커맨드로 **명시 호출**해야 확실합니다(`/decompose-conditional`, `/discover-value-object` 등). 특정 기법을 적용하고 싶다면 이름을 직접 부르세요.
 
 ## 사용법
 
@@ -230,7 +230,7 @@ CRAP·mutation은 Maven 프로젝트 한정, DRY는 무관).
 
 #### `/tdd-legacy` — 레거시 코드 안전망 구축
 
-테스트 없는 기존 코드의 현재 행위를 고정하는 안전망을 만들고, 개선은 기존 스킬로 넘깁니다.
+테스트 없는 기존 코드의 현재 행위를 고정하는 안전망을 만들고, 개선은 기존 스킬로 인계합니다.
 
 ```
 /tdd-legacy <대상 클래스 FQCN 또는 파일 경로>
@@ -540,7 +540,7 @@ Web App 단계 E-2: Walking Skeleton
 | **tdd-example-designer** (--full 전용) | Plan 단계 2 초안 — Gherkin 핵심 예시 | 경계 조건 5종 스캔(특히 집계 경계), Specification by Example |
 | **tdd-test-list** (--full 전용) | Plan 단계 3 초안 — Unit Test 목록 | Gherkin과 두 계층 중복 금지, Degenerate→General 도출 절차 |
 | **tdd-plan-critic** (--full 전용, 읽기 전용) | Plan 문서 교차검증 | §1~§3 동시 대조, 정본 부재·모순·집계 경계 누락 탐지, 재현 시나리오 기반 보고 |
-| **tdd-acceptance-builder** | Web App E-1 — 인수 테스트 구축/이관 | Four Layer(Protocol Driver 분리), 인수 조건에 없는 쓰기 API 미발명, 완료 후 직접 커밋 |
+| **tdd-acceptance-builder** | Web App E-1 — 인수 테스트 구축/이관 | Four Layer(Protocol Driver 분리), 인수 조건에 없는 쓰기 API를 지어내지(invent) 않음, 완료 후 직접 커밋 |
 | **tdd-skeleton-builder** | Web App E-2 — Walking Skeleton | real≠thinnest 두 축, OSIV 항상 off, 가드가 경계보다 먼저, 실패 주입으로 가드 비공허성 확인 |
 
 ### 관측 계층 (에이전트 호출 로그)
@@ -638,7 +638,7 @@ python3 .../tdd-profile.py ~/.claude/projects/-Users-me-git-my-app
 > `/commit`(forward·작은 단위), `reconstruct-commits`(backward·히스토리 교정),
 > `/compose-pr`(PR 텍스트 종합) **세 도구가 공유하는 단일 body 표준**이다.
 
-## 핵심 원칙 — Why를 박제하라
+## 핵심 원칙 — Why를 커밋에 기록한다
 
 **메시지·PR은 What이 아니라 Why를 전달한다.**
 

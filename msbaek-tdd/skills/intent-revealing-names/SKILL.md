@@ -14,9 +14,9 @@ argument-hint: "[파일:메서드 | commit-ref]"
 ## 핵심 명제
 
 - **intent(의도) = why(왜)**. 좋은 이름은 코드가 *무엇을 하는가(what)*가 아니라 *왜 부르는가(why)*를 드러낸다.
-- **이름은 리팩터링의 결과가 아니라 나침반이다.** 이름을 정직하게 만들려는 시도 자체가 구조적 문제(SRP 위반, 원시 집착)를 고발하고, 그 진단이 Extract Method·값 객체 도입으로 이어진다.
-- **comment는 extract될 메서드 이름의 씨앗이다** (Kent Beck: "좋은 이름이 떠오르지 않으면 먼저 주석으로 의도를 표현하라 — Extract Method의 전 단계").
-- **전환점은 3 → 5단계**: 3단계까지 "무엇을(what)"을 정직하게 쌓고, 5단계에서 "왜(why)"로 도약한다. 이 도약이 있어야 "이름만 읽으면 본문을 읽을 필요가 없는" 상태가 된다.
+- **이름은 리팩터링의 결과가 아니라 진단 수단이다.** 이름을 정직하게 만들려는 시도 자체가 구조적 문제(SRP 위반, 원시 집착)를 드러내고, 그 진단이 Extract Method·값 객체 도입으로 이어진다.
+- **comment는 extract될 메서드 이름의 초안이다** (Kent Beck: "좋은 이름이 떠오르지 않으면 먼저 주석으로 의도를 표현하라 — Extract Method의 전 단계").
+- **전환점은 3 → 5단계**: 3단계까지 "무엇을(what)"을 정직하게 누적하고, 5단계에서 "왜(why)"로 전환한다. 이 전환이 있어야 "이름만 읽으면 본문을 읽을 필요가 없는" 상태가 된다.
 
 ## GOAL
 
@@ -38,18 +38,18 @@ argument-hint: "[파일:메서드 | commit-ref]"
 
 ### 이 스킬 고유 규칙
 
-- **대상은 하나의 긴 메서드** — 파일 전체 훑기가 아니라, 지정된(또는 가장 냄새나는) 긴 메서드 하나에 집중
-- **rename을 마지막에 몰지 말 것** — 이름 진화(3단계)가 extract(4단계)를 **유발**하고, extract 후 다시 rename(5단계)한다. 이 인터리빙이 이 스킬의 본질이다
-- **Extract는 국소(local)에 한정** — 대상 메서드를 **같은 클래스 내 private helper**로 쪼개는 것까지. 클래스 분리·도메인 이동 등 대규모 구조 변경은 `/system-wide-refactoring` 전담 (이 스킬은 self-contained 연속 흐름)
+- **대상은 하나의 긴 메서드** — 파일 전체 검토가 아니라, 지정된(또는 가장 냄새나는) 긴 메서드 하나에 집중
+- **rename을 마지막에 일괄 수행하지 않는다** — 이름 진화(3단계)가 extract(4단계)를 **유발**하고, extract 후 다시 rename(5단계)한다. 이 인터리빙이 이 스킬의 본질이다
+- **Extract는 국소(local)에 한정** — 대상 메서드를 **같은 클래스 내 private helper**로 분할하는 것까지. 클래스 분리·도메인 이동 등 대규모 구조 변경은 `/system-wide-refactoring` 전담 (이 스킬은 self-contained 연속 흐름)
 - **6단계는 가르치되 인계** — 운영상 이 스킬은 **5단계(Intent Revealing)까지 실행**하고, 6단계(Domain Abstraction)는 방향만 보여준 뒤 원시 집착을 지목해 값 객체·도메인 이동을 후속 스킬(`/discover-value-object` 등)로 **인계**한다. 승격을 이 스킬 흐름 안에서 실행하지 않는다
 
 ## 6단계 관통 프로세스 — "주문 처리" 예제
 
-이해를 돕기 위해 하나의 e-commerce "주문 처리" 예제로 6단계를 처음부터 끝까지 관통시킨다. 각 단계는 **목적 + 코드 상태 + 다음 단계로 넘어가게 만드는 트리거(냄새)** 로 구성된다.
+e-commerce "주문 처리" 예제로 6단계를 처음부터 끝까지 진행한다. 각 단계는 **목적 + 코드 상태 + 다음 단계로 넘어가게 만드는 트리거(냄새)** 로 구성된다.
 
 ### 출발점 — 이름 없는 긴 메서드
 
-`OrderHelper.process(cart)`가 재고 확인 → 재고 차감 → 결제 → 확정 메일을 한 메서드에서 처리한다. `-Helper` 접미사와 `process`는 아무것도 알려주지 않으면서 알려주는 척하는, 가장 위험한 종류의 이름이다.
+`OrderHelper.process(cart)`가 재고 확인 → 재고 차감 → 결제 → 확정 메일을 한 메서드에서 처리한다. `-Helper` 접미사와 `process`는 정보가 없으면서 정보가 있는 것처럼 보이는, 가장 위험한 종류의 이름이다.
 
 ```java
 public class OrderHelper {
@@ -75,7 +75,7 @@ public class OrderHelper {
 
 **A-1. Reorder (Reading/Cohesion Order)**: 변수 선언을 사용 위치 가까이로(Reading Order), 관련 로직끼리 인접하게(Cohesion Order, Step Down Rule).
 **A-2. Chunk**: 빈 줄로 논리 블록을 분리한다.
-**A-3. Explaining Comment**: 각 블록에 "무엇을/왜"를 한 줄로 붙인다. **이 주석이 곧 추출될 메서드 이름의 씨앗**이다.
+**A-3. Explaining Comment**: 각 블록에 "무엇을/왜"를 한 줄로 붙인다. **이 주석이 곧 추출될 메서드 이름의 초안**이다.
 
 ```java
 public void process(Cart cart) {
@@ -104,15 +104,15 @@ public void process(Cart cart) {
 
 ### 단계 B — 상위 메서드 이름을 정직하게 진화 (6단계 1→2→3)
 
-이름 축을 정직하게 끌어올려, 이름 스스로가 SRP 위반을 고발하게 만든다.
+이름 축을 정직하게 단계적으로 바꿔, 이름 스스로가 SRP 위반을 드러내게 만든다.
 
-**1. Obvious Nonsense**: `process()` → `applesauce()`. 그럴듯하지만 비어 있는 이름을, 일부러 명백히 틀린 이름으로 바꿔 "여기 이름이 필요하다"를 코드가 소리치게 한다. `-er`/`-Utils`/라이프사이클(`onCreate`) 이름을 걷어내는 단계이기도 하다.
+**1. Obvious Nonsense**: `process()` → `applesauce()`. 그럴듯하지만 비어 있는 이름을, 일부러 명백히 틀린 이름으로 바꿔 "여기 이름이 필요하다"를 코드가 명시하게 한다. `-er`/`-Utils`/라이프사이클(`onCreate`) 이름을 제거하는 단계이기도 하다.
 
 **2. Honest**: `applesauce()` → `probably_updateStockAndCharge_andStuff()`. 3부 규칙 — `probably_`(불확실) + 파악한 동작 + `_andStuff`(아직 못 파악). 완벽함이 아니라 **오해를 주지 않는 것**이 목표.
 
 **3. Completely Honest**: `checkStockAndDeductStockAndChargePaymentAndSendConfirmationEmail()`. 단계 A의 comment들을 그대로 이어 붙인 이름. `probably_`·`_andStuff`를 모두 제거하고 하는 일 **전부**(what)를 담는다. 길고 어색해도 상관없다.
 
-**트리거**: 이름에 `And`가 네 번 등장한다 — 책임이 네 개, 즉 **SRP 위반을 이름이 고발**한다. 이것이 다음 단계(extract)의 근거다.
+**트리거**: 이름에 `And`가 네 번 등장한다 — 책임이 네 개, 즉 **SRP 위반을 이름이 드러낸다**. 이것이 다음 단계(extract)의 근거다.
 
 > **팀 합의 노트**: `applesauce`·`probably_..._andStuff` 같은 중간 이름을 실제 커밋할지는 팀 합의 사항이다. "아직 이해하지 못했다"를 정직하게 남기는 편이 그럴듯한 거짓 이름보다 낫다는 입장(Emily Bache 데모)이 있으나, 개인 작업이면 3단계에서 한 번에 커밋해도 된다.
 
@@ -134,9 +134,9 @@ private void chargePayment(Cart cart) { /* 결제 블록 */ }
 private void sendConfirmationEmail(Cart cart) { /* 확정 메일 블록 */ }
 ```
 
-지역 변수가 얽혀 추출이 막히면 먼저 `/replace-temp-with-query`·`/extract-method-object`를 적용한다(이름으로 인용).
+지역 변수가 상호 의존해 추출이 불가능하면 먼저 `/replace-temp-with-query`·`/extract-method-object`를 적용한다(이름으로 인용).
 
-**트리거**: 구조는 정직해졌지만 상위 이름은 여전히 "무엇을 하는지"의 나열이다. "왜 이 메서드를 부르는지"는 아직 아무도 말해주지 않는다.
+**트리거**: 구조는 정직해졌지만 상위 이름은 여전히 "무엇을 하는지"의 나열이다. "왜 이 메서드를 부르는지"는 아직 드러나지 않는다.
 
 ### 단계 D — 의도를 드러내기 (6단계 5) ★핵심 전환점
 
@@ -159,11 +159,11 @@ public class OrderService {          // OrderHelper → OrderService
 
 이것이 "**intent = why**"의 실체다. 이름은 더 짧아지고, 호출 코드를 읽을 때 자연스럽게 이해된다.
 
-**트리거**: 이름은 좋아졌지만 내부에 `String productId`, `int quantity`, `BigDecimal total` 같은 원시 타입이 흩어져 있다 — 원시 집착(Primitive Obsession).
+**트리거**: 이름은 좋아졌지만 내부에 `String productId`, `int quantity`, `BigDecimal total` 같은 원시 타입이 분산되어 있다 — 원시 집착(Primitive Obsession).
 
 ### 단계 E — 도메인 추상화 (6단계 6)
 
-> 여기서부터는 무거운 구조 변경이라 **이 스킬의 범위를 벗어난다** — 이 스킬은 5단계까지 실행하고 6단계는 인계한다. 값 객체·First Class Collection·Functional Core 분리는 각각 `/discover-value-object`, `/introduce-parameter-object`, `/first-class-collection`, `/segregate-functional-core`로 넘긴다.
+> 여기서부터는 무거운 구조 변경이라 **이 스킬의 범위를 벗어난다** — 이 스킬은 5단계까지 실행하고 6단계는 인계한다. 값 객체·First Class Collection·Functional Core 분리는 각각 `/discover-value-object`, `/introduce-parameter-object`, `/first-class-collection`, `/segregate-functional-core`로 인계한다.
 >
 > **아래 코드는 후속 스킬들로 도달하는 목표 end-state(aspirational)이며, 이 스킬에서 전부 실행하지 않는다.** 이 스킬의 역할은 5단계까지 완성한 뒤 원시 집착을 _가리키고_, 실제 승격은 인용된 후속 스킬로 넘기는 것이다 (클래스 분리·도메인 이동은 이 스킬 범위 밖 — FAILURE CONDITIONS 참조).
 
@@ -244,7 +244,7 @@ public Order placeOrder(Cart cart) {
 
 (단계 E의 도메인 승격은 이 스킬에서 커밋하지 않는다 — 후속 스킬로 인계.)
 
-- 커밋 메시지는 `docs/reviewable-commits.md`(없으면 `~/.claude/docs/reviewable-commits.md`) 표준을 따른다. subject는 `refactor:` 접두사, body에 Why(이름이 무엇을 고발했고 왜 이렇게 분리/명명했는지)를 담는다. 형식은 그 표준이 유일한 출처이므로 여기서 재기술하지 않는다. 길이는 `../../references/commit-style.md`의 간결성 규칙(제목 + 핵심 bullet 2~4줄)을 따른다.
+- 커밋 메시지는 `docs/reviewable-commits.md`(없으면 `~/.claude/docs/reviewable-commits.md`) 표준을 따른다. subject는 `refactor:` 접두사, body에 Why(이름이 무엇을 드러냈고 왜 이렇게 분리/명명했는지)를 담는다. 형식은 그 표준이 유일한 출처이므로 여기서 재기술하지 않는다. 길이는 `../../references/commit-style.md`의 간결성 규칙(제목 + 핵심 bullet 2~4줄)을 따른다.
 - 한글 메시지는 임시 파일 + `git commit -F` (`-m "한글"` 금지 — 깨짐).
 - 최소 요건이 급하면 전체를 단일 `refactor:` 커밋으로 마무리해도 되나, 단계별 분리가 리뷰·롤백에 유리하다.
 
@@ -260,8 +260,8 @@ public Order placeOrder(Cart cart) {
 이 중 하나라도 발생하면 작업 실패로 간주:
 
 - [ ] 리팩토링 후 테스트가 실패함
-- [ ] rename을 맨 마지막에 몰아서 함 (3단계 완전정직 이름이 extract를 유발하는 인터리빙을 건너뜀)
-- [ ] 3단계(Completely Honest)를 건너뛰고 곧장 intent-revealing 이름으로 점프 (SRP 위반 진단 과정 생략)
+- [ ] rename을 맨 마지막에 일괄 수행함 (3단계 완전정직 이름이 extract를 유발하는 인터리빙을 건너뜀)
+- [ ] 3단계(Completely Honest)를 건너뛰고 곧장 intent-revealing 이름으로 건너뜀 (SRP 위반 진단 과정 생략)
 - [ ] 별도 브랜치를 만들거나 PR을 생성함 (self-contained 위반 — 대규모는 `/system-wide-refactoring`)
 - [ ] 클래스 분리·도메인 이동 같은 대규모 구조 변경을 이 스킬에서 수행 (경계 침범)
 - [ ] 단계 E(도메인 승격)를 후속 스킬로 인계하지 않고 이 스킬 흐름 안에서 직접 실행 (5단계까지만 실행이 원칙)
