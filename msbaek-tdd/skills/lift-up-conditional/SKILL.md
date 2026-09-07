@@ -6,7 +6,7 @@ argument-hint: "[commit-ref]"
 
 # Lift Up Conditional Skill
 
-여러 곳에 중복된 조건문을 상위로 끌어올려 중복을 제거하고 코드 의도를 명확히.
+여러 곳에 중복된 조건문을 상위로 끌어올려 중복을 제거하고 코드 의도를 명확히 한다.
 
 ## GOAL
 

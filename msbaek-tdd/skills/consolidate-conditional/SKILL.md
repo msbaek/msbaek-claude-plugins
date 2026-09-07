@@ -14,8 +14,8 @@ argument-hint: "[commit-ref]"
 - 코드 의도 파악 용이
 
 decompose-conditional과 상호 보완:
-- **Consolidate**: 흩어진 조건을 **모으는** 방향 (여러 if → 하나의 if)
-- **Decompose**: 복잡한 조건을 **쪼개는** 방향 (하나의 복잡한 if → 여러 메서드)
+- **Consolidate**: 흩어진 조건을 **통합하는** 방향 (여러 if → 하나의 if)
+- **Decompose**: 복잡한 조건을 **분해하는** 방향 (하나의 복잡한 if → 여러 메서드)
 - 실전: Consolidate → Decompose 순서로 적용하는 경우가 많음
 
 ## CONSTRAINTS
@@ -160,5 +160,5 @@ if (isSpecialDeal() || isLoyalCustomer()) {
 공통 실패 조건(승인 없이 적용, 테스트 실패 방치, 테스트 수정, 커밋 단위, `git add -A`, heredoc
 한글 메시지)은 `../../references/refactoring-procedure.md`에 있다. 아래는 이 기법에 고유한 것만.
 
-- [ ] 다른 결과를 내는 조건들을 억지로 통합함
+- [ ] 다른 결과를 내는 조건들을 통합함
 - [ ] 부수효과가 있는 조건 사이의 코드를 무시함

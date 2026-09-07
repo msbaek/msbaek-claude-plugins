@@ -42,13 +42,13 @@ argument-hint: "[commit-ref]"
 - 서로 다른 추상화 수준이 섞인 메서드
 
 **Extract Delegate 후보**:
-- 한 클래스가 너무 많은 책임을 가진 경우
+- 한 클래스가 과다한 책임을 가진 경우
 - 관련 필드와 메서드가 그룹을 이루는 경우
 
 **Domain Logic 이동 후보**:
 - Feature Envy — Service에서 도메인 객체의 데이터를 직접 조작
 - Tell, Don't Ask 위반 — getter 체이닝으로 로직 수행
-- Hide Delegate — getter 체이닝으로 내부 객체를 노출 (디미터 법칙 위반)
+- Hide Delegate — getter 체이닝으로 내부 객체를 노출 (디미터 법칙(Law of Demeter) 위반)
   - 징후: `obj.getA().getB().doSomething()` 형태의 체이닝
   - 해결: 중간 객체를 숨기고 위임 메서드 제공, 또는 로직 자체를 obj로 이동
   - Tell Don't Ask와의 관계: 둘 다 Feature Envy의 증상. 해결 방향 동일 — 로직을 데이터가 있는 곳으로 이동
@@ -64,7 +64,7 @@ argument-hint: "[commit-ref]"
 
 **Split Phase 후보** (Functional Core & Imperative Shell 포함):
 - 서로 다른 계산 단계가 한 메서드에 혼재 (예: 파싱 → 처리 → 포매팅)
-- 순수 로직과 부수효과(I/O)가 분리되지 않은 경우 (빵속빵 패턴)
+- 순수 로직과 부수효과(I/O)가 분리되지 않은 경우 (impure → pure → impure 구조)
   - 패턴: I/O(impure) → 비즈니스 로직(pure) → I/O(impure)
 - 중간 데이터 구조(Intermediate Data Structure)로 단계를 연결
 

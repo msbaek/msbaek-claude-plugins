@@ -210,4 +210,4 @@ Map<String, List<Employee>> byDept = employees.stream()
 
 - [ ] 부수효과가 핵심인 루프를 단순 forEach로 변환함
 - [ ] Stream으로 변환하여 오히려 가독성이 떨어짐
-- [ ] 인덱스 기반 접근이 필요한 루프를 억지로 변환함
+- [ ] 인덱스 기반 접근이 필요한 루프를 변환함

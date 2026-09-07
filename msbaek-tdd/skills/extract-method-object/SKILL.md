@@ -1,18 +1,18 @@
 ---
 name: extract-method-object
-description: 지역 변수가 얽힌 거대 메서드를 별도 클래스(Method Object)로 추출. /extract-method-object로 호출.
+description: 지역 변수가 상호 의존하는 거대 메서드를 별도 클래스(Method Object)로 추출. /extract-method-object로 호출.
 argument-hint: "[commit-ref]"
 ---
 
 # Extract Method Object Skill
 
-지역 변수가 얽혀 Extract Method가 어려운 거대 메서드를 별도 클래스로 추출.
+지역 변수가 상호 의존해 Extract Method가 어려운 거대 메서드를 별도 클래스로 추출.
 
 ## GOAL
 
-- **성공 = 지역 변수가 얽힌 긴 메서드가 Method Object로 추출되어 커밋 완료됨**
+- **성공 = 지역 변수가 상호 의존하는 긴 메서드가 Method Object로 추출되어 커밋 완료됨**
 - 50줄 이상의 복잡한 메서드가 식별됨
-- 지역 변수가 메서드 전역에 걸쳐 얽혀있어 Extract Method 불가
+- 지역 변수가 메서드 전역에 걸쳐 상호 의존해 Extract Method 불가
 - 사용자 확인 후 Method Object 패턴 적용
 - 모든 테스트 통과
 
@@ -48,7 +48,7 @@ Extract Method Object 리팩토링 단계:
 ### Before/After 예시
 
 ```java
-// Before: 지역 변수가 얽힌 거대 메서드 (50+ lines)
+// Before: 지역 변수가 상호 의존하는 거대 메서드 (50+ lines)
 public class RefundService {
     public List<RefundDiff> refundDiff() {
         // 지역 변수 선언
@@ -143,19 +143,19 @@ class RefundDifferenceCalculator {
 Extract Method Object를 적용해야 하는 경우:
 
 1. **메서드 길이**: 50줄 이상의 긴 메서드
-2. **지역 변수 얽힘**: 여러 지역 변수가 메서드 전체에 걸쳐 상호작용
+2. **지역 변수 상호 의존(entanglement)**: 여러 지역 변수가 메서드 전체에 걸쳐 상호작용
 3. **Extract Method 불가**: 파라미터가 너무 많아져 Extract Method로 분해 불가
 4. **임시 변수 과다**: 중간 결과를 저장하는 임시 변수가 많음
 5. **단계적 계산**: 여러 단계의 계산이 순차적으로 진행됨
 
-### 신규 기능 추가 경로 — 계획된 목적지로서의 Method Object
+### 신규 기능 추가 경로 — 계획된 목표 구조로서의 Method Object
 
-Method Object는 레거시 구출용만이 아니다. **새 기능을 추가할 때 처음부터 목적지로 계획**하면
+Method Object는 레거시 개선용만이 아니다. **새 기능을 추가할 때 처음부터 목표 구조로 계획**하면
 다음 3단계 경로가 효과적이다:
 
 1. **검증 조건을 테스트로 먼저 확정** — 정확한 기대값을 가진 인수 테스트를 구현 전에 작성한다.
-2. **새 클래스 하나에 절차적으로 구현** — WELC의 Sprout Class처럼 정적 메서드 하나를 진입점으로
-   노출해 기존 호출부 변경을 한 줄로 최소화한다. 이 단계는 절차적이어도 좋다 (make it work).
+2. **새 클래스 하나에 절차적으로 구현** — WELC(Working Effectively with Legacy Code)의 Sprout Class처럼 정적 메서드 하나를 진입점으로
+   노출해 기존 호출부 변경을 한 줄로 최소화한다. 이 단계는 절차적으로 구현한다 (make it work).
 3. **절차를 Method Object로 변환** — 상태가 없는 순수 계산이라도, 메서드 간 인자 전달을
    최소화하기 위해 입력을 final 필드로 받는 객체로 전환한다. 정적 진입점은 유지한다:
 
@@ -216,7 +216,7 @@ Method Object 내부의 데이터는 세 종류로 나뉘고, 종류마다 답�
 
 **지역 변수 분석**:
 - costMap, acmeCostMap, differences (메서드 전체에서 사용)
-- 5개 이상의 지역 변수가 얽혀있음
+- 5개 이상의 지역 변수가 상호 의존함
 - Extract Method 불가 (파라미터 6개 필요)
 
 **제안 변경**:

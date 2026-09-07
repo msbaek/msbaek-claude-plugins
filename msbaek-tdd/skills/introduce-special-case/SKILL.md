@@ -192,6 +192,6 @@ public class NullPaymentMethod implements PaymentMethod {
 공통 실패 조건(승인 없이 적용, 테스트 실패 방치, 테스트 수정, 커밋 단위, `git add -A`, heredoc
 한글 메시지)은 `../../references/refactoring-procedure.md`에 있다. 아래는 이 기법에 고유한 것만.
 
-- null일 때 동작이 호출처마다 다른데 억지로 통합
+- null일 때 동작이 호출처마다 다른데도 통합
 - null 검사가 1-2곳뿐인데 적용 (과도한 추상화)
 - final 클래스에 적용 시도
