@@ -12,12 +12,12 @@ Web App은 `/cucumber-acceptance`가 **필수**다. 리뷰에서 승인된 Gherk
 - 미구현 시나리오는 `@pending` 태그로 제외 — 4단계 RGB 사이클에서 각 Green이 자기
   시나리오의 태그를 같은 커밋에서 해제한다. `@Disabled` 일괄 토글이 아니라
   **시나리오 단위 해제**다. `Scenario Outline`의 Examples 행이 여러 규칙에 걸쳐 있으면
-  블록을 쪼개 더 작은 단위로 해제한다 — `cucumber-acceptance`의 "Scenario Outline —
-  Examples 블록 단위로 쪼개 한 걸음씩 해제" 참조 (전부 green이 되면 한 블록으로 합친다)
+  블록을 분할해 더 작은 단위로 해제한다 — `cucumber-acceptance`의 "Scenario Outline —
+  Examples 블록 단위로 분리해 한 사이클씩 해제" 참조 (전부 green이 되면 한 블록으로 합친다)
 - Target Design(구현될 API 형상)은 Protocol Driver가 확정한다 — Steps는 파싱·위임만
 - 대표 예제(most general한 시나리오)는 별도 테스트가 아니라 `.feature`의 한 시나리오다
 
-> **탈출구**: 프로젝트 제약(의존성 정책 등)으로 Cucumber를 도입할 수 없는 경우에만,
+> **탈출구(escape hatch)**: 프로젝트 제약(의존성 정책 등)으로 Cucumber를 도입할 수 없는 경우에만,
 > 대표 시나리오 1개를 JUnit 인수 테스트(`@Disabled`로 시작 → 구현 완료 후 활성화)로
 > 작성해 대체한다. 이때도 나머지 절차는 동일하다.
 
@@ -30,7 +30,7 @@ Web App은 `/cucumber-acceptance`가 **필수**다. 리뷰에서 승인된 Gherk
 영수증처럼 **출력 전체 형상**(품목 나열·소계·할인 줄 순서)을 테스트가 통째로 커버하게
 하고 싶으면, 별도 JUnit
 테스트를 만들지 말고 Steps에서 Approvals를 호출한다. 이때 승인 파일명이 시나리오마다
-갈라지게 해야 한다 — Scenario Outline은 Examples 행이 모두 같은 step을 타므로, 구분자
+갈라지게 해야 한다 — Scenario Outline은 Examples 행이 모두 같은 step을 실행하므로, 구분자
 없이 쓰면 행끼리 같은 승인 파일을 덮어써서 검증이 조용히 통과한다.
 
 Cucumber `@Before` 훅에 주입되는 `Scenario` 객체의 `getId()`는 Examples 행마다 다르므로
