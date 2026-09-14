@@ -323,6 +323,48 @@ if (qualifiesForFreeShipping) {
 }
 ```
 
+**같은 단계에서 함께 적용하는 항목**:
+
+- **Explaining Constants(설명 상수)**: 코드를 읽다가 의미를 알 수 없는 숫자를 발견하거나
+  같은 문자열 상수가 여러 곳에 반복되면 심볼릭 상수(symbolic constant)로 추출한다.
+  이해한 것을 코드에 기록하는 행위이며, 함께 변경되는 상수를 묶으면 Cohesion Order가 드러난다.
+
+```java
+// Before
+if (response.code == 404) { ... }
+
+// After
+private static final int PAGE_NOT_FOUND = 404;
+if (response.code == PAGE_NOT_FOUND) { ... }
+```
+
+- **Split Variable(변수 분리)**: 루프 변수·수집 변수가 아닌 임시 변수가 두 번 이상
+  할당되면 할당마다 별도 변수로 분리한다. 하나의 변수는 하나의 의미만 가진다.
+
+```java
+// Before: temp가 두 가지 의미로 재할당됨
+double temp = 2 * (height + width);   // 둘레(perimeter)
+System.out.println(temp);
+temp = height * width;                // 면적(area)
+System.out.println(temp);
+
+// After
+final double perimeter = 2 * (height + width);
+System.out.println(perimeter);
+final double area = height * width;
+System.out.println(area);
+```
+
+- **Extract Helper(같은 클래스 내 Extract Method)**: 메서드 내 코드 블록이 명확한 목적을
+  갖고 나머지 코드와 상호작용이 제한적이면 private 메서드로 추출한다. 이름은 **어떻게**가
+  아니라 **의도**를 드러낸다. 두 가지 특수 사례:
+  - **변경 준비 추출**: 큰 메서드에서 몇 줄만 변경해야 하면 그 줄들을 헬퍼로 먼저 추출하고,
+    헬퍼를 변경한다(추출된 메서드는 TDD 가능). 동작이 확인되면 inline해도 되지만 대개
+    헬퍼를 유지하게 된다.
+  - **시간적 결합(temporal coupling)**: `foo.a(); foo.b();`처럼 항상 같은 순서로 함께 호출되는
+    두 호출은 `ab()`로 묶는다.
+  - 다른 클래스로 옮기는 이동(Domain Logic 이동)은 `system-wide-refactoring` 스킬이 수행한다.
+
 ## 5.5 Split Loop (루프가 2가지 이상 일을 하면 분리)
 
 **목적**: 하나의 루프가 여러 관심사를 처리하면 각각의 루프로 분리. Extract Variable/Method의 전제 조건.
@@ -351,11 +393,45 @@ for (Person p : people) {
 **핵심 원칙**:
 - 성능 걱정은 하지 않는다 — 현대 컴파일러/JIT이 최적화한다
 - 분리 후 각 루프는 Extract Variable이나 Replace Loop with Pipeline(stream)이 가능해진다
-- 조건문도 동일: if문이 2가지 이상 일을 하면 각각의 if문으로 분리
+- **조건문도 동일 — Duplicate If**: if문이 2가지 이상 일을 하면 if를 **복제**하여 각 if가
+  한 가지 일만 하게 만든다. 복제 직후는 조건 평가가 중복되지만 각 블록이 독립적으로
+  Extract Method 가능해진다.
+- **Add Else Branch(대칭화 준비)**: if-else 두 분기의 공통 부분을 추출하려면 else가 없는
+  if에 의도적으로 빈 else 분기를 추가해 구조를 대칭으로 만든 뒤 공통 부분을 추출한다.
+- **Consolidate Duplicate Conditional Fragments**: if/else 각 분기에 동일한 코드 조각이
+  있으면 조건문 바깥(앞 또는 뒤)으로 이동한다.
+
+```java
+// Before: 하나의 if가 두 가지 일(재고 차감 + 알림)을 함
+if (order.isPaid()) {
+    inventory.deduct(order.getItems());
+    notifier.send(order.getCustomer(), "결제 완료");
+}
+
+// After: Duplicate If — 각 if가 한 가지 일만
+if (order.isPaid()) {
+    inventory.deduct(order.getItems());
+}
+if (order.isPaid()) {
+    notifier.send(order.getCustomer(), "결제 완료");
+}
+```
 
 ## 6. Trimming
 
-**목적**: 사용하지 않는 변수, 메서드, 조건문 등 불필요한 코드 제거
+**목적**: 사용하지 않는 변수, 메서드, 조건문 등 불필요한 코드 제거. **코드와 완전히
+중복되는 주석**(Delete Redundant Comments)도 여기서 삭제한다 — 주석이 코드가 말하는 것과
+동일하면 혜택 없이 비용(동기화 실패, 독자 시간)만 발생한다. 완전히 중복되는 주석만
+삭제하며, 의도(WHY)를 담은 주석(4단계)은 유지한다.
+
+```java
+// Before: 코드와 동일한 내용의 주석
+// X를 반환한다
+return x;
+
+// After: 주석 삭제
+return x;
+```
 
 ```java
 // Before: 불필요한 코드
