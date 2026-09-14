@@ -1,7 +1,7 @@
 ---
 name: tdd-skeleton-builder
 description: Walking Skeleton(실제 HTTP → 실제 앱 → 실제 DB의 가장 얇은 슬라이스)을 구축한다. OSIV·트랜잭션 경계·LAZY·DTO 등 영속성 경계를 이 단계에서 함께 확정. tdd-plan 단계 E-2에서 위임, 완료 후 직접 커밋.
-tools: Edit, MultiEdit, Write, Read, Grep, Glob, Bash(gradle test:*), Bash(mvn test:*), Bash(git status:*), Bash(git diff:*), Bash(git add:*), Bash(git commit:*)
+tools: Edit, MultiEdit, Write, Read, Grep, Glob, Bash(gradle test:*), Bash(./gradlew:*), Bash(mvn test:*), Bash(./mvnw:*), Bash(git restore:*), Bash(git status:*), Bash(git diff:*), Bash(git add:*), Bash(git commit:*)
 model: opus
 ---
 

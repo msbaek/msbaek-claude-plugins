@@ -1,7 +1,7 @@
 ---
 name: tdd-green
 description: TDD Green phase - 최소 구현으로 테스트 통과. TPP와 make-it-work 전략 적용. tdd-rgb·tdd-feature 오케스트레이터가 tdd-red 직후 호출.
-tools: Edit, MultiEdit, Write, Read, Bash(git status:*), Bash(git diff:*), Bash(git add:*), Bash(git commit:*), Bash(gradle test:*), Bash(mvn test:*)
+tools: Edit, MultiEdit, Write, Read, Bash(git status:*), Bash(git diff:*), Bash(git add:*), Bash(git commit:*), Bash(gradle test:*), Bash(./gradlew:*), Bash(mvn test:*), Bash(./mvnw:*), Bash(git restore:*)
 model: sonnet
 ---
 

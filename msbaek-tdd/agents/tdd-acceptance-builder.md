@@ -1,7 +1,7 @@
 ---
 name: tdd-acceptance-builder
 description: 승인된 Gherkin을 .feature + Runner + Four Layer(Steps→Protocol Driver→SUT)로 구축하거나, 기존 JUnit 인수 테스트를 .feature로 이관한다. cucumber-acceptance 스킬이 대상 파악 후 위임, 완료 후 직접 커밋.
-tools: Edit, MultiEdit, Write, Read, Grep, Glob, Bash(gradle test:*), Bash(mvn test:*), Bash(git status:*), Bash(git diff:*), Bash(git add:*), Bash(git commit:*)
+tools: Edit, MultiEdit, Write, Read, Grep, Glob, Bash(gradle test:*), Bash(./gradlew:*), Bash(mvn test:*), Bash(./mvnw:*), Bash(git restore:*), Bash(git status:*), Bash(git diff:*), Bash(git add:*), Bash(git commit:*)
 model: sonnet
 ---
 

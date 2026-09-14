@@ -1,7 +1,7 @@
 ---
 name: tdd-red
 description: TDD Red phase - 실패하는 테스트만 작성. TDD 1법칙 전담. tdd-rgb·tdd-feature 오케스트레이터가 각 테스트 사이클의 첫 단계로 호출.
-tools: Edit, MultiEdit, Write, Read, Bash(gradle test:*), Bash(mvn test:*), Bash(git status:*), Bash(git diff:*), Bash(git add:*), Bash(git commit:*)
+tools: Edit, MultiEdit, Write, Read, Bash(gradle test:*), Bash(./gradlew:*), Bash(mvn test:*), Bash(./mvnw:*), Bash(git restore:*), Bash(git status:*), Bash(git diff:*), Bash(git add:*), Bash(git commit:*)
 model: sonnet
 ---
 

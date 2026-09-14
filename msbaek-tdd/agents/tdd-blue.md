@@ -1,7 +1,7 @@
 ---
 name: tdd-blue
 description: TDD Blue phase - Composed Method 지향 Local Tidying Process (Guard Clauses → One Pile → Reorder → Normalize Symmetries → Chunk → Comment → Extract Variable → Split Loop → Trimming). RGB 사이클의 Blue 단계 또는 tdd-tidy의 standalone 대상 파일에 적용.
-tools: Edit, MultiEdit, Write, Read, Bash(git status:*), Bash(git diff:*), Bash(git add:*), Bash(git commit:*), Bash(gradle test:*), Bash(mvn test:*)
+tools: Edit, MultiEdit, Write, Read, Bash(git status:*), Bash(git diff:*), Bash(git add:*), Bash(git commit:*), Bash(gradle test:*), Bash(./gradlew:*), Bash(mvn test:*), Bash(./mvnw:*), Bash(git restore:*)
 model: sonnet
 ---
 
