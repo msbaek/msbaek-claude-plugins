@@ -8,6 +8,8 @@
 
 ## 연쇄 표
 
+표의 기법명은 Tidy First 원서 명칭이다. 정본 절 대응: Guard Clause → 0. Guard Clauses, Dead Code → 6. Trimming, Explaining Variable / Explaining Constant / Extract Helper → 5. Extract Variable, Reading Order / Cohesion Order → 2. Reorder, Delete Redundant Comment → 6. Trimming, Explicit Parameters → `explicit-parameters` 스킬.
+
 | 이 정리를 하면 | 다음이 가능해진다 |
 |---|---|
 | Guard Clause | 남은 조건문을 Explaining Variable / Extract Helper로 전환 |
