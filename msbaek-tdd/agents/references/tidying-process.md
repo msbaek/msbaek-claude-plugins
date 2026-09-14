@@ -225,7 +225,8 @@ void validate(User user, Product product) { ... }
 **핵심 원칙**:
 - 다를 이유가 없다면 같아야 한다
 - 알파벳 순서 같은 기계적 규칙보다 **의미 기반 순서**가 좋다
-- 파라미터 순서 변경 시 호출자가 많으면 Parallel Change 패턴 사용 (별도 커밋)
+- 파라미터 순서 변경 시 호출자가 많으면 Parallel Change 패턴 사용 (별도 커밋) —
+  절차는 `../../references/parallel-change.md`
 
 ## 3. Chunk Statements (빈 라인으로 그룹핑)
 
