@@ -144,6 +144,23 @@ void process() {
 2가지 관점에서 재배치:
 - **Reading Order**: 변수 선언을 사용 위치 가까이로 이동 (`Move declaration closer to usages`)
 - **Cohesion Order**: 관련된 로직끼리 함께 배치 (Step Down Rule 적용)
+- **선언과 초기화 결합(Move Declaration and Initialization Together)**: 선언과 초기화가
+  떨어져 있으면 초기화 지점에 도달했을 때 변수의 맥락을 잊는다. 초기화를 선언 위치로
+  이동하거나, 선언을 초기화 직전으로 이동한다. 반대 방향(선언과 할당을 분리)은
+  Extract Method 등 후속 리팩터링 준비가 목적일 때만 적용한다(`Join Declaration and Assignment`).
+
+```java
+// Before: 선언과 초기화가 떨어져 있음
+int discountRate;
+List<OrderItem> items = order.getItems();
+validateInventory(items);
+discountRate = calculateDiscountRate(customer);
+
+// After: 초기화를 선언 위치로 이동
+List<OrderItem> items = order.getItems();
+validateInventory(items);
+int discountRate = calculateDiscountRate(customer);
+```
 
 문장 수준을 넘어 **클래스 멤버 수준**에도 같은 원칙을 적용한다:
 - **클래스 멤버 순서**: private field → constructor → public method → 그 public method들이
@@ -213,6 +230,18 @@ void validate(User user, Product product) { ... }
 ## 3. Chunk Statements (빈 라인으로 그룹핑)
 
 **목적**: 빈 줄을 삽입하여 관련된 코드 블록을 논리적으로 그룹화
+
+**문단(code paragraph) 식별 기준** — 코드를 정독하지 않아도 다음 시각적 단서 중 하나 이상이
+있으면 하나의 문단이다:
+- 다음 줄의 기능을 설명하는 짧은 주석으로 시작한다
+- 중괄호 한 쌍 안에 있거나 같은 들여쓰기 수준에 있다
+- `for`, `if`, `try`, `switch`, `while`로 시작한다
+- 앞뒤에 공백 라인이 있다
+- 동일한 변수명 또는 반복되는 단어를 사용하는 문장 군집이다
+
+**식별 순서**: 메서드의 **끝부분부터** 문단을 식별한다. 끝부분은 반환할 결과 값을 준비하므로
+단일 값을 반환하는 메서드로 추출될 확률이 높다. 상단은 여러 값을 만들어 내는 경우가 많아
+추출이 어렵다. 인자 목록 정리는 모든 문단을 추출한 뒤로 미룬다.
 
 ```java
 // Before: 모든 코드가 밀집
