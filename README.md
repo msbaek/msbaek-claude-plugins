@@ -197,7 +197,7 @@ Blue (Composed Method 지향 Local Tidying)
 - `high` 기어는 완료 후 적대적 리뷰(adversarial review)가 의무 — green 스위트 + 리뷰 통과가 Definition of Done
 - **폭발 반경이 큰 영역**(인증·인가, 결제·금액 계산, 데이터 삭제·변경, 외부 API, 동시성)은 **기어와 무관하게** 완료 시 적대적 리뷰를 1회 실행합니다 — 기어는 검토 밀도를, 폭발 반경은 틀렸을 때의 비용을 정하는 별개 축입니다
 - 기어 상태는 템플릿 문서 진행 기록에 남아 세션 재개 시 복원됩니다 (`--gear` 생략 시 복원, 명시하면 우선)
-- 전체 완료 시 **기어와 무관하게** 하드닝 제안(선택)이 최종 검토 보고에 함께 제시됩니다 — [crap4java](https://github.com/msbaek/crap4java)·[dry4java](https://github.com/msbaek/dry4java)·[mutate4java](https://github.com/msbaek/mutate4java)로 실행하는 명령을 제안만 하고, 실행 여부는 사용자가 결정합니다. 세 도구는 선택 사항이며 설치 방법은 `msbaek-tdd/references/hardening-tools.md`에 있습니다(미설치 도구의 제안은 생략). 블록 안의 순서는 비용순이 아니라 **파이프라인순**입니다: ① CRAP·DRY로 정리할 곳 찾기 → ② `/system-wide-refactoring`으로 정리 → ③ 정리된 코드에 mutation. ②의 메서드 추출이 뮤테이션 지점을 바꾸므로 ③이 마지막입니다 (Uncle Bob의 Coder→Cleaner→Hardener 파이프라인과 같은 순서). (v1.40.0부터 — 이전에는 `/tdd-feature`에만 연결돼 있었습니다)
+- 전체 완료 시 **기어와 무관하게** 하드닝 제안(선택)이 최종 검토 보고에 함께 제시됩니다 — [crap4java](https://github.com/unclebob/crap4java)·[dry4java](https://github.com/unclebob/dry4java)·[mutate4java](https://github.com/unclebob/mutate4java)로 실행하는 명령을 제안만 하고, 실행 여부는 사용자가 결정합니다. 세 도구는 선택 사항이며 설치 방법은 `msbaek-tdd/references/hardening-tools.md`에 있습니다(미설치 도구의 제안은 생략). 블록 안의 순서는 비용순이 아니라 **파이프라인순**입니다: ① CRAP·DRY로 정리할 곳 찾기 → ② `/system-wide-refactoring`으로 정리 → ③ 정리된 코드에 mutation. ②의 메서드 추출이 뮤테이션 지점을 바꾸므로 ③이 마지막입니다 (Uncle Bob의 Coder→Cleaner→Hardener 파이프라인과 같은 순서). (v1.40.0부터 — 이전에는 `/tdd-feature`에만 연결돼 있었습니다)
 
 **기어별 호출 — 어떤 스킬을 쓰나**
 

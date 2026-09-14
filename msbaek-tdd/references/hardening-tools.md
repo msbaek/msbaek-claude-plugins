@@ -7,16 +7,16 @@
 
 | 도구 | 역할 | 저장소 | 빌드 요구 |
 |---|---|---|---|
-| crap4java | CRAP(Change Risk Anti-Patterns) 점수 — 순환 복잡도 × JaCoCo 커버리지, 임계 8.0 초과 메서드 랭킹 | https://github.com/msbaek/crap4java | Maven 프로젝트 전용(JaCoCo 파이프라인) |
-| dry4java | 구조적 중복(structural duplicate) 선언 쌍 탐지 | https://github.com/msbaek/dry4java | 빌드 도구 무관(Java 소스만) |
-| mutate4java | 뮤테이션 테스트(mutation testing) — 생존 뮤턴트 탐지 | https://github.com/msbaek/mutate4java | Maven 프로젝트 전용 |
+| crap4java | CRAP(Change Risk Anti-Patterns) 점수 — 순환 복잡도 × JaCoCo 커버리지, 임계 8.0 초과 메서드 랭킹 | https://github.com/unclebob/crap4java | Maven 프로젝트 전용(JaCoCo 파이프라인) |
+| dry4java | 구조적 중복(structural duplicate) 선언 쌍 탐지 | https://github.com/unclebob/dry4java | 빌드 도구 무관(Java 소스만) |
+| mutate4java | 뮤테이션 테스트(mutation testing) — 생존 뮤턴트 탐지 | https://github.com/unclebob/mutate4java | Maven 프로젝트 전용 |
 
 ## 2. 설치
 
 ```bash
 mkdir -p ~/git/uncle-bob && cd ~/git/uncle-bob
 for r in crap4java dry4java mutate4java; do
-  git clone https://github.com/msbaek/$r.git
+  git clone https://github.com/unclebob/$r.git
   (cd $r && mvn -q -DskipTests package)
 done
 ```
@@ -47,5 +47,5 @@ done
 
 ## 5. 제약
 
-- 세 도구는 이 플러그인에 동봉하지 않는다 — 각 저장소가 정본이다.
+- 세 도구는 이 플러그인에 동봉하지 않는다 — Uncle Bob(unclebob)의 원본 저장소가 정본이다. 작성자 fork(msbaek/*)는 기능 차이가 없다.
 - 에이전트 정의(`*-analyzer`, `*-runner`)는 작성자 개인 자산이다. 외부 사용자는 jar 직접 실행 형식을 사용한다.
