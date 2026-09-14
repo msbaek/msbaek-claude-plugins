@@ -204,7 +204,7 @@ CouponUsageLimit 도메인)에 위임해 Plan Phase 4개·RGB 3개 전부 실제
 집계 경계 스캔이 승인 반영 폭 결함(`+= 1`)까지 발견, `tdd-red`의 `tools` 결함 수정이
 우연히 통과하는 테스트를 실전에서 잡아냄, `tdd-blue`가 80% 규칙을 diff로 실증(2줄
 변경만). 모든 보고는 커밋 히스토리·diff 직접 대조로 독립 검증했다(추측 없음).
-인덱스: `~/git/kt4u/review-explain/session-names.md` `harness-plan-phase-agent-delegation`.
+인덱스: 로컬 review-explain `session-names.md` `harness-plan-phase-agent-delegation`.
 
 ## Phase A — 인수 테스트·Walking Skeleton 에이전트화 (2026-08-13, 1.36.0)
 

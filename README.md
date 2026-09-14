@@ -4,9 +4,11 @@ Java/Spring Boot 프로젝트를 위한 TDD 워크플로우 Claude Code 플러�
 
 Kent Beck의 TDD 원칙을 기반으로, 앵커 작성(규칙 + 예제 검산표 + Gherkin)부터 Red-Green-Blue 사이클, Cucumber 인수 테스트, Composed Method 지향 리팩토링까지 체계적인 테스트 주도 개발을 지원합니다.
 
-| 플러그인 | 설명 | 버전 |
-|----------|------|------|
-| **msbaek-tdd** | Java + Spring Boot TDD workflow with RGB cycle, gear-based review density, feature-level autonomous implementation, Cucumber acceptance testing, legacy-code safety net, local tidying, system-wide refactoring, and 18 optional refactoring skills | 1.20.0 |
+| 플러그인 | 설명 |
+|----------|------|
+| **msbaek-tdd** | Java + Spring Boot TDD workflow with requirements input drafting, RGB cycle, feature-level autonomous implementation, Cucumber acceptance testing, local tidying, system-wide refactoring, and 18 optional refactoring skills |
+
+> 현재 버전은 [`msbaek-tdd/.claude-plugin/plugin.json`](msbaek-tdd/.claude-plugin/plugin.json)이 정본입니다(README에는 버전을 적지 않습니다).
 
 > **[전체 워크플로우 지도 (발표용 시각화) →](https://msbaek.github.io/talk-visuals/msbaek-tdd-workflow/)**
 > `/tdd` 진입부터 계획·구현 파이프라인, 기어별 스킬 라우팅, 독립 진입점까지 한 장으로.
@@ -367,9 +369,9 @@ flowchart TD
     K --> M
     M --> R["완료 보고 + 적대적 리뷰<br>(high 기어 또는 폭발 반경 high-stakes 시)"]
     subgraph HG["하드닝 게이트 (제안만 — 실행은 사용자 결정)"]
-        R --> S["① 정리할 곳 찾기<br>crap4java-analyzer (복잡도×커버리지)<br>dry4java-analyzer (구조적 중복)"]
+        R --> S["① 정리할 곳 찾기<br>crap4java (복잡도×커버리지)<br>dry4java (구조적 중복)"]
         S --> T["② 구조 정리<br>/system-wide-refactoring"]
-        T --> U["③ 테스트 강화<br>mutate4java-runner (대표 파일 1개)"]
+        T --> U["③ 테스트 강화<br>mutate4java (대표 파일 1개)"]
     end
     U --> L{"다음 feature?"}
     L -->|있음| I
@@ -629,4 +631,4 @@ python3 .../tdd-profile.py ~/.claude/projects/-Users-me-git-my-app
 
 ## 라이선스
 
-MIT
+[MIT](LICENSE)
