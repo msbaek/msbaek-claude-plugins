@@ -32,6 +32,36 @@ argument-hint: "[commit-ref]"
 필요한 조건)은 이 스킬 디렉터리 기준 `../../references/refactoring-procedure.md`가 정본이다.
 아래는 이 기법에 고유한 부분만 규정한다.
 
+#### 적용 순서 — 후보 제시의 기본 순서
+
+후보를 제시할 때 아래 순서를 기본으로 정렬한다. 사용자가 순서를 바꾸면 그에 따른다.
+
+**A. TDD 직후(테스트에 로직이 모여 있는 상태) — 초기 리팩터링 7단계**:
+1. 모든 로직을 테스트에 구현한 상태에서 시작한다 (이 전제가 없으면 2~7의 순서가 성립하지 않는다)
+2. AAA 구조의 테스트에서 Act 부분을 Extract Method한다
+3. Act가 의존성 객체를 쓰면: ① Introduce Parameter로 의존성을 파라미터로 → ② Introduce
+   Parameter Object로 파라미터들을 객체(Application Service)로 묶는다 (Application Service에
+   그대로 전달될 파라미터는 제외) → ③ Move Instance Method to Application Service.
+   의존성이 Application Service 생성자로 전달되어 의존성 주입(DI)이 가능해진다
+4. Act가 의존성 객체를 쓰지 않으면: Extract Delegate로 Application Service를 추출한다
+5. Application Service에서 Slide Statements로 I/O → 계산 → I/O 구조(Functional Core /
+   Imperative Shell)를 확보한다
+6. Application Service에서 Extract Method로 도메인 로직을 메서드로 추출한다
+7. 추출된 도메인 로직을 Extract Delegate·Move Instance Method로 domain 계층에 옮긴다
+
+**B. 기존 트랜잭션 스크립트 → 도메인 모델 (Jimmy Bogard 9단계)**:
+1. Composed Method — 긴 메서드를 같은 추상화 수준의 작은 메서드로 분해
+2. Extract Methods — 주석 기준으로 블록 추출
+3. Introduce Parameter — 의존성 명시화
+4. Extract Class — seam 생성
+5. Extract Interface — 테스트 용이성
+6. Make Method Non-Static — Feature Envy 해소를 위한 인스턴스 메서드 전환
+7. Move Method — 데이터를 가진 객체로 이동
+8. Inline (Undo) — 이동 결과가 불균형하면 되돌리고 재추출한다. 리팩터링은 되돌릴 수 있어야 한다
+9. Reduce Setter Scope — private setter로 캡슐화 강화
+
+A와 B는 출발 상태가 다르다(A: 테스트에 로직 집중, B: 기존 서비스 코드). 둘을 섞지 않는다.
+
 #### 코드 분석 — 리팩토링 후보 식별 (공통 절차 2단계)
 
 대상 파일을 읽고 다음 패턴을 찾는다:
@@ -183,6 +213,17 @@ if (city.equals("Seoul")) { applyLocalDiscount(); }
 확정된 리팩토링을 하나씩 수행:
 
 1. 리팩토링 적용
+
+**대규모 범위 — Mikado Method 분기**: 하나의 후보를 적용했을 때 컴파일 오류·테스트 실패가
+연쇄적으로 발생하고 30분(타임박스) 안에 수습되지 않으면 강행하지 않고 다음 절차로 전환한다.
+사용자와 대화형으로 진행하며 자동 실행하지 않는다.
+1. 변경을 되돌린다(`git checkout -- <파일>`). 컴파일이 깨진 상태에서는 IDE 자동 리팩터링이
+   동작하지 않으므로 항상 컴파일 가능한 상태로 복귀한다
+2. 실패 원인을 "이 변경의 **전제 조건**"으로 기록한다 (예: "OrderService가 Repository를
+   직접 생성함 → 생성자 주입으로 바꿔야 함")
+3. 전제 조건과 목표의 의존 관계를 목록 또는 그래프로 사용자에게 제시한다
+4. 전제 조건 중 안전하게 완료할 수 있는 것부터 하나씩 적용·커밋한다 (각각이 독립 후보가 된다)
+5. 전제 조건이 모두 해결되면 원래 후보로 돌아가 다시 적용한다. 다시 실패하면 2로 돌아간다
 
 **커밋 메시지 형식**:
 - `refactor: extract method [메서드명] from [클래스명]`
