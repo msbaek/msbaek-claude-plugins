@@ -98,7 +98,7 @@ gh pr create --base "${CURRENT_BRANCH}" --title "refactor: ..." --body-file <파
 git checkout "${CURRENT_BRANCH}"
 ```
 
-PR 본문은 `docs/reviewable-commits.md`(없으면 `~/.claude/docs/reviewable-commits.md`)
+PR 본문은 `docs/reviewable-commits.md`(없으면 `${CLAUDE_PLUGIN_ROOT}/references/reviewable-commits.md`)
 표준을 따른다. 본문에 한글이 들어가면 heredoc 대신 `--body-file`을 쓴다.
 PR의 base는 **원래 작업 브랜치**다 — main으로 직접 열지 않는다.
 

@@ -160,7 +160,7 @@ public int score() {
      `git add`까지만 하고 커밋하지 않는다. 대신 변경 요약(왜 이 구현·배제한 접근)을
      반환한다 — 호출자가 use case 커밋 body의 재료로 쓴다. 아래 나머지 단계는 건너뛴다.
    - `git add [변경된 파일들]` (`git add -A` 금지)
-   - 커밋 메시지는 `docs/reviewable-commits.md`(없으면 `~/.claude/docs/reviewable-commits.md`)
+   - 커밋 메시지는 `docs/reviewable-commits.md`(없으면 `${CLAUDE_PLUGIN_ROOT}/references/reviewable-commits.md`)
      표준을 따른다. subject `feat:` 고정, body에 Why(왜 이 구현·배제한 접근). 형식은 이
      표준이 유일한 출처이므로 재기술하지 않는다. 길이는 `../references/commit-style.md`의
      간결성 규칙(제목 + 핵심 bullet 2~4줄)을 따른다.

@@ -1,6 +1,8 @@
 # 커밋 메시지 간결성 규칙 (플러그인 정본)
 
 `reviewable-commits.md` 표준은 **무엇을 담는가**(Why·버린 대안·결정)의 정본이고,
+
+> 표준 파일 해석 순서: 프로젝트 `docs/reviewable-commits.md`(프로젝트 오버라이드) → 없으면 플러그인 동봉 `${CLAUDE_PLUGIN_ROOT}/references/reviewable-commits.md`(SSOT). 사용자가 별도 파일을 만들 필요는 없다.
 이 문서는 **얼마나 담는가**(길이)의 정본이다. 두 규칙이 충돌하면 이 문서가 우선한다 —
 표준의 채널들을 장문으로 서술하지 않는다.
 

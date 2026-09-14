@@ -55,7 +55,7 @@ Kent Beck의 TDD 원칙을 기반으로, 앵커 작성(규칙 + 예제 검산표
 - **Claude Code** CLI (최신 버전 권장)
 - **Java 17+** / Spring Boot 3.x 프로젝트 (web-app 유형)
 - **Gradle** 또는 **Maven** 빌드 시스템
-- **커밋 표준 파일** — RGB 커밋이 참조하는 `reviewable-commits.md` 표준. 프로젝트 `docs/reviewable-commits.md` 또는 `~/.claude/docs/reviewable-commits.md` 중 하나에 두면 된다. 없으면 아래 ["커밋 표준"](#커밋-표준-reviewable-commits) 섹션의 전문을 복사해 생성하라.
+- **커밋 표준 파일** — 플러그인에 동봉(`msbaek-tdd/references/reviewable-commits.md`). 별도 생성 불필요. 프로젝트별로 바꾸려면 `docs/reviewable-commits.md`를 두면 우선 적용된다.
 
 ## 두 가지 사용 방식
 
@@ -621,81 +621,11 @@ python3 .../tdd-profile.py ~/.claude/projects/-Users-me-git-my-app
 
 ## 커밋 표준 (reviewable-commits)
 
-이 플러그인의 RGB 커밋(`test:`/`feat:`/`refactor:`)은 **하나의 커밋 표준을 단일 출처(SSoT)로 참조**합니다. 스킬·에이전트는 형식을 재기술하지 않고 경로(`docs/reviewable-commits.md` → 없으면 `~/.claude/docs/reviewable-commits.md`)로만 가리키므로, 규칙이 바뀌어도 **표준 파일 1곳만** 고치면 됩니다.
+이 플러그인의 RGB 커밋(`test:`/`feat:`/`refactor:`)은 **하나의 커밋 표준을 단일 출처(SSoT)로 참조**합니다. 정본은 플러그인에 동봉된 [`msbaek-tdd/references/reviewable-commits.md`](msbaek-tdd/references/reviewable-commits.md)입니다. 스킬·에이전트는 형식을 재기술하지 않고 경로로만 가리키므로, 규칙이 바뀌어도 **표준 파일 1곳만** 고치면 됩니다.
 
-단, **본문 길이는 플러그인 `msbaek-tdd/references/commit-style.md`의 간결성 규칙이 우선**합니다 — 제목 1줄 + 핵심 bullet 2~4줄(각 1줄). 표준의 Why·버린 대안 채널을 장문 서술로 풀지 않습니다.
-
-**배포받은 분(distributee) 설치 방법**: 아직 자신의 커밋 표준이 없다면, 아래 전문을 `~/.claude/docs/reviewable-commits.md`(전역) 또는 프로젝트 `docs/reviewable-commits.md`(프로젝트별)에 저장하세요. 이미 자신의 표준이 있으면 같은 경로에 두기만 하면 이 플러그인이 그것을 사용합니다.
-
-> 아래는 작성자(@msbaek)의 개인 `~/.claude/docs/reviewable-commits.md` **사본(snapshot)**입니다. 원본이 갱신되면 이 사본도 함께 갱신됩니다.
-
-<details>
-<summary><b>reviewable-commits.md 전문 펼치기</b></summary>
-
-````markdown
-# Reviewable Commits & PRs — 의도 전달 표준 (SSoT)
-
-> `/commit`(forward·작은 단위), `reconstruct-commits`(backward·히스토리 교정),
-> `/compose-pr`(PR 텍스트 종합) **세 도구가 공유하는 단일 body 표준**이다.
-
-## 핵심 원칙 — Why를 커밋에 기록한다
-
-**메시지·PR은 What이 아니라 Why를 전달한다.**
-
-- **What**(무엇을 바꿨나)은 diff가 이미 보여준다 → 메시지에서 반복하지 마라.
-- 남길 것 셋:
-  - **Why** — 이 변경이 왜 필요한가, 무엇을 해결하나.
-  - **버린 대안** — 고려했으나 배제한 접근과 그 이유 (있을 때).
-  - **결정 순서(추론)** — 어떤 이론·근거로 이 경로를 택했나.
-
-### 같은 diff, 다른 Why — 의도 구분 예시
-
-`null` 체크 한 줄은 두 경우에 What이 똑같이 보이지만 Why가 정반대다. 메시지에
-의도를 안 남기면 리뷰어가 옳은지 판단할 수 없다.
-
-```java
-// "없음 = 예외" — 없으면 안 되는 상황
-if (user == null) throw new UserNotFoundException(orderId);
-// → FK로 보장되는 값이라 null은 데이터 무결성 위반 신호
-```
-```java
-// "없음 = 값" — 없는 게 정상
-if (avatar == null) avatar = Avatar.DEFAULT;
-// → 아바타 부재는 정상 상태, null을 기본값으로 대체
-```
-
-## Acceptance Criterion (이 표준의 합격선)
-
-> PR 텍스트 + "Files changed"만 가진 리뷰어가, 각 변경에 대해
-> ⓐ 왜 했는지 ⓑ 무엇을 배제했는지 ⓒ 어떤 추론 순서로 도달했는지를 말할 수 있다.
-
-## 커밋 메시지 형식
-
-```
-type(scope): subject (50자 이내, 한국어, 의도 표현 — 왜 우선)
-
-<Why — 이 변경이 왜 필요한가 / 무엇을 해결하나. 72자 줄바꿈>
-<버린 대안 — 배제한 접근과 그 이유 (있을 때만)>
-
-[Decision-Log: 한 줄 요약]   # 선택 — 결정 로그 trailer
-```
-
-- type: `feat`/`fix`/`docs`/`style`/`refactor`/`test`/`chore`.
-- body는 항목 수에 집착하지 말고 **Why가 복원되는 데 필요한 만큼**. 사소한 변경은 한 줄도 OK.
-- **작은 단위 원칙**: 한 커밋 = 하나의 결정 + 그 검증.
-- 한글 메시지는 **임시 파일 + `git commit -F`** (heredoc·`-m "한글"` 금지 — 깨짐).
-
-## 4-Channel 모델 — 무엇을 어디에 남기나
-
-| 채널 | 담는 것 | 안 담는 것 |
-|------|---------|-----------|
-| **테스트 코드** | 인수조건·엣지 케이스, "이 동작이 왜 중요한가" | 구현 상세 |
-| **커밋 메시지** | 이 커밋 **한 개 결정**의 Why + 버린 대안 | 여러 결정 뭉치, What 나열 |
-| **PR 메시지** | 커밋 내러티브 **종합** + 결정 로그 + 리뷰 가이드 | 커밋별 What 재나열 |
-| **코드 주석** | 코드로 표현 못 하는 근거(왜 이 값·이 순서) | What 재진술 |
-````
-
-</details>
+- **해석 순서**: 프로젝트 `docs/reviewable-commits.md`가 있으면 그것을 우선(프로젝트별 오버라이드), 없으면 플러그인 동봉 파일. 별도 설치 작업은 없습니다.
+- **본문 길이**는 `msbaek-tdd/references/commit-style.md`의 간결성 규칙이 우선합니다 — 제목 1줄 + 핵심 bullet 2~4줄(각 1줄). 표준의 Why·버린 대안 채널을 장문 서술로 풀지 않습니다.
+- 자신의 표준이 이미 있으면 프로젝트 `docs/reviewable-commits.md`에 두면 이 플러그인이 그것을 사용합니다.
 
 ## 라이선스
 

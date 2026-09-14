@@ -67,7 +67,7 @@ high 기어**이기 때문이다. 따라서 tdd-rgb의 high 기어 안전장치�
 
 #### 4. Reviewable 커밋 (mental model을 커밋에 기록한다)
 
-- 모든 커밋은 **`docs/reviewable-commits.md`(없으면 `~/.claude/docs/reviewable-commits.md`) 표준**을 단일 출처로 따른다.
+- 모든 커밋은 **`docs/reviewable-commits.md`(없으면 `${CLAUDE_PLUGIN_ROOT}/references/reviewable-commits.md`) 표준**을 단일 출처로 따른다.
 - 이 스킬·에이전트는 subject·body 형식을 재기술하지 않고 경로로 참조만 한다(배포 시 표준 전문은 README의 "커밋 표준" 섹션 참조).
 - 단, 길이는 플러그인 `../../references/commit-style.md`의 간결성 규칙(제목 + 핵심 bullet 2~4줄)이 우선한다.
 - 이 스킬 고유사항만 여기 명시: 커밋이 phase마다 하나이므로 subject의 type 접두사는
