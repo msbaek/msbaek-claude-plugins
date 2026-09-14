@@ -11,7 +11,7 @@ argument-hint: "[commit-ref]"
 ## GOAL
 
 - **성공 = 사용자가 확인한 리팩토링이 기법별 커밋으로 완료됨**
-- Extract Method / Extract Delegate / Domain Logic 이동 / SoC(Split Phase, Split by Abstraction Layer, Split by Unrelated Complexity) 후보가 식별됨
+- Extract Method / Extract Delegate / Domain Logic 이동 / SoC(Split Phase, Split by Abstraction Layer, Split by Unrelated Complexity) / 상속 계층(Pull Up Method, Push Down → Delegate) / 유사 기능 통합(Programming by Difference) 후보가 식별됨
 - 사용자와 질의응답으로 방향이 확정됨
 - 모든 테스트 통과
 
@@ -41,9 +41,11 @@ argument-hint: "[commit-ref]"
 - 여러 곳에서 반복되는 코드 패턴
 - 서로 다른 추상화 수준이 섞인 메서드
 
-**Extract Delegate 후보**:
-- 한 클래스가 과다한 책임을 가진 경우
-- 관련 필드와 메서드가 그룹을 이루는 경우
+**Extract Delegate 후보** (Fat Class 분리 3기준):
+- **ISP 기준**: 클라이언트마다 사용하는 메서드 집합이 다르면 클라이언트별 인터페이스 단위로 분리한다
+- **관련 필드·메서드 기준**: 함께 읽고 쓰는 필드와 메서드가 그룹을 이루면 그 그룹을 클래스로 추출한다
+- **관련 협력자(collaborator) 기준**: 테스트 setUp에서 함께 mock되는 협력자 그룹이 있으면
+  그 그룹을 사용하는 메서드들이 하나의 클래스 경계 후보다 (Split by Unrelated Complexity와 같은 신호)
 
 **Domain Logic 이동 후보**:
 - Feature Envy — Service에서 도메인 객체의 데이터를 직접 조작
@@ -53,10 +55,22 @@ argument-hint: "[commit-ref]"
   - 해결: 중간 객체를 숨기고 위임 메서드 제공, 또는 로직 자체를 obj로 이동
   - Tell Don't Ask와의 관계: 둘 다 Feature Envy의 증상. 해결 방향 동일 — 로직을 데이터가 있는 곳으로 이동
 - Domain Service, Value Object, First Class Collection 추출 가능
+- **Train Wreck 제거** — `a.getB().getC().doSomething()` 연쇄 호출(Law of Demeter 위반)을
+  2단계로 해소한다: ① 연쇄 호출을 포함한 로직을 Extract Method → ② 추출한 메서드를
+  연쇄의 시작 객체(`a` 또는 `B`)로 Move Method. Hide Delegate가 위임 메서드를 추가하는 것과
+  달리 로직 자체를 옮긴다
+- **Remove Middle Man** (Hide Delegate의 역) — 단순 위임만 하는 메서드가 많아져 클라이언트가
+  위임 객체를 직접 다루는 편이 자연스러우면 위임 메서드를 제거하고 위임 객체를 노출한다.
+  Hide Delegate와 Remove Middle Man은 같은 축의 양 끝이며, 위임 메서드 수를 기준으로 판단한다
 
 **Split by Abstraction Layer 후보**:
 - High-level 비즈니스 로직과 Low-level 인프라 코드(DB, I/O)가 한 메서드에 혼재
 - App 계층과 Domain 계층이 분리되지 않은 경우
+- **낮은 수준 기능이 높은 수준 클래스에 섞였을 때의 절차** (Push Down → Delegate → 상속 제거):
+  ① 낮은 수준 기능을 담을 새 클래스를 **임시로 원본 클래스의 하위 클래스**로 만든다
+  ② 옮길 필드·메서드를 Push Members Down으로 하위 클래스에 내린다
+  ③ 테스트가 통과하도록 원본 클래스가 하위 클래스 인스턴스에 위임(delegate)하게 바꾼다
+  ④ 상속 관계를 제거해 합성(composition)으로 확정한다. 각 단계마다 테스트를 실행한다
 
 **Split by Unrelated Complexity 후보**:
 - 서로 관계없는 복잡성(예: 사용자 처리 로직과 상품 처리 로직)이 한 메서드/클래스에 혼재
@@ -67,6 +81,23 @@ argument-hint: "[commit-ref]"
 - 순수 로직과 부수효과(I/O)가 분리되지 않은 경우 (impure → pure → impure 구조)
   - 패턴: I/O(impure) → 비즈니스 로직(pure) → I/O(impure)
 - 중간 데이터 구조(Intermediate Data Structure)로 단계를 연결
+
+**Pull Up Method 후보** (서브클래스 간 중복):
+- 여러 서브클래스가 같은 메서드를 동일하게 override한 경우. 절차(IDE 자동 리팩터링 활용):
+  ① superclass의 abstract 메서드에서 `abstract`를 제거한다
+  ② 각 서브클래스의 override 메서드를 같은 이름으로 rename하고 Pull Members Up한다.
+     IDE가 다른 서브클래스의 중복도 바꾸겠느냐고 물으면 "Skip"을 선택한다 (서브클래스 간
+     중복은 자동으로 제거되지 않으므로 모든 서브클래스에 대해 rename → pull up을 반복한다)
+  ③ pull up된 메서드 하나를 골라 본문을 Extract Method하며 IDE의 "All"(전체 치환)을 선택해
+     나머지 중복도 한 번에 치환한다
+  ④ superclass 구현을 추출한 메서드 호출로 바꾼다
+  ⑤ 사용되지 않는 서브클래스 메서드를 제거한다
+
+**유사 기능 통합 후보** (Programming by Difference):
+- 새 기능이 기존 기능과 대부분 같고 일부만 다를 때. 순서: ① 복사·붙여넣기로 동작시킨다 →
+  ② 차이점만 남기고 공통 부분을 추출한다(Programming by Difference) → ③ Template Method
+  패턴으로 수렴한다(상속 또는 위임). vault에는 ①~③ 목록만 있고 세부 절차는 없으므로
+  후보 제시 시 차이점 목록을 사용자에게 먼저 확인한다
 
 #### 후보 제시 예시 (공통 절차 3단계)
 
@@ -123,6 +154,24 @@ if (city.equals("Seoul")) { applyLocalDiscount(); }
 **적용할까요?** (yes / no / 수정 요청)
 ```
 
+```
+## 리팩토링 후보 N: Pull Up Method (서브클래스 중복 제거)
+
+**파일**: CardPayment.java, BankTransferPayment.java, PointPayment.java
+**대상**: validate() — 3개 서브클래스가 동일 구현으로 override
+
+**현재 코드**:
+[각 서브클래스의 validate() 본문 — 동일]
+
+**제안 변경**:
+1. Payment.validate()의 abstract 제거
+2. 각 서브클래스 validate()를 rename → Pull Members Up (Skip 선택), 3회 반복
+3. pull up된 메서드 본문을 Extract Method(All) → 나머지 중복 치환
+4. 사용되지 않는 서브클래스 메서드 제거
+
+**적용할까요?** (yes / no / 수정 요청)
+```
+
 - 사용자가 **yes** → 실행 목록에 추가
 - 사용자가 **no** → 스킵
 - 사용자가 **수정 요청** → 요청 반영 후 재제시
@@ -142,6 +191,10 @@ if (city.equals("Seoul")) { applyLocalDiscount(); }
 - `refactor: split phase [설명] in [클래스명]`
 - `refactor: split by abstraction layer [설명] in [클래스명]`
 - `refactor: split unrelated complexity [설명] from [클래스명]`
+- `refactor: pull up [메서드명] to [상위클래스명]`
+- `refactor: push down [설명] to [하위클래스명] and delegate`
+- `refactor: remove middle man [메서드명] in [클래스명]`
+- `refactor: extract common part of [기능A]/[기능B] into [템플릿 메서드명]`
 
 #### 결과 보고
 
@@ -172,3 +225,6 @@ if (city.equals("Seoul")) { applyLocalDiscount(); }
 
 - Local Tidying 기법 수행 (Guard Clauses, Reorder 등은 tdd-tidy 전담)
 - Split Phase 적용 시 중간 데이터 구조 없이 단계만 분리 (단계 간 결합 유발)
+- Push Down → Delegate 절차에서 상속을 제거하지 않고 종료 (임시 상속이 영구화됨)
+- Pull Up 시 IDE 중복 치환에 "Replace"를 선택해 서브클래스 본문이 superclass 호출로 바뀐 채 중복 확인을 건너뜀
+- 시그니처·파라미터 순서 변경을 한 커밋에 Expand와 Contract를 함께 넣어 수행 (절차는 `../../references/parallel-change.md`)
