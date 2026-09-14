@@ -1,6 +1,6 @@
 ---
 name: replace-loop-with-pipeline
-description: 명령형 루프를 Stream API/Collection Pipeline으로 변환하여 데이터 흐름 의도 명확화. /replace-loop-with-pipeline로 호출.
+description: 명령형 for/while 루프를 Stream API/Collection Pipeline으로 변환하여 데이터 흐름 의도 명확화. "스트림으로 바꿔", "루프를 파이프라인으로", "for문 stream", "/replace-loop-with-pipeline" 요청 시 사용. 단, 루프 안 로직이 컬렉션 클래스로 모여야 하면 /first-class-collection이 적합. /replace-loop-with-pipeline [commit-ref]로 호출.
 argument-hint: "[commit-ref]"
 ---
 

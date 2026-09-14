@@ -1,6 +1,6 @@
 ---
 name: extract-method-object
-description: 지역 변수가 상호 의존하는 거대 메서드를 별도 클래스(Method Object)로 추출. /extract-method-object로 호출.
+description: 지역 변수가 서로 얽혀 Extract Method가 불가능한 거대 메서드를 별도 클래스(Method Object)로 추출. "긴 메서드를 클래스로", "지역 변수 때문에 추출 불가", "method object", "/extract-method-object" 요청 시 사용. 단, 지역 변수 얽힘 없이 잘라낼 수 있는 긴 메서드는 /intent-revealing-names(grouping→extract)가 적합. /extract-method-object [commit-ref]로 호출.
 argument-hint: "[commit-ref]"
 ---
 

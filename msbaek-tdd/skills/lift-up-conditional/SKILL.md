@@ -1,6 +1,6 @@
 ---
 name: lift-up-conditional
-description: 여러 곳에 중복된 조건문을 상위로 끌어올려 중복 제거. /lift-up-conditional로 호출.
+description: 여러 메서드·분기에 중복된 동일 조건문을 상위(호출자 또는 메서드 시작)로 끌어올려 중복 제거. "조건 위로 올려", "같은 if가 여러 메서드에", "lift up", "/lift-up-conditional" 요청 시 사용. 단, 한 메서드 안에서 동일 결과를 내는 조건문 통합은 /consolidate-conditional이 적합. /lift-up-conditional [commit-ref]로 호출.
 argument-hint: "[commit-ref]"
 ---
 

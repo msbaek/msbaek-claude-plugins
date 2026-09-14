@@ -1,6 +1,6 @@
 ---
 name: discover-value-object
-description: Primitive Obsession 제거 — primitive 타입을 도메인 개념을 담은 Value Object로 치환. /discover-value-object로 호출.
+description: Primitive Obsession 제거 — 검증·연산이 따라다니는 primitive 필드(금액+통화, 이메일 문자열 등)를 도메인 개념을 담은 Value Object로 치환. "값 객체 도입", "primitive obsession", "Money 클래스로", "/discover-value-object" 요청 시 사용. 단, 함께 전달되는 파라미터 묶음을 객체로 바꾸는 것은 /introduce-parameter-object, 컬렉션을 감싸는 것은 /first-class-collection이 적합. /discover-value-object [commit-ref]로 호출.
 argument-hint: "[commit-ref]"
 ---
 

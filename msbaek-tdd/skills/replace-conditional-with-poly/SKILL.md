@@ -1,6 +1,6 @@
 ---
 name: replace-conditional-with-poly
-description: 반복되는 switch/if-else 조건문을 다형성으로 치환. /replace-conditional-with-poly로 호출.
+description: 타입·상태별로 반복되는 switch/if-else 분기를 다형성(인터페이스 + 구현 클래스)으로 치환. "switch를 다형성으로", "타입 분기를 클래스로", "strategy 패턴", "/replace-conditional-with-poly" 요청 시 사용. 단, null 분기만이면 /introduce-special-case, 조건식 가독성만이면 /decompose-conditional이 적합. /replace-conditional-with-poly [commit-ref]로 호출.
 argument-hint: "[commit-ref]"
 ---
 

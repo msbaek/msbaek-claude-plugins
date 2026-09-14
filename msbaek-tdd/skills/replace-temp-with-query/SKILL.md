@@ -1,6 +1,6 @@
 ---
 name: replace-temp-with-query
-description: 임시 변수를 메서드 호출로 치환하여 중복 제거 및 가독성 향상. /replace-temp-with-query로 호출.
+description: 임시 변수를 메서드 호출(query)로 치환하여 중복 제거·추출 용이성 확보. "임시 변수 메서드로", "temp 제거", "지역 변수를 쿼리로", "/replace-temp-with-query" 요청 시 사용. 단, 임시 변수가 서로 얽혀 치환 불가면 /extract-method-object가 적합. /replace-temp-with-query [commit-ref]로 호출.
 argument-hint: "[commit-ref]"
 ---
 

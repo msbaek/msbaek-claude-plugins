@@ -1,6 +1,6 @@
 ---
 name: tdd-rgb
-description: TDD RGB 사이클 진행 - Red/Green/Blue agent 순차 위임. /tdd-rgb로 호출.
+description: TDD RGB(Red→Green→Blue) 사이클 진행 — 테스트 목록의 한 항목씩 tdd-red·tdd-green·tdd-blue 에이전트에 순차 위임하고 기어(low/mid/high)로 검토 밀도를 조절. "RGB 사이클 돌려", "다음 테스트 진행", "TDD 사이클 계속", "red-green-blue", "/tdd-rgb" 요청 시 사용. 단, feature 하나를 plan 합의 후 끝까지 자율 구현하는 것은 /tdd-feature, 계획 문서만 작성하는 것은 /tdd-plan이 적합. /tdd-rgb [plan-doc-path] [--gear=low|mid|high]로 호출.
 argument-hint: "[plan-doc-path] [--gear=low|mid|high]"
 ---
 
