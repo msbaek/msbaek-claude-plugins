@@ -16,7 +16,9 @@
    없으면(Gradle 등) 이 둘은 생략하고 한 줄만 남긴다:
    `CRAP·mutation 제안 생략 — Maven 전용 (이 프로젝트: Gradle). DRY 제안은 계속 진행`
    (dry4java는 Maven·Gradle 무관하게 임의 Java 소스에 동작하므로 생략하지 않는다)
-3. **변경 파일이 있는가** — 시작 커밋부터 HEAD까지의 diff에 `src/main/java` 변경이
+3. **도구가 설치돼 있는가** — `../../../references/hardening-tools.md` §3으로 도구별 존재를
+   판정한다. 미설치 도구의 제안 줄은 생략하고 블록 끝에 미설치 목록 한 줄을 남긴다.
+4. **변경 파일이 있는가** — 시작 커밋부터 HEAD까지의 diff에 `src/main/java` 변경이
    없으면(테스트만 변경 등) 제안을 생략한다. 시작 커밋은 호출한 스킬의 기준을 따른다 —
    `tdd-feature`: Phase B 시작 커밋 해시, `tdd-rgb`: 진행 기록의 적대적 리뷰 diff
    기준점(없으면 이 작업 첫 커밋의 부모).
@@ -32,14 +34,14 @@
 순서대로 진행한다 — ②의 구조 변경이 ③의 뮤턴트 지점을 바꾸므로 ③은 마지막이다.
 
 **① 정리할 곳 찾기** (변경 파일 한정, 수 초~수십 초)
-- CRAP 점검: "crap4java-analyzer 에이전트로 {changed-files} CRAP 점검해줘"
-- DRY 점검: "dry4java-analyzer 에이전트로 {changed-files} 중복 스캔해줘"
+- CRAP 점검: {crap4java 제안 문구 — hardening-tools.md §4}
+- DRY 점검: {dry4java 제안 문구 — hardening-tools.md §4}
 
 **② 구조 정리** (①의 결과가 대상 목록이 된다)
 - "/system-wide-refactoring" — ①이 지목한 메서드·중복 쌍을 기법별 커밋으로 정리
 
 **③ 테스트 강화** (②를 마친 뒤. 파일당 수 분 — 전체 스위트를 뮤턴트마다 재실행)
-- mutation 하드닝: "mutate4java-runner 에이전트로 {가장 복잡했던 파일 1개} 뮤테이션 테스트 돌려줘"
+- mutation 하드닝: {mutate4java 제안 문구 — hardening-tools.md §4, 대상은 가장 복잡했던 파일 1개}
 
 ②를 생략하면 ③을 지금 실행해도 된다.
 ```
@@ -56,13 +58,14 @@
 - 제안 문구는 사용자가 그대로 복사해 요청할 수 있는 자연어 명령이어야 한다.
 - Gradle이면(§1-2) ①의 CRAP 줄과 ③ 전체를 제외하고 DRY 점검 + ② 구조 정리만 남긴다.
 
-## 3. 위임 대상 (전역 에이전트 — 플러그인 로컬 신설 금지)
+## 3. 도구 (플러그인 로컬 신설 금지)
 
-| 에이전트 | 역할 | 비용 |
+| 도구 | 역할 | 비용 |
 |---|---|---|
-| `crap4java-analyzer` | 복잡도×커버리지 CRAP 점수, 임계 8.0 초과 메서드 랭킹 | 낮음 |
-| `dry4java-analyzer` | 구조적 중복 쌍 탐지 + 제거 우선순위 | 낮음 |
-| `mutate4java-runner` | 생존 뮤턴트 탐지 + 뮤턴트 죽이는 테스트 작성 | 높음 |
+| crap4java | 복잡도×커버리지 CRAP 점수, 임계 8.0 초과 메서드 랭킹 | 낮음 |
+| dry4java | 구조적 중복 쌍 탐지 + 제거 우선순위 | 낮음 |
+| mutate4java | 생존 뮤턴트 탐지 + 뮤턴트 죽이는 테스트 작성 | 높음 |
 
-세 에이전트 모두 `~/.claude/agents/`의 전역 자산이다. 부재 환경(다른 사용자의
-설치)에서는 제안 블록에 "전역 에이전트 미설치 시 이 제안은 무시" 한 줄을 추가한다.
+출처·설치·존재 판정·제안 문구 형식은 `../../../references/hardening-tools.md`가 정본이다.
+전용 에이전트(`*-analyzer`·`*-runner`)가 있으면 에이전트 위임 문구, jar만 있으면 직접
+실행 명령 문구를 쓴다.

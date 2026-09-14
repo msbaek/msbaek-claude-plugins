@@ -80,7 +80,8 @@ argument-hint: "<대상 클래스 FQCN 또는 파일 경로>"
 ### 3단계: Mutation 검증 — 안전망 실효성 확인
 
 1. **도구 선택**:
-   - 환경에 `mutate4java` agent가 있으면 그것으로 dispatch (1순위)
+   - `mutate4java`가 있으면 그것을 사용 (1순위) — 에이전트 `mutate4java-runner` 또는 jar 직접
+     실행. 설치·판정은 `../../references/hardening-tools.md`
    - 없으면 PIT를 직접 설정:
      - Gradle: `plugins { id "info.solidsoft.pitest" version "1.15.0" }` +
        `pitest { targetClasses = ["<대상 FQCN>"] }` → `./gradlew pitest`
