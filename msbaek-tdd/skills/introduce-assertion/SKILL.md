@@ -18,7 +18,6 @@ argument-hint: "[commit-ref]"
 - **계열**: Tidy — 후보 보고 후 **승인 없이 적용** (`../../references/refactoring-procedure.md` §0·§3-A)
 - **동작 변경 금지**: assertion 추가만 수행 (기존 로직 변경 없음)
 - **테스트 수정 금지**: assertion 추가가 테스트를 실패시키면 되돌리기
-- **사용자 확인 필수**: 자동 적용 금지
 - **명시적 git add**: `git add -A` 금지, 변경된 파일만 명시
 
 ### Assertion 도구 선택 (프로젝트 의존성 자동 감지)
@@ -97,7 +96,7 @@ public int allocateSlots(int requested, int available) {
 
 ### 실행 절차
 
-공통 골격(대상 파일 수집 → 후보 제시·승인 → 적용 → 테스트 → 커밋/되돌리기, 브랜치·PR이
+공통 골격(대상 파일 수집 → 후보 제시(계열별 승인 규칙) → 적용 → 테스트 → 커밋/되돌리기, 브랜치·PR이
 필요한 조건)은 이 스킬 디렉터리 기준 `../../references/refactoring-procedure.md`가 정본이다.
 아래는 이 기법에 고유한 부분만 규정한다.
 
@@ -170,7 +169,7 @@ org.springframework.util.Assert를 사용합니다.
 
 ## FAILURE CONDITIONS
 
-공통 실패 조건(승인 없이 적용, 테스트 실패 방치, 테스트 수정, 커밋 단위, `git add -A`, heredoc
+공통 실패 조건(계열별 승인 규칙 위반, 테스트 실패 방치, 테스트 수정, 커밋 단위, `git add -A`, heredoc
 한글 메시지)은 `../../references/refactoring-procedure.md`에 있다. 아래는 이 기법에 고유한 것만.
 
 - [ ] 테스트가 실패함 (assertion 추가 후)

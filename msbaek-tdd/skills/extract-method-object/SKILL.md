@@ -13,7 +13,7 @@ argument-hint: "[commit-ref]"
 - **성공 = 지역 변수가 상호 의존하는 긴 메서드가 Method Object로 추출되어 커밋 완료됨**
 - 50줄 이상의 복잡한 메서드가 식별됨
 - 지역 변수가 메서드 전역에 걸쳐 상호 의존해 Extract Method 불가
-- 사용자 확인 후 Method Object 패턴 적용
+- 후보 보고 후 Method Object 패턴 적용 (Tidy 계열 — 승인 없이)
 - 모든 테스트 통과
 
 ## CONSTRAINTS
@@ -22,7 +22,6 @@ argument-hint: "[commit-ref]"
 ### Hard Rules
 - **동작 변경 금지** — 구조 개선만 수행
 - **테스트 수정 금지** — 구조 변경이 테스트를 실패시키면 되돌리기
-- **사용자 확인 없이 리팩토링 금지** — 모든 후보는 사용자 승인 후 실행
 - **커밋 단위** — 1파일 x 1기법 = 1커밋 (논리적으로 연결된 파일은 함께)
 - **git add -A 금지** — 변경된 파일만 명시적으로 추가
 
@@ -188,7 +187,7 @@ Method Object 내부의 데이터는 세 종류로 나뉘고, 종류마다 답�
 
 ### 실행 절차
 
-공통 골격(대상 파일 수집 → 후보 제시·승인 → 적용 → 테스트 → 커밋/되돌리기, 브랜치·PR이
+공통 골격(대상 파일 수집 → 후보 제시(계열별 승인 규칙) → 적용 → 테스트 → 커밋/되돌리기, 브랜치·PR이
 필요한 조건)은 이 스킬 디렉터리 기준 `../../references/refactoring-procedure.md`가 정본이다.
 아래는 이 기법에 고유한 부분만 규정한다.
 
@@ -253,7 +252,7 @@ refactor: extract method object [클래스명] from [원본클래스명].[메서
 
 ## FAILURE CONDITIONS
 
-공통 실패 조건(승인 없이 적용, 테스트 실패 방치, 테스트 수정, 커밋 단위, `git add -A`, heredoc
+공통 실패 조건(계열별 승인 규칙 위반, 테스트 실패 방치, 테스트 수정, 커밋 단위, `git add -A`, heredoc
 한글 메시지)은 `../../references/refactoring-procedure.md`에 있다. 아래는 이 기법에 고유한 것만.
 
 - 지역 변수가 적은 (3개 이하) 단순 메서드에 적용 (Extract Method로 충분)

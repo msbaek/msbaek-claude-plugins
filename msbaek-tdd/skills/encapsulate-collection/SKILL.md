@@ -182,7 +182,7 @@ class Students {
 
 ### 실행 절차
 
-공통 골격(대상 파일 수집 → 후보 제시·승인 → 적용 → 테스트 → 커밋/되돌리기, 브랜치·PR이
+공통 골격(대상 파일 수집 → 후보 제시(계열별 승인 규칙) → 적용 → 테스트 → 커밋/되돌리기, 브랜치·PR이
 필요한 조건)은 이 스킬 디렉터리 기준 `../../references/refactoring-procedure.md`가 정본이다.
 아래는 이 기법에 고유한 부분만 규정한다.
 
@@ -254,7 +254,7 @@ Unmodifiable vs 방어적 복사 선택: (unmodifiable / copy)
 
 ## FAILURE CONDITIONS
 
-공통 실패 조건(승인 없이 적용, 테스트 실패 방치, 테스트 수정, 커밋 단위, `git add -A`, heredoc
+공통 실패 조건(계열별 승인 규칙 위반, 테스트 실패 방치, 테스트 수정, 커밋 단위, `git add -A`, heredoc
 한글 메시지)은 `../../references/refactoring-procedure.md`에 있다. 아래는 이 기법에 고유한 것만.
 
 - [ ] DTO/VO 클래스에 불필요하게 적용함

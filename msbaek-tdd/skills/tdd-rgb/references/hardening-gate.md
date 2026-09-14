@@ -25,7 +25,7 @@
 
 ## 2. 제안 블록 형식
 
-완료 보고 마지막에 아래 블록을 추가한다. `{changed-files}`는 위 §1-3 기준 diff의
+완료 보고 마지막에 아래 블록을 추가한다. `{changed-files}`는 위 §1-4 기준 diff의
 `src/main/java/**/*.java` 목록으로 치환한다.
 
 ```markdown
