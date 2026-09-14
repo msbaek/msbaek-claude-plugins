@@ -15,11 +15,11 @@ Arlo Belshee의 **6단계 네이밍 진화**와 **Clean Code 7가지 네이밍 �
 
 ## CONSTRAINTS
 
+- **계열**: Tidy — 후보 보고 후 **승인 없이 적용** (`../../references/refactoring-procedure.md` §0·§3-A)
 - **동작 변경 금지**: 구조 개선만 수행 (기능 변경 없음)
 - **테스트 수정 금지**: 구조 변경이 테스트를 실패시키면 되돌리기
 - **사용자 확인 필수**: 자동 적용 금지
 - **명시적 git add**: `git add -A` 금지, 변경된 파일만 명시
-- **단일 커밋**: 하나의 `refactor:` 커밋으로 완료
 
 ## 6단계 네이밍 프로세스
 
@@ -278,7 +278,7 @@ class MemberPointsCalculator { ... }
    단계: 2 (Honest) - 불용어
    제안: void calculateLoyaltyPoints() (단계 6: Domain Abstraction)
 
-적용하시겠습니까? (yes / no / 수정)
+→ 승인 없이 적용 (Tidy 계열)
 ```
 
 #### 리팩토링 적용 — IDE Rename (공통 절차 4단계)

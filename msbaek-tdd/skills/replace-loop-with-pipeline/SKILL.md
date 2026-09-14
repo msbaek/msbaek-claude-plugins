@@ -15,11 +15,11 @@ argument-hint: "[commit-ref]"
 
 ## CONSTRAINTS
 
+- **계열**: Tidy — 후보 보고 후 **승인 없이 적용** (`../../references/refactoring-procedure.md` §0·§3-A)
 - **동작 변경 금지**: 구조 개선만 수행 (기능 변경 없음)
 - **테스트 수정 금지**: 구조 변경이 테스트를 실패시키면 되돌리기
 - **사용자 확인 필수**: 자동 적용 금지
 - **명시적 git add**: `git add -A` 금지, 변경된 파일만 명시
-- **단일 커밋**: 하나의 `refactor:` 커밋으로 완료
 
 ## 적용 패턴
 
@@ -177,7 +177,7 @@ Map<String, List<Employee>> byDept = employees.stream()
    유형: 검색
    → users.stream().filter(...).findFirst()
 
-적용하시겠습니까? (yes / no / 수정)
+→ 승인 없이 적용 (Tidy 계열)
 ```
 
 #### 리팩토링 적용 (공통 절차 4단계)

@@ -4,6 +4,16 @@
 > 각 스킬은 **"무엇을 찾는가"(2단계)** 와 **"어떻게 바꾸는가"(4단계)** 만 자기 SKILL.md에
 > 규정하고, 나머지 단계는 이 문서를 따른다. 스킬 문서가 이 문서와 어긋나면 이 문서가 정본이다.
 
+## 0. 계열 — 승인 방식이 다르다
+
+| 계열 | 스킬 | 승인 |
+|---|---|---|
+| Tidy (Local Tidying 확장) | decompose-conditional, consolidate-conditional, replace-temp-with-query, extract-method-object, naming-process, intent-revealing-names, lift-up-conditional, introduce-assertion, replace-loop-with-pipeline | **승인 없이 적용** — 후보를 보고하고 즉시 적용, 기법별 커밋으로 남긴다. 사용자는 커밋 diff로 검토하고 필요하면 되돌린다 |
+| System-wide (구조적 리팩토링) | replace-conditional-with-poly, discover-value-object, introduce-parameter-object, first-class-collection, encapsulate-collection, separate-query-modifier, explicit-parameters, introduce-special-case, segregate-functional-core | **승인 후 적용** — 후보를 하나씩 제시하고 yes/no/수정 확인을 받는다 |
+
+Tidy 계열은 동작·구조 경계를 바꾸지 않는 메서드 내부 정돈이라 되돌리기 비용이 낮다.
+System-wide 계열은 클래스 경계·타입·시그니처를 바꿔 호출부에 파급되므로 사전 승인이 필요하다.
+
 ## 1. 대상 파일 수집
 
 인자로 commit ref가 오면 그것과 비교하고, 없으면 현재 변경(unstaged + staged)을 대상으로 한다.
@@ -27,6 +37,25 @@ git diff --name-only <commit-ref> -- '*.java'
 
 ## 3. 후보 제시와 승인
 
+계열(§0)에 따라 두 모드 중 하나를 따른다.
+
+### 3-A. Tidy 계열 — 보고 후 즉시 적용
+
+후보 목록을 아래 형식으로 보고한 뒤 **확인을 기다리지 않고** 4단계로 진행한다.
+
+```
+발견된 후보 N개 (승인 없이 적용 — Tidy 계열):
+
+1. OrderService.java:45-58  [기법명] → 제안 변경 한 줄
+2. ...
+```
+
+- 후보가 0개면 "후보 없음"을 보고하고 종료한다.
+- 사용자가 특정 후보를 제외하고 싶으면 커밋 후 되돌린다(6단계). 사전 필터를 원하면
+  `[commit-ref]` 인자로 대상 범위를 좁힌다.
+
+### 3-B. System-wide 계열 — 승인 후 적용
+
 후보를 하나씩 제시하고 사용자 확인을 받는다.
 
 ```
@@ -49,7 +78,7 @@ git diff --name-only <commit-ref> -- '*.java'
 - **수정 요청** → 요청을 반영해 재제시
 
 모든 후보를 확인한 뒤 최종 실행 목록을 보여주고 진행 여부를 확인한다.
-**승인 없이 적용하지 않는다** — 후보가 하나뿐이거나 자명해 보여도 마찬가지다.
+**승인 없이 적용하지 않는다** — 후보가 하나뿐이거나 자명해 보여도 마찬가지다(System-wide 계열 한정).
 
 ## 4. 리팩토링 적용 — 각 스킬이 규정한다
 
@@ -67,14 +96,15 @@ git diff --name-only <commit-ref> -- '*.java'
 
 - **1파일 × 1기법 = 1커밋** (논리적으로 분리할 수 없는 파일은 함께)
 - 변경된 파일만 명시적으로 추가한다 — **`git add -A` 금지**
-- 커밋 메시지 형식은 각 스킬이 규정한다 (`refactor: ...`)
+- 커밋 메시지는 `refactor:` 접두사. body는 `commit-style.md`(간결성)와
+  `reviewable-commits.md`(Why·버린 대안) 정본을 따른다 — 여기서 재기술하지 않는다
 - 한글 커밋 메시지는 **임시 파일 + `git commit -F <파일>`** 로 만든다. heredoc은 한글이
   실패할 수 있어 쓰지 않는다
 
 ```bash
 # 테스트 통과 시
 git add <변경된파일.java>
-git commit -m "refactor: ..."
+git commit -F <임시파일>   # subject: refactor: ...
 
 # 테스트 실패 시 — 그 리팩토링만 되돌리고 사유를 알린 뒤 다음 후보로 진행
 git checkout -- <변경된파일.java>

@@ -15,11 +15,11 @@ argument-hint: "[commit-ref]"
 
 ## CONSTRAINTS
 
+- **계열**: Tidy — 후보 보고 후 **승인 없이 적용** (`../../references/refactoring-procedure.md` §0·§3-A)
 - **동작 변경 금지**: assertion 추가만 수행 (기존 로직 변경 없음)
 - **테스트 수정 금지**: assertion 추가가 테스트를 실패시키면 되돌리기
 - **사용자 확인 필수**: 자동 적용 금지
 - **명시적 git add**: `git add -A` 금지, 변경된 파일만 명시
-- **단일 커밋**: 하나의 `refactor:` 커밋으로 완료
 
 ### Assertion 도구 선택 (프로젝트 의존성 자동 감지)
 
@@ -142,7 +142,7 @@ org.springframework.util.Assert를 사용합니다.
    → Assert.notNull(order, ...)
    → Assert.notEmpty(order.getItems(), ...)
 
-적용하시겠습니까? (yes / no / 수정)
+→ 승인 없이 적용 (Tidy 계열)
 ```
 
 #### 리팩토링 적용 (공통 절차 4단계)

@@ -15,11 +15,11 @@ argument-hint: "[commit-ref]"
 
 ## CONSTRAINTS
 
+- **계열**: System-wide — 후보 제시 후 **승인 받고 적용** (`../../references/refactoring-procedure.md` §0·§3-B)
 - **동작 변경 금지**: 구조 개선만 수행 (기능 변경 없음)
 - **테스트 수정 금지**: 구조 변경이 테스트를 실패시키면 되돌리기
 - **사용자 확인 필수**: 자동 적용 금지
 - **명시적 git add**: `git add -A` 금지, 변경된 파일만 명시
-- **단일 커밋**: 하나의 `refactor:` 커밋으로 완료
 
 ## 적용 패턴
 

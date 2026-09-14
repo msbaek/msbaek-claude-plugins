@@ -19,11 +19,11 @@ Guard Clauses와 상호 보완:
 
 ## CONSTRAINTS
 
+- **계열**: Tidy — 후보 보고 후 **승인 없이 적용** (`../../references/refactoring-procedure.md` §0·§3-A)
 - **동작 변경 금지**: 구조 개선만 수행 (기능 변경 없음)
 - **테스트 수정 금지**: 구조 변경이 테스트를 실패시키면 되돌리기
 - **사용자 확인 필수**: 자동 적용 금지
 - **명시적 git add**: `git add -A` 금지, 변경된 파일만 명시
-- **단일 커밋**: 하나의 `refactor:` 커밋으로 완료
 - **Extract Method 포함**: 단일 클래스 내 완결 시에만 적용
 
 ## 적용 패턴
@@ -150,7 +150,7 @@ processRequest();
    분기: 간단 (1줄씩)
    → eligibleForSpecialDiscount(customer, order) 메서드만 추출
 
-적용하시겠습니까? (yes / no / 수정)
+→ 승인 없이 적용 (Tidy 계열)
 ```
 
 #### 리팩토링 적용 (공통 절차 4단계)

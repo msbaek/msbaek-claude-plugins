@@ -18,6 +18,7 @@ Primitive Obsession을 제거하여 도메인 개념을 명시적으로 표현�
 
 ## CONSTRAINTS
 
+- **계열**: System-wide — 후보 제시 후 **승인 받고 적용** (`../../references/refactoring-procedure.md` §0·§3-B)
 ### Hard Rules
 - **동작 변경 금지** — 구조 개선만 수행
 - **테스트 수정 금지** — 구조 변경이 테스트를 실패시키면 되돌리기

@@ -28,6 +28,7 @@ argument-hint: "[파일:메서드 | commit-ref]"
 
 ## CONSTRAINTS
 
+- **계열**: Tidy — 후보 보고 후 **승인 없이 적용** (`../../references/refactoring-procedure.md` §0·§3-A)
 ### Hard Rules (공유)
 
 - **동작 변경 금지** — 구조·이름만 개선, 기능 변경 없음

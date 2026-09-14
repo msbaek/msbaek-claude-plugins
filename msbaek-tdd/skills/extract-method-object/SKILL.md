@@ -18,6 +18,7 @@ argument-hint: "[commit-ref]"
 
 ## CONSTRAINTS
 
+- **계열**: Tidy — 후보 보고 후 **승인 없이 적용** (`../../references/refactoring-procedure.md` §0·§3-A)
 ### Hard Rules
 - **동작 변경 금지** — 구조 개선만 수행
 - **테스트 수정 금지** — 구조 변경이 테스트를 실패시키면 되돌리기
@@ -203,7 +204,7 @@ Method Object 내부의 데이터는 세 종류로 나뉘고, 종류마다 답�
 
 #### 후보 제시 예시 (공통 절차 3단계)
 
-후보를 하나씩 제시하고 사용자 확인:
+후보를 보고하고 즉시 적용한다(Tidy 계열 — 정본 §3-A):
 
 ```
 ## 리팩토링 후보 1: Extract Method Object
@@ -226,14 +227,10 @@ Method Object 내부의 데이터는 세 종류로 나뉘고, 종류마다 답�
 4. invoke(orderItems) 메서드로 계산 수행
 5. buildCostMaps(), calculateDifferences() 등으로 분해
 
-**적용할까요?** (yes / no / 수정 요청)
+→ 승인 없이 적용 (Tidy 계열)
 ```
 
-- 사용자가 **yes** → 실행 목록에 추가
-- 사용자가 **no** → 스킵
-- 사용자가 **수정 요청** → 요청 반영 후 재제시
 
-모든 후보 확인 후 최종 실행 목록을 보여주고 진행 여부 확인.
 
 #### Method Object 추출 실행 (공통 절차 4단계)
 
