@@ -452,3 +452,8 @@ private void oldCalculationMethod(Order order) { /* deprecated */ }
 
 > 잘못 추출된 메서드는 이름과 실제 동작이 불일치하거나, 너무 많은 책임을 가진 경우.
 > 이때는 억지로 고치지 말고 One Pile로 합친 후 올바르게 재추출한다.
+
+
+## 참조
+
+- `tidying-chaining.md` — 정리 연쇄 표, New Interface·Old Implementation(참조 전용)
