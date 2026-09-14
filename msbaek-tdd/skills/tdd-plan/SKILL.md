@@ -1,6 +1,6 @@
 ---
 name: tdd-plan
-description: TDD Planning (Spec Anchored) - 얇은 앵커 문서(규칙 + 예제 검산표 + 미확정)를 에이전트 1회 + 사용자 리뷰 1회로 작성. --full로 현행 3단계 풀 플로우. /tdd-plan으로 호출.
+description: TDD Planning (Spec Anchored) - 얇은 앵커 문서(규칙 + 예제 검산표 + 미확정)를 에이전트 1회 + 사용자 리뷰 1회로 작성. --full로 3단계 풀 플로우(도메인 규칙→예시→테스트 목록). /tdd-plan으로 호출.
 argument-hint: "[plan-doc-path] [--full]"
 allowed-tools: Write, Edit, Read, Bash(git add:*), Bash(git commit:*), Bash(git status:*)
 ---

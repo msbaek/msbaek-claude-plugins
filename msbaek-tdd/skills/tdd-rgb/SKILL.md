@@ -189,7 +189,7 @@ UserRepository를 대체하고, UserRepositoryImpl은 실제 DB로 테스트한�
    시나리오 태그를 해제하는 이중 루프), general은 앵커 문서 `## 예제 (검산표)` 표의
    미구현 행(Degenerate→General로 이미 정렬됨)이 원천이다. 구현 중 발견되는 세밀 분기는
    앵커 `## 규칙`에 먼저 추가한 뒤(배움 반영 게이트) 테스트로 옮긴다
-   (`--full`로 작성한 경우 `references/full-plan.md`의 unit test 목록이 그 원천)
+   (`--full`로 작성한 경우 `../tdd-plan/references/full-plan.md`의 unit test 목록이 그 원천)
 2. 첫 미완성 테스트(`- [ ]`) 식별
 3. 현재 테스트 실행 상태 확인
 4. **기어 결정**: `--gear` 파라미터 > 템플릿 문서의 기어 기록 > 기본 low 순으로 결정.
@@ -235,16 +235,9 @@ UserRepository를 대체하고, UserRepositoryImpl은 실제 DB로 테스트한�
 
 ##### Blue 단계
 - **tdd-blue agent**에 위임
-- Tidying Process — Composed Method 지향 리팩토링
-  - 0. Guard Clauses (중첩 제거)
-  - 1. One Pile (조건부 — Composed Method 위배 시)
-  - 2. Reorder (Slide Statements)
-  - 3. Chunk Statements
-  - 4. Explaining Comment ← 필수1
-  - 5. Extract Variable/Method ← 필수2
-  - 6. Domain Logic 이동 (Advanced)
-  - 7. Trimming (Advanced)
-  - 8. 품질 게이트 (이해하기 어려워졌나? → One Pile 복귀)
+- Tidying Process — Composed Method 지향 리팩토링. 단계 목록과 순서는
+  `../../agents/references/tidying-process.md`가 유일한 정본이다(여기서 재나열하지 않는다).
+  Domain Logic 이동(다른 클래스로 옮기는 분리)은 Blue 범위 밖 — `/system-wide-refactoring` 전담.
 - 변경이 있는 경우 **low·mid**는 에이전트 내에서 `refactor:` 접두사로 커밋 수행 /
   **high**는 커밋 보류(`git add`까지만)
 - **검토 지점이면 사용자 피드백 대기** (low: 매 phase 후 / mid·high: 대기 없이 다음 phase)

@@ -12,7 +12,7 @@ git diff로 최근 변경된 Java 파일을 자동 탐지하여, tdd-blue agent�
 
 - **성공 = 변경된 파일의 코드 냄새가 안전하게 제거되고, 모든 테스트가 통과하며, `refactor:` 커밋 완료됨**
 - git diff 기준으로 대상 파일이 정확히 식별됨
-- Local Tidying Process가 적용됨 (Guard Clauses → One Pile → Reorder → Normalize Symmetries → Chunk → Comment → Extract Variable → Split Loop → Trimming)
+- Local Tidying Process가 적용됨 (단계·순서는 `../../agents/references/tidying-process.md` 정본)
 - 모든 기존 테스트가 통과함
 - 하나의 `refactor:` 커밋으로 완료됨 (변경이 있는 경우)
 
@@ -65,7 +65,7 @@ git diff --name-only <commit-ref> -- '*.java'
 - src/main/java/com/example/OrderService.java
 - src/main/java/com/example/PaymentProcessor.java
 
-Local Tidying Process (Guard Clauses → One Pile → Reorder → Normalize Symmetries → Chunk → Comment → Extract Variable → Split Loop → Trimming)를 순서대로 적용하고,
+Local Tidying Process(단계·순서는 `../../agents/references/tidying-process.md` 정본)를 순서대로 적용하고,
 One Pile 적용 시에는 항상 별도 커밋(refactor: one-pile [대상])으로 먼저 분리하고, 나머지 tidying은 별도 refactor: 커밋으로 완료해주세요.
 Extract Method는 같은 클래스 내부(private 메서드 추출)로 한정한다. 다른 클래스로 옮기는 Domain Logic 이동(새 클래스가 생기는 분리 포함)은 수행하지 않는다 (system-wide-refactoring 스킬 전담).
 ```
