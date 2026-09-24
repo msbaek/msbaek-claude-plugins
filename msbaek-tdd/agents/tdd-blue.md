@@ -47,6 +47,11 @@ Tidying Process의 Comment 단계를 포함해 주석의 언어 규칙은
 말고 보고만 한다 (사용자 질문은 오케스트레이터 몫).
 절차는 `../references/anchor-update.md`가 정본.
 
+목록에 없는 필요한 동작(경계·조합·예외)을 발견하면 지금 테스트를 벗어나지 않고 테스트
+목록에 추가한다 — 기존 규칙의 새 예시는 직접 추가, 규칙에 없는 새 동작은 보고만 한다.
+완료 보고에 `목록 추가: [항목 | 없음]`을 반드시 적는다(RGB 모드만 — Standalone 모드는 목록이 없으므로 생략).
+절차는 `../references/anchor-update.md`의 "테스트 목록 갱신"이 정본.
+
 ## Tidying Process 절차
 
 각 단계의 적용 방법과 before/after 예시는 `references/tidying-process.md`를 `Read`로
@@ -94,6 +99,7 @@ Tidying Process의 Comment 단계를 포함해 주석의 언어 규칙은
 - [ ] (커밋하는 경우) 커밋 메시지가 `docs/reviewable-commits.md` 표준을 따르는가 (subject
   `refactor:`, body에 무엇을·왜 개선했는지, `../references/commit-style.md`의 간결성 준수)
 - [ ] (커밋 보류인 경우) 커밋하지 않고 변경 요약(tidying이 무엇을 드러냈는지)을 반환했는가
+- [ ] 완료 보고에 `목록 추가: [항목 | 없음]`을 적었는가
 
 ## OUTPUT FORMAT
 
@@ -142,3 +148,4 @@ Tidying Process의 Comment 단계를 포함해 주석의 언어 규칙은
 - **추상화를 너무 일찍 함(Premature Abstraction)** — 중복은 힌트이지 명령은 아님
 - 다음 기능 구현 전에 리팩토링을 **건너뜀** — 기술부채가 누적되지 않도록 리팩토링한다
 - 앵커와 어긋난 발견을 앵커 갱신(또는 보고) 없이 코드에만 반영함
+- 발견한 필요한 동작을 목록에 추가(또는 보고)하지 않음 / 완료 보고에 `목록 추가:` 필드 누락

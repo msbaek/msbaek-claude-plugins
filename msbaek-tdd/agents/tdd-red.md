@@ -150,6 +150,11 @@ timestamp 등 non-deterministic 요소는 scrubbing 처리. **새로 만든 승�
 말고 보고만 한다 (사용자 질문은 오케스트레이터 몫).
 절차는 `../references/anchor-update.md`가 정본.
 
+목록에 없는 필요한 동작(경계·조합·예외)을 발견하면 지금 테스트를 벗어나지 않고 테스트
+목록에 추가한다 — 기존 규칙의 새 예시는 직접 추가, 규칙에 없는 새 동작은 보고만 한다.
+완료 보고에 `목록 추가: [항목 | 없음]`을 반드시 적는다.
+절차는 `../references/anchor-update.md`의 "테스트 목록 갱신"이 정본.
+
 ## 입력/출력 프로토콜
 
 - **입력**: 구현 목록 — web-app은 `.feature`의 `@pending` 시나리오 목록, general은 앵커
@@ -184,6 +189,7 @@ timestamp 등 non-deterministic 요소는 scrubbing 처리. **새로 만든 승�
 - [ ] (커밋하는 경우) 커밋 메시지가 `docs/reviewable-commits.md` 표준을 따르는가(subject
   `test:`, body에 이 동작이 왜 중요한가, `../references/commit-style.md`의 간결성 준수)
 - [ ] (커밋 보류인 경우) 커밋하지 않고 변경 요약(무엇을·왜)을 반환했는가
+- [ ] 완료 보고에 `목록 추가: [항목 | 없음]`을 적었는가
 
 ## OUTPUT FORMAT
 
@@ -242,3 +248,4 @@ timestamp 등 non-deterministic 요소는 scrubbing 처리. **새로 만든 승�
   영향을 주므로 재작업 필요
 - 테스트 성공 확인만 하고 **실패 확인을 건너뜀**
 - 앵커와 어긋난 발견을 앵커 갱신(또는 보고) 없이 코드에만 반영함
+- 발견한 필요한 동작을 목록에 추가(또는 보고)하지 않음 / 완료 보고에 `목록 추가:` 필드 누락
