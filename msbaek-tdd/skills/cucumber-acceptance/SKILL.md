@@ -78,6 +78,51 @@ class CheckoutDriver {
 }
 ```
 
+### 결정 표(decision table) 스타일 — 계산 규칙 전용
+
+FitNesse decision table의 방식을 Cucumber `DataTable`로 적용한다.
+규칙 하나 = Scenario 하나 = 표 하나. 표의 컬럼은 Driver 입력·기대 출력에 1:1 대응한다.
+
+| 적용 | 제외 |
+|---|---|
+| 입력 몇 개 → 계산 결과 하나로 요약되는 규칙 (세액·할인·차감 상한) | 상태 전이·순서가 의미를 갖는 흐름 (Given/When/Then 문장이 더 명확함) |
+| 앵커 문서의 예제 검산표를 그대로 옮길 수 있는 규칙 | 행마다 다른 사전 조건이 필요한 규칙 |
+
+```gherkin
+@pending
+Scenario: B-1. DDP 세액 계산
+  Then 다음 주문의 DDP 세액이 표와 같다
+    | 상품가 | HS코드   | DDP세액 |
+    | 30000 |          | 4600   |
+    | 30000 | 6109.10 | 5100   |
+```
+
+```java
+public class DdpSteps {
+    private final CheckoutDriver driver = new CheckoutDriver();
+
+    // Empty cells arrive as null (Cucumber-JVM 5+)
+    @DataTableType
+    public DdpRow ddpRow(final Map<String, String> row) {
+        return new DdpRow(yen(row.get("상품가")), row.get("HS코드"), yen(row.get("DDP세액")));
+    }
+
+    @Then("^다음 주문의 DDP 세액이 표와 같다$")
+    public void DDP_세액_표(final List<DdpRow> rows) {
+        SoftAssertions.assertSoftly(softly -> rows.forEach(row ->
+            softly.assertThat(driver.ddpAmountFor(row.price(), row.hsCode()))
+                  .as(row.toString())
+                  .isEqualByComparingTo(row.expected())));
+    }
+}
+```
+
+- **정규식 step이 표당 1개로 줄어든다.** 수치는 셀로 전달되므로 Environment Notes의 `{int}` 쉼표 절단이 발생하지 않는다.
+- **`SoftAssertions`로 전 행을 검증한다.** 첫 실패 행에서 중단하지 않고 어긋난 행을 모두 보고한다(FitNesse의 셀 단위 red/green에 해당).
+- **Driver는 행마다 새 상태로 SUT를 호출한다.** 행 사이에 상태가 공유되면 행 순서에 결과가 의존한다.
+- **`@pending` 단위는 Scenario다.** 한 표의 행은 같은 규칙의 핵심 예시이므로 한 사이클에서 함께 green으로 만든다. 행을 사이클별로 나눠야 할 만큼 표가 크면 규칙이 둘 이상 섞인 것이므로 Scenario를 분리한다.
+- **컬럼명은 앵커 문서 검산표의 용어와 일치시킨다.** 문서와 `.feature`의 대조가 컬럼 단위로 가능해진다.
+
 ### 타입 경계 — 도메인 타입 ≠ DTO 타입
 
 도메인 모델은 계산의 정확성이 요구하는 타입을 쓴다(금액이면 `BigDecimal`). **DTO는 그
@@ -221,6 +266,7 @@ Claude가 아래 절차를 대신 수행하고, 사람은 결과(green + 의도�
 testImplementation("io.cucumber:cucumber-java:7.20.1")
 testImplementation("io.cucumber:cucumber-junit-platform-engine:7.20.1")
 testImplementation("org.junit.platform:junit-platform-suite")
+testImplementation("org.assertj:assertj-core")   // assertThat·SoftAssertions (spring-boot-starter-test에 포함)
 ```
 
 ```java
