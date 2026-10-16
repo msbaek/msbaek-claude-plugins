@@ -180,11 +180,17 @@ AI 리뷰어는 raw markdown body로 접힘 내부까지 전부** 읽는다(숨�
 ### Layer 2 — AI + 심층 리뷰 (`<details>`로 접힘, 규모 작으면 통째 생략)
 
 ```markdown
-<details><summary>🔍 심층 리뷰용 — 커밋 내러티브 · 결정 로그 · 리뷰 가이드</summary>
+<details><summary>🔍 심층 리뷰용 — 변경 개요 · 커밋 내러티브 · 결정 로그 · 리뷰 가이드</summary>
 ...
 </details>
 ```
 
+- `## 변경 개요(Change outline)` — 구현 형태를 코드 블록 view로 보여 준다. 해당하는 view만 쓴다:
+  SQL 테이블·endpoint 계약 / 핵심 자료구조·타입 / 변경된 비즈니스 로직 의사 코드(pseudocode) /
+  책임이 바뀐 파일의 얕은 파일 트리 / call tree·제어 흐름·데이터 흐름. 기존 형태의 부분 변경은
+  `diff` 블록, 대부분 새 형태는 전체 형태 블록. view 순서는 이해 순서를 따른다(예: 계약 → 로직).
+  view마다 앞에 한 줄 설명. 형태만 보여 주고 Why·결정은 커밋 내러티브·결정 로그에 둔다.
+  출처: humanlayer/skills `visual-pr`의 Change outline 형식을 인용했다.
 - `## 커밋 내러티브` — 커밋별 1~2줄. "이 단계가 무엇을 푸는가"를 의존성·이론 순서로.
 - `## 결정 로그` — Layer 1 Trade-off 외 나머지 결정 전부: 배제한 대안, 트레이드오프,
   되돌릴 수 없는 선택의 근거.
@@ -244,3 +250,4 @@ PR 본문은 구어·비유 표현을 처음부터 배제한다 (글로벌 CLAUD
 | 2026-08-04 | 커밋 메시지 형식에 "기본값은 짧게"·4-channel 밖 섹션 금지·분량 재고 트리거·짧은/긴 예시 추가 | 형식 자체는 안 바뀌었는데도 실제 커밋(`8e1cf73`, `d06dfbb`)이 3~4문단으로 늘어지고 형식에 없는 "남은 일" 섹션까지 끼어듦 — "사소하면 한 줄도 OK" 예외 조항이 실제로 지켜지지 않아, 예외가 아니라 기본값으로 명문화 |
 | 2026-08-04 | 아키텍처급 결정(session-mechanics.md 기준 대안 2개 이상)은 본문에 풀어쓰지 않고 ADR로 승격 후 `[ADR: ...]` 트레일러로 참조 — 위 항목이 만든 "긴 예시"를 ADR 참조 예시로 교체 | 위 항목의 "정말 복잡한 결정만 예외로 길어져도 된다"는 아키텍처급 근거를 여전히 본문에 인라인하게 둬서 그 경우의 bloat는 안 풀림. 이미 있는 `adr-generator` 에이전트·`docs/adr/` 컨벤션·ADR 제안 기준(session-mechanics.md)을 재사용해 근거의 유일한 출처를 ADR로 옮기고 커밋·PR은 참조만 — 4-channel "같은 내용 복붙 금지" 원칙과 동일 |
 | 2026-08-04 | 커밋 메시지 본문(Why·버린 대안)을 불릿(`- `)으로, Decision-Log·ADR 트레일러는 불릿 없이 분리 | 기존 커밋(reword된 non-HEAD 커밋)을 사람이 손으로 불릿화해보니 가독성이 눈에 띄게 좋아졌는데, 정작 정식 템플릿은 산문 한 줄(`<Why...>`)이었고 `/commit`의 자체 "실행 예시"만 먼저 불릿을 쓰고 있어 템플릿·실사용이 어긋나 있었다. PR Layer 1 "산문 벽 대신 짧은 불릿" 원칙을 커밋 본문에도 맞추되, Decision-Log/ADR은 git trailer 관례(`Key: value`)를 지켜 향후 `git interpret-trailers` 파싱 여지를 남김 |
+| 2026-10-16 | PR Layer 2에 `## 변경 개요(Change outline)` 추가 — SQL·endpoint 계약, 자료구조, 의사 코드, 파일 트리, call tree를 `diff`/전체 형태 코드 블록으로 표시 | humanlayer/skills `visual-pr`로 compose-pr을 교체하는 안을 검토했으나 visual-pr은 승인 없이 commit·push·PR 수정, Why 1문장, Blast Radius·Rollback 부재로 이 표준과 충돌. 구현 형태를 시각적으로 보여 주는 Change outline만 인용해 Layer 2 첫 섹션으로 채택(Layer 1 간결성 유지) |
